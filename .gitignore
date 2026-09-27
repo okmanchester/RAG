@@ -35,6 +35,8 @@ data/benchmark/trial_v1/
 data/benchmark/trial_v2/
 data/benchmark/trial_v3/
 
+data/benchmark/quality_loop_v1
+
 # ===== 未忽略即待决 =====
 # data/benchmark/trial30_final_v1/  —— 冻结发布集，入库
 # data/benchmark/README.md          —— 目录地图，入库

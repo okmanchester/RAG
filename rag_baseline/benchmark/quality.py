@@ -95,7 +95,7 @@ def expanded_blocks(task, corpus):
                     while 0 <= j < len(blocks) and "|" in blocks[j]["text"]:
                         included.add(j)
                         j += step
-            list_item = re.compile(r"^\s*(?:-\s*)?(?:[（(][一二三四五六七八九十\d]+[）)]|[a-z\d]+\s*[）)])")
+            list_item = re.compile(r"^\s*(?:-\s+\S|(?:-\s*)?(?:[（(][一二三四五六七八九十\d]+[）)]|[a-z\d]+\s*[）)]))")
             if list_item.match(b["text"]):
                 for step in (-1, 1):
                     j = p+step

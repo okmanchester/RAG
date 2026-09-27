@@ -52,7 +52,7 @@ manifest 的 `source_batch` 字段硬引用这里的目录名，不要重命名�
 **为什么这层不可删**：它是「原生 ragas 生成 → 人工 + AI 审核」的唯一证据链。
 
 - `pilot_v1/drafts/` 是唯一一份未经任何修正的原始产出，是缺陷样本的来源；
-  与 `trial30_final_v1/gold.jsonl` 配对可做生成质量回归测试。
+  可作为独立缺陷来源；与最终题配对须核对真实来源，不能按相同序号配对。
 - `trial_v2` 与 `trial_v3` 的 `revisions.jsonl` 记录了每处修订的理由，是缺陷分类与
   提示词改进的依据。
 - `trial30_final_v1/manifest.json` 的 `source_batch` 指向 `data\benchmark\trial_v2`，
@@ -99,7 +99,11 @@ python scripts/generate_benchmark.py --output data/benchmark/batch_001 --size 60
 
 `.gitignore` 的划分依据就是上面的三层结构：
 
-- **入库**：`trial30_final_v1/`（发布集）+ 本文件。
+- **入库**：`trial30_final_v1/`（发布集）、`quality_loop_v1/`（小批质量实验）+ 本文件。
 - **忽略**：上游中间产物（可重建）、链路历史批次（本地留存）。
 
 `.gitignore` 中每一段都带注释说明归属与理由，调整策略时按段增删即可。
+
+## 七、最小质量闭环
+
+`quality_loop_v1/` 保存5个历史场景与5个新场景的20次前后对照，不是正式题集。结果见 [实验记录](quality_loop_v1/README.md)，缺陷回填与使用方法见 [复盘](../../docs/benchmark-quality-loop.md)。提示词v5未证明整体改善，默认保持v4；仅保留真实验证的无序列表上下文修复。11个历史案例和1个新发现的列表输入随测试夹具入库，无需本地历史目录即可跑回归。
