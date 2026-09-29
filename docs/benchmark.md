@@ -1,8 +1,39 @@
 # 固定 RAG Benchmark（题集 schema v2）
 
-长期目标为 **300 道审核题：240 dev + 60 holdout**。当前已冻结 **86道公开dev金标准**：旧30题在 `data/benchmark/trial30_final_v1`，新增56题在 `data/benchmark/batch56_final_v1`。两个版本保持独立，与彼此无已知同核心重复；新增56题含28道政策题、28道技术题。审核及冻结来源为用户明确授权的Codex工作，不冒称用户亲自逐题复审；这不代表300题正式配额已经完成。
+当前完整金标准为 **150题 v1**，冻结目录是 `data/benchmark/gold150_final_v1/`。政策、技术各75题；全池重新划分为 **120题dev调优集**（各60题）和 **30题holdout留出集**（各15题）。旧30题与56题发布保留原字节，作为历史发布，不与新150题重复累计。审核及冻结由用户明确授权Codex完成，不声称用户逐题审阅或独立人工复审。
+
+新发布基于 `batch_002_authored10/review_v2/pool150.jsonl`。138题沿用正式通过记录，另外12题保留的历史pending经原候选指纹验证，接纳已有逐题agent通过记录，仅在新发布内补齐正式审批字段。原始150题对象、64题原候选、接纳台账及审核/修订/去重/边界检索资料均归档在新发布的 `review_provenance/`。下文各生成与审核阶段所述“未冻结”“仍86题”等均为当时的历史状态。
+
+Git只保留v1的11个核心文件：完整gold、固定documents/chunks、families、原manifest、split、README，以及dev/holdout各自的queries和run_template。完整 `review/`、`review_provenance/` 和分集gold副本仅本地保存；新检出环境从完整gold的split字段取得120/30题，无需历史目录即可评测。完整144份冻结文件及原始manifest字节保持不变，默认 `load_release` 验证核心，显式 `verify_history=True` 验证全部历史。历史发布仍使用原完整校验规则。
 
 定稿阅读入口是 `trial30_final_v1/review/reading.md`，金标准是 `gold.jsonl`，填写完成的表格在 `review/review.csv`。被测系统只接收 `queries.jsonl`；复制 `run_template.jsonl` 到发布目录外并填写真实输出。模板默认 `error=not_run`，不能当作系统已经运行。现有两道边界题分别为拒答、澄清，本试审集不衡量纠正错误前提能力。
+
+新64题的逐题AI审核保存在 `batch_002_review64/agent_review_v1`：建议通过12题、需修订42题、建议排除10题。
+用户以“帮我修订这些需要修订的42题，已由我人工授权”授权本轮原文修订及自检，结果追加在
+`data/benchmark/batch_002_review64/revision_v2`。42题均为本轮自检approved，最新阅读稿是
+`review_after_import/reading.md`，审核表是 `review/review.csv`，前后差异是 `revisions.jsonl`。
+`approved`表示授权Codex修订自检通过，不声称用户逐题审阅或独立人工复审。
+原始候选和首次审核未改；`full_batch64.jsonl`仅替换这42题，其他22题仍保持原pending对象，10道排除建议仍有效。
+本轮未冻结，现有金标准仍86题。若另外12题复审接纳，连同本轮42题共形成54道候选；还需10道替换题。
+按政策/技术各75题的均衡目标，86旧题+12保留题+42修订题的暂定分布为政策71、技术69，可补政策4、技术6。
+
+随后用户委托“不使用ragas……自行根据文档内容补齐剩下的10题”，已追加
+`data/benchmark/batch_002_authored10`，补政策4题、技术6题。编写直接依据固定原文，
+未导入ragas、未调用外部模型；新10题完成Codex同一agent自检approved，不声称独立人工复审。
+新增阅读入口是 `review_after_import/reading.md`，逐题依据在 `authoring_audit.jsonl`。
+`pool150.jsonl` 和 `pool150_review/reading.md` 提供86+54+10的完整150题查看入口，政策和技术各75题；
+原140题对象及其状态保留，12道审核建议保留题仍保留源pending及agent_review.approved。
+新10题与140题无自动重复链、无共享证据block，另按题面和答案要点自检核心任务不重复；
+原10道建议排除题未纳入合并池。已校验原文区间、哈希、schema、评分点映射和CSV实际导入。
+本次未冻结或划分dev/holdout，冻结金标准仍86题。
+
+新增10题的第二轮审核已追加到 `data/benchmark/batch_002_authored10/review_v2`。
+4题原样保留，2题实质修订（敏感信息的同意依据与成年主体；补网购退货实施条例规则），
+4题做标签、评分或措辞优化；修订后10题approved，无排除。退货题改cross_document，
+防回滚题收窄为专门测评的single_unit/easy，边缘计算题评分去掉重复概括和题面阈值复述。
+最新阅读入口为 `review_v2/review_after_import/reading.md`，逐题结论在 `report.md` / `audit.jsonl`，
+6题逐字段差异在 `revisions.jsonl`；`review_v2/pool150.jsonl`合入修订后的10题，原140题对象与首版文件不变。
+本次为同一agent的第二轮固定原文复审，不声称独立人工复审；未使用ragas、未冻结。
 
 新增56题的定稿阅读入口是 `batch56_final_v1/review/reading.md`，包含55道普通题和1道纠错题。它的 `review_provenance/` 归档了冻结前输入、修订记录、Claude复核意见处理、去重及全库边界核查。4道重复候选未进入金标准。与旧30题合计包含拒答、澄清、纠错各1题，边界样本量只适合诊断。
 
@@ -17,6 +48,31 @@ python -m rag_baseline.benchmark freeze-reviewed --items data/benchmark/batch_00
 输出目录必须尚不存在；该示例仅说明入口，冻结实际版本应使用该版本真实授权、来源和完整审核资料。已发布版本可直接通过 `load_release` 和 `evaluate --release` 加载，复制运行模板到发布目录外后填写真实结果。
 
 ## 环境与范围
+
+### 150题正式发布与划分
+
+`freeze-gold150` 是150题专用入口；历史 `freeze`、`freeze-trial`、`freeze-reviewed` 的约束不变。可用 `scripts/freeze_gold150.py` 从本地最新审核池复现新版本（输出目录必须不存在）：
+
+```powershell
+conda activate rag
+python scripts/freeze_gold150.py --output data/benchmark/gold150_final_v2 --authorization "本次用户明确授权的冻结指令"
+```
+
+划分固定种子为20260929。硬约束是150题完整保留、120/30、领域均衡、共享任何证据block的连通题组不跨集合，唯一困难题和澄清题保留在dev。整数规划最小化各难度、证据跨度、预期行为、问题风格和答案形式标签的20%目标计数偏差；多标签分别计数，难度不适用也参与计数。目标以 `|5×留出计数−全池计数|` 整数化。最优解之间按 `SHA-256("20260929:"+题目ID)` 升序逐题优先放入holdout，前提是仍存在完整最优可行解；输入顺序不影响结果。`split.json` 固定全部题目归属。该150题发布不套用旧300题的文档族全覆盖硬配额，清单如实记录31/32族的证据覆盖及未覆盖族。
+
+留出集为简单19题、中等9题、拒答和纠错各1题；证据跨度为单单元22、同文档6、跨文档1、无证据1。按用户选择，全150题重新划分，原 `pilot` 和旧划分记录保留；30题中20题为旧公开题，10题来自尚未用于调参的新增64题。这是从此次冻结起停止参与调参的留出集，不声称从未见过的盲测集。日常只使用dev，固定配置后才评holdout，不根据其逐题失败迭代参数。
+
+被测系统只接收相应 `dev/queries.jsonl` 或 `holdout/queries.jsonl`，不能接收金标准及审核资料。复制相应 `run_template.jsonl` 到发布目录外填写真实输出；默认 `error=not_run`。两个子目录是同一发布的划分文件，评测的 `--release` 始终指向完整根目录：
+
+```powershell
+python -m rag_baseline.benchmark validate --items data/benchmark/gold150_final_v1/gold.jsonl --corpus data/benchmark/gold150_final_v1
+python -m rag_baseline.benchmark verify-release --release data/benchmark/gold150_final_v1
+python -m rag_baseline.benchmark verify-release --release data/benchmark/gold150_final_v1 --include-history
+python -m rag_baseline.benchmark evaluate --release data/benchmark/gold150_final_v1 --runs tmp/dev_runs.jsonl --output tmp/dev_eval
+python -m rag_baseline.benchmark evaluate --release data/benchmark/gold150_final_v1 --runs tmp/holdout_runs.jsonl --output tmp/holdout_eval --split holdout
+```
+
+全部发布产物仍保留原SHA-256，日常评测校验11个核心文件，`--include-history` 校验完整144份本地档案；仅核心检出执行完整历史校验会明确报告缺失文件。`.gitattributes` 禁用换行转换。不得覆盖或原地修订发布文件。离线冒烟使用受控夹具，只验证评测入口与划分，不代表真实RAG质量结果。完整本地历史需单独备份，避免被 `git clean -fdx` 清除。
 
 使用 `conda rag`，依赖见 `requirements-benchmark.txt`；兼容代码按本地 Ragas **0.4.3** 验证。读取已生成 KG，不重新构图。生成模型为 `deepseek-flash`，密钥读取 `DEEPSEEK_API_KEY`；评委为北京接口的 `qwen3.7-plus-2026-05-26`，读取 `DASHSCOPE_API_KEY`。密钥不得写入题集、日志或版本控制。
 
@@ -78,7 +134,7 @@ python -m rag_baseline.benchmark export-review --items data/benchmark/trial_v3/r
 | `expected_behavior` | `answer`、`abstain`、`correct_premise`、`clarify` |
 | `difficulty` | 普通题 `easy/medium/hard`，边界题 JSON 为 `null`、CSV 留空；必须写 `difficulty_reason` |
 
-硬约束保留总数 300（240 dev / 60 holdout）、政策/技术各 150（各集合 120/30）、三类边界行为各 10（8/2）。**点名文件是上限而非配额：dev 至多 24 题，holdout 至多 6 题，包含边界题。**证据分布、答案形式和难度只作候选覆盖目标和评测切片，不再作为冻结的等式约束。
+历史 `freeze` 入口仍使用原300题硬约束（240 dev / 60 holdout）、政策/技术各150（各集合120/30）、三类边界行为各10（8/2）；它尚未适配新的150题目标，不能直接用于冻结150题。新64题本轮只生成待审核候选，后续冻结须明确划分及配额；已审核的公开dev批次可沿用 `freeze-reviewed`。历史点名文件上限为dev至多24题、holdout至多6题，包含边界题。证据分布、答案形式和难度只作候选覆盖目标和评测切片，不再作为冻结的等式约束。
 
 首次试审后再扩展候选。不同批次名会改变确定性抽样，避免每批重复抽相同节点。通过 `--target-span`、`--target-form` 和 `--target-category/difficulty/style/behavior` 指定候选目标；旧 `--target-type` 只保留为抽样兼容选项。最终标签由实际题目及证据确定，不能按序号分配。默认自然风格，不凑文件点名上限。
 

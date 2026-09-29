@@ -28,6 +28,14 @@ V2_EDITABLE = tuple(k for k in EDITABLE if k != "question_type") + (
     "answer_form", "evidence_span", "difficulty_reason", "scope_note", "multi_source_reason", "point_evidence")
 V2_JSON_FIELDS = JSON_FIELDS | {"answer_form", "point_evidence"}
 
+# The full immutable manifest also records local-only audits and derived split golds.
+# Git checkouts retain this operational core; full-history verification remains explicit.
+GOLD150_CORE_FILES = (
+    'README.md', 'gold.jsonl', 'documents.jsonl', 'chunks.jsonl', 'families.json',
+    'manifest.json', 'split.json', 'dev/queries.jsonl', 'dev/run_template.jsonl',
+    'holdout/queries.jsonl', 'holdout/run_template.jsonl',
+)
+
 
 def schema_version(items):
     versions = {i.get("schema_version", 1) for i in items}
@@ -490,7 +498,7 @@ def freeze(items, corpus, families, output, manifest):
         raise
 
 
-def load_release(directory):
+def load_release(directory, *, verify_history=False):
     directory = Path(directory)
     manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
     if manifest.get("status") != "frozen" or file_hash(directory / "gold.jsonl") != manifest["gold_sha256"]:
@@ -500,10 +508,20 @@ def load_release(directory):
             raise ValueError("Frozen corpus was modified")
     if file_hash(directory / "families.json") != manifest["families_sha256"]:
         raise ValueError("Frozen family mapping was modified")
-    for name, expected in manifest.get("artifacts_sha256", {}).items():
+    artifacts = manifest.get("artifacts_sha256", {})
+    is_gold150 = manifest.get('dataset_kind') == 'gold150'
+    if is_gold150 and set(GOLD150_CORE_FILES) - {'manifest.json'} - set(artifacts):
+        raise ValueError('Missing Gold150 core artifact hashes')
+    for name, expected in artifacts.items():
         artifact = Path(name)
-        if artifact.is_absolute() or ".." in artifact.parts:
+        if not artifact.parts or artifact.is_absolute() or ".." in artifact.parts:
             raise ValueError("Unsafe release artifact path")
+        local_only = artifact.parts[0] in ('review', 'review_provenance') or name in (
+            'dev/gold.jsonl', 'holdout/gold.jsonl')
+        if is_gold150 and local_only and not verify_history:
+            continue
+        if not (directory / artifact).is_file():
+            raise ValueError(f'Missing frozen artifact: {name}')
         if file_hash(directory / artifact) != expected:
             raise ValueError(f"Frozen artifact was modified: {name}")
     return read_jsonl(directory / "gold.jsonl"), manifest

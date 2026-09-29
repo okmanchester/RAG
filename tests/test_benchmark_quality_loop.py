@@ -14,7 +14,7 @@ class HistoricalQualityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         fixture = json.loads((ROOT/'tests/fixtures/benchmark_quality_cases.json').read_text(encoding='utf8'))
-        cls.corpus = Corpus(ROOT/'data/benchmark/trial30_final_v1')
+        cls.corpus = Corpus(ROOT/'data/benchmark/gold150_final_v1')
         cls.expected_corpus = fixture['corpus']
         cls.cases = fixture['cases']
         cls.unordered_list_case = fixture['unordered_list_case']

@@ -1,6 +1,7 @@
 # ===== 通用 =====
 __pycache__/
 *.py[cod]
+.env
 
 # ===== 数据：上游语料（只读，不入库）=====
 data/raw
@@ -9,35 +10,24 @@ data/processed/
 # ===== 临时产物 =====
 tmp/
 
-# ===== data/benchmark：上游中间产物（可重建，不入库）=====
-# 目录语义详见 data/benchmark/README.md
-# KG 由 data/processed 的 chunk 重跑 scripts/build_benchmark_kg.py 得到（约 74MB）
-data/benchmark/knowledge_graph.json
-data/benchmark/knowledge_graph.smoke.json
-# 构图断点与 ragas 调用缓存，支持续跑重建（约 75MB）
-data/benchmark/kg_build/
-data/benchmark/ragas_cache/
-# KG 构建的 token 实测探针，无代码引用
-data/benchmark/_token_probe.json
+# ===== data/benchmark：Git保留核心，完整历史仅本地保存 =====
+# 默认忽略历史发布、KG、缓存、生成/补题/审核/修订/实验及未来版本。
+/data/benchmark/**
+!/data/benchmark/README.md
+!/data/benchmark/gold150_final_v1/
+!/data/benchmark/gold150_final_v1/dev/
+!/data/benchmark/gold150_final_v1/holdout/
 
-# ===== data/benchmark：链路历史批次（本地留存，不入库）=====
-# ⚠️ 这是「原生 ragas 生成 → 人工+AI 审核」的唯一证据链，无法从代码重建。
-#    git clean -fdx 会永久删除被忽略的文件——在本机执行前先确认这层是否需要备份。
-#    若要纳入版本控制，删掉本段中所有以 data/benchmark/ 开头的行。
-data/benchmark/pilot_v1/
-data/benchmark/pilot_v2/
-data/benchmark/pilot_v2_supplement/
-data/benchmark/pilot_review_v1/
-data/benchmark/pilot_boundary_abstain/
-data/benchmark/pilot_boundary_authored/
-data/benchmark/pilot_boundary_clarify/
-data/benchmark/trial_v1/
-data/benchmark/trial_v2/
-data/benchmark/trial_v3/
-
-data/benchmark/quality_loop_v1
-
-# ===== 未忽略即待决 =====
-# data/benchmark/trial30_final_v1/  —— 冻结发布集，入库
-# data/benchmark/README.md          —— 目录地图，入库
-# data/benchmark/batch_*/           —— 未来批次，出现时需显式决定是否入库
+# 当前v1仅放行11个运行核心文件；原始manifest及150题字节保持不变。
+# review/、review_provenance/和分集gold副本保留本地，完整校验使用 --include-history。
+!/data/benchmark/gold150_final_v1/README.md
+!/data/benchmark/gold150_final_v1/gold.jsonl
+!/data/benchmark/gold150_final_v1/documents.jsonl
+!/data/benchmark/gold150_final_v1/chunks.jsonl
+!/data/benchmark/gold150_final_v1/families.json
+!/data/benchmark/gold150_final_v1/manifest.json
+!/data/benchmark/gold150_final_v1/split.json
+!/data/benchmark/gold150_final_v1/dev/queries.jsonl
+!/data/benchmark/gold150_final_v1/dev/run_template.jsonl
+!/data/benchmark/gold150_final_v1/holdout/queries.jsonl
+!/data/benchmark/gold150_final_v1/holdout/run_template.jsonl

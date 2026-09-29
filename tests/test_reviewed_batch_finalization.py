@@ -10,7 +10,7 @@ from rag_baseline.benchmark.core import (
 )
 
 
-RELEASE = Path('data/benchmark/trial30_final_v1')
+RELEASE = Path('data/benchmark/gold150_final_v1')
 
 
 class ReviewedBatchFinalizationTests(unittest.TestCase):
@@ -20,7 +20,8 @@ class ReviewedBatchFinalizationTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         gold, self.manifest = load_release(RELEASE)
         self.corpus = Corpus(RELEASE)
-        self.rows = copy.deepcopy(gold[:6])
+        self.rows = copy.deepcopy([r for r in gold if r['split']=='dev'
+                                   and r['expected_behavior']=='answer' and r['query_style']=='natural'][:6])
         for row in self.rows:
             row['pilot'] = False  # Original generation may have been a full batch.
         self.families = json.loads((RELEASE/'families.json').read_text(encoding='utf-8'))
