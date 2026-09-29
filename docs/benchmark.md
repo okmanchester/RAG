@@ -1,10 +1,20 @@
 # 固定 RAG Benchmark（题集 schema v2）
 
-长期目标为 **300 道审核题：240 dev + 60 holdout**。当前 **30题试审集已按用户明确委托完成审核并定稿**，发布在 `data/benchmark/trial30_final_v1`，全部为 dev。审核者标记为 Codex 受用户委托，未冒称用户亲自逐题核验；这不代表300题正式配额已经完成。
+长期目标为 **300 道审核题：240 dev + 60 holdout**。当前已冻结 **86道公开dev金标准**：旧30题在 `data/benchmark/trial30_final_v1`，新增56题在 `data/benchmark/batch56_final_v1`。两个版本保持独立，与彼此无已知同核心重复；新增56题含28道政策题、28道技术题。审核及冻结来源为用户明确授权的Codex工作，不冒称用户亲自逐题复审；这不代表300题正式配额已经完成。
 
 定稿阅读入口是 `trial30_final_v1/review/reading.md`，金标准是 `gold.jsonl`，填写完成的表格在 `review/review.csv`。被测系统只接收 `queries.jsonl`；复制 `run_template.jsonl` 到发布目录外并填写真实输出。模板默认 `error=not_run`，不能当作系统已经运行。现有两道边界题分别为拒答、澄清，本试审集不衡量纠正错误前提能力。
 
-发布包含固定语料快照及每个文件的哈希校验；任何修订都应发布新版本。`freeze-trial` 专用于30道已审核的公开试审题，禁止holdout；原 `freeze` 的300题约束保持不变。
+新增56题的定稿阅读入口是 `batch56_final_v1/review/reading.md`，包含55道普通题和1道纠错题。它的 `review_provenance/` 归档了冻结前输入、修订记录、Claude复核意见处理、去重及全库边界核查。4道重复候选未进入金标准。与旧30题合计包含拒答、澄清、纠错各1题，边界样本量只适合诊断。
+
+发布包含固定语料快照及每个文件的哈希校验；任何修订都应发布新版本。`freeze-trial` 专用于30道已审核试审题；`freeze-reviewed` 冻结显式授权的任意已审核批次，须全dev，禁止holdout，并可用旧发布集检查跨版本重复；原 `freeze` 的300题约束保持不变。`.gitattributes` 为两套发布目录禁用换行转换，Git存储字节须与冻结哈希一致。
+
+本轮冻结记录的用户授权原文：把这可用的56题冻结为金标准，和之前已冻结的30题一起纳入版本控制。
+
+```powershell
+python -m rag_baseline.benchmark freeze-reviewed --items data/benchmark/batch_001_review60/revision_v2/approved.jsonl --manifest data/benchmark/batch_001_review60/revision_v2/manifest.json --families data/benchmark/batch56_final_v1/families.json --output data/benchmark/batch56_final_v2 --authorization "用户明确授权的本次冻结指令" --reference-releases data/benchmark/trial30_final_v1
+```
+
+输出目录必须尚不存在；该示例仅说明入口，冻结实际版本应使用该版本真实授权、来源和完整审核资料。已发布版本可直接通过 `load_release` 和 `evaluate --release` 加载，复制运行模板到发布目录外后填写真实结果。
 
 ## 环境与范围
 

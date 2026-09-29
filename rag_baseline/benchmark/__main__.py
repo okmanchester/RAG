@@ -8,7 +8,7 @@ from pathlib import Path
 
 from .core import (Corpus, digest, duplicate_clusters, export_review, freeze, import_review,
                    quotas, read_jsonl, validate_item, write_json, write_jsonl)
-from .core import schema_version, freeze_trial
+from .core import schema_version, freeze_trial, freeze_reviewed
 from .quality import boundary
 
 
@@ -30,13 +30,17 @@ def main():
     p.add_argument("--candidates", action="store_true", help="Combine candidates without approving them")
     p.add_argument("--screened-only", action="store_true", help="Exclude candidates refuted by boundary precheck; keep exclusion ledger")
     p.add_argument("--corpus", type=Path, default=Path("data/processed/baseline_v1"))
-    for name in ('freeze', 'freeze-trial'):
+    for name in ('freeze', 'freeze-trial', 'freeze-reviewed'):
         p = sub.add_parser(name)
         p.add_argument("--items", type=Path, required=True)
         p.add_argument("--manifest", type=Path, required=True)
         p.add_argument("--families", type=Path, required=True)
         p.add_argument("--corpus", type=Path, default=Path("data/processed/baseline_v1"))
         p.add_argument("--output", type=Path, required=True)
+        if name == 'freeze-reviewed':
+            p.add_argument('--authorization', required=True, help='Record the explicit user freeze instruction')
+            p.add_argument('--reference-releases', nargs='*', type=Path, default=[])
+            p.add_argument('--review-artifacts', nargs='*', type=Path, default=[])
     for name in ("evaluate", "export-ragas"):
         p = sub.add_parser(name)
         p.add_argument("--release", type=Path, required=True)
@@ -121,10 +125,12 @@ def main():
                                                "status": "candidates_pending_review" if args.candidates else "reviewed_pool"})
         write_jsonl(args.output/"machine_excluded.jsonl", excluded)
         write_json(args.output/"families.json", corpus.family_report())
-    elif args.command in ("freeze", "freeze-trial"):
-        finalize = freeze_trial if args.command == 'freeze-trial' else freeze
+    elif args.command in ("freeze", "freeze-trial", "freeze-reviewed"):
+        finalize = {'freeze':freeze, 'freeze-trial':freeze_trial, 'freeze-reviewed':freeze_reviewed}[args.command]
+        options = ({'authorization':args.authorization, 'reference_releases':args.reference_releases,
+                    'review_artifacts':args.review_artifacts} if args.command == 'freeze-reviewed' else {})
         finalize(read_jsonl(args.items), Corpus(args.corpus), json.loads(args.families.read_text(encoding="utf-8")),
-               args.output, json.loads(args.manifest.read_text(encoding="utf-8")))
+               args.output, json.loads(args.manifest.read_text(encoding="utf-8")), **options)
         print(f"Frozen release: {args.output}")
     else:
         from .evaluation import (calibrate, calibration_template, evaluate_release,

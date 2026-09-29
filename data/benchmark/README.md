@@ -3,8 +3,9 @@
 本目录保存固定 RAG Benchmark 从语料到冻结发布的全部产物。**目录名即路径契约**：多个脚本和
 manifest 的 `source_batch` 字段硬引用这里的目录名，不要重命名或搬移已有目录。
 
-当前状态：30 题试审集已定稿，发布在 `trial30_final_v1/`（全部 dev）。长期目标 300 题
-（240 dev + 60 holdout）尚未开始。流程说明见 `docs/benchmark.md`。
+当前状态：已冻结86题，旧30题在 `trial30_final_v1/`，新增56题在 `batch56_final_v1/`，
+均为公开dev。两套发布独立保存，新56题已与旧30题核查重复；长期目标300题
+（240 dev + 60 holdout）尚未达成。流程说明见 `docs/benchmark.md`。
 
 ## 一、三层结构
 
@@ -12,7 +13,7 @@ manifest 的 `source_batch` 字段硬引用这里的目录名，不要重命名�
 |---|---|---|---|---|
 | 上游 | `knowledge_graph*.json`、`kg_build/`、`ragas_cache/` | 中间产物 | 否 | 可重建 |
 | 链路 | `pilot_*/`、`trial_v1..v3/` | 历史批次 | 否（本地留存） | **不可删** |
-| 发布 | `trial30_final_v1/` | ★冻结发布 | **是** | 不可删 |
+| 发布 | `trial30_final_v1/`、`batch56_final_v1/` | 冻结金标准，共86题 | **是** | 不可删 |
 
 ## 二、上游：语料与知识图谱
 
@@ -48,6 +49,8 @@ manifest 的 `source_batch` 字段硬引用这里的目录名，不要重命名�
 | `trial_v1/` | 首批试审集 | `machine_excluded.jsonl` 机器剔除 2 题；`review/review.csv` |
 | `trial_v2/` | 修订试审集 v2 | `revisions.jsonl` 逐题修订说明；`review/evidence_audit.jsonl` 证据台账 |
 | `trial_v3/` | v3 已审核 | `reviewed.jsonl` 定稿记录；`finalization_audit.jsonl` 逐题依据；`revisions.jsonl` 7 处修订；`submitted_review.csv` 收到的审核表原件 |
+| `batch_001/`、`batch_001_supplement_*/` | 新60题生成及补题历史 | 原始场景、初稿、失败、证据及调用记录 |
+| `batch_001_review60/` | 候选归并、首次审核及v2修订 | `revision_v2/approved.jsonl`含本次冻结的56题；另4题重复排除 |
 
 **为什么这层不可删**：它是「原生 ragas 生成 → 人工 + AI 审核」的唯一证据链。
 
@@ -62,20 +65,27 @@ manifest 的 `source_batch` 字段硬引用这里的目录名，不要重命名�
 > 是 API 调用的产物，不可从代码重建）。如果希望改为入库，删掉 `.gitignore` 里对应的
 > 那几行即可。
 
-## 四、发布：`trial30_final_v1/`（★ 唯一入库内容）
+## 四、发布：两套独立金标准
+
+| 版本 | 题数 | 划分 | 状态 |
+|---|---|---|---|
+| `trial30_final_v1/` | 30 | 全dev | 保持原冻结文件字节 |
+| `batch56_final_v1/` | 56（政策28、技术28） | 全dev | 用户授权冻结；与旧30题去重后独立发布 |
 
 | 文件 | 说明 |
 |---|---|
-| `gold.jsonl` | 30 题金标准（`queries.jsonl` + 证据 + 答案要点 + 标签） |
+| `gold.jsonl` | 各版本的金标准（题面、证据、答案要点和标签） |
 | `queries.jsonl` | **只把这份交给被测系统** |
 | `run_template.jsonl` | 运行结果模板，默认 `error=not_run`，**不代表系统已运行** |
 | `documents.jsonl`、`chunks.jsonl` | 固定语料快照（约 5.4MB），评测复现所需 |
 | `families.json` | 文档族，去重与覆盖约束用 |
 | `manifest.json` | 版本清单：语料哈希、评委配置、来源批次、保护文件哈希 |
-| `review/review.csv` | 填写完成的审核表（30 题 `approved`） |
+| `review/review.csv` | 填写完成的审核表，全部 `approved` |
 | `review/reading.md` | 人工阅读入口（后续阅读以这份为准） |
+| 新版 `review_provenance/` | 56题冻结前输入、逐题变更、复核意见处理、重复关系、边界核查和历史来源清单 |
 
 发布目录禁止覆盖，任何修订都应发布新版本。评测时核验文件哈希。
+`.gitattributes` 禁止Git对这两个目录转换换行，使Windows及其他平台检出后保持相同冻结字节。
 
 ## 五、常用入口
 
@@ -87,6 +97,7 @@ python -m unittest discover -s tests -v
 
 # 校验发布集
 python -m rag_baseline.benchmark validate --items data/benchmark/trial30_final_v1/gold.jsonl
+python -m rag_baseline.benchmark validate --items data/benchmark/batch56_final_v1/gold.jsonl
 
 # 评测（默认只评 dev）
 python -m rag_baseline.benchmark evaluate --release data/benchmark/trial30_final_v1 --runs tmp/run_001.jsonl --output tmp/eval_001
@@ -99,7 +110,7 @@ python scripts/generate_benchmark.py --output data/benchmark/batch_001 --size 60
 
 `.gitignore` 的划分依据就是上面的三层结构：
 
-- **入库**：`trial30_final_v1/`（发布集）、`quality_loop_v1/`（小批质量实验）+ 本文件。
+- **入库**：`trial30_final_v1/`、`batch56_final_v1/`两套冻结发布集及本文件；源生成和修订历史继续本地留存。
 - **忽略**：上游中间产物（可重建）、链路历史批次（本地留存）。
 
 `.gitignore` 中每一段都带注释说明归属与理由，调整策略时按段增删即可。

@@ -1,0 +1,50 @@
+{
+  "id": "batch_001-0025",
+  "method": "NFKC-free whitespace-normalized literal scan plus clause/context review",
+  "document_count": 33,
+  "corpus_identity": {
+    "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+    "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+  },
+  "queries": [
+    "算法安全主体责任",
+    "诱导用户沉迷",
+    "不适用",
+    "免除",
+    "豁免"
+  ],
+  "records": [
+    {
+      "doc_id": "efe4251c2be278b76b5d3752",
+      "source_path": "policy/互联网信息服务算法推荐管理规定_国务院部门文件_中国政府网.pdf",
+      "document_sha256": "2f7630e795d2451f096cdccffb8d36e29b32ab7f2f1006de550fa834a61604bb",
+      "block_id": 18,
+      "matched_terms": [
+        "算法安全主体责任"
+      ],
+      "text": "第七条 算法推荐服务提供者应当落实算法安全主体责任，建立 健全算法机制机理审核、科技伦理审查、用户注册、信息发布审 核、数据安全和个人信息保护、反电信网络诈骗、安全评估监测、 安全事件应急处置等管理制度和技术措施，制定并公开算法推荐服 务相关规则，配备与算法推荐服务规模相适应的专业人员和技术支 撑。"
+    },
+    {
+      "doc_id": "efe4251c2be278b76b5d3752",
+      "source_path": "policy/互联网信息服务算法推荐管理规定_国务院部门文件_中国政府网.pdf",
+      "document_sha256": "2f7630e795d2451f096cdccffb8d36e29b32ab7f2f1006de550fa834a61604bb",
+      "block_id": 19,
+      "matched_terms": [
+        "诱导用户沉迷"
+      ],
+      "text": "第八条 算法推荐服务提供者应当定期审核、评估、验证算法机 制机理、模型、数据和应用结果等，不得设置诱导用户沉迷、过度 消费等违反法律法规或者违背伦理道德的算法模型。"
+    }
+  ],
+  "related_articles_read": {
+    "algorithm_recommendation": [
+      9,
+      18,
+      19,
+      55
+    ]
+  },
+  "decision": "第2条另有法律行政法规的适用保留已核对；固定库未提供不诱导沉迷即可免除主体责任的例外。第7、8条的正面义务支持纠错，不以未命中证明现实不存在其他法源。",
+  "search_scope": "fixed benchmark corpus only",
+  "reviewer": "Codex（用户授权修订及自检；非独立人工复审）",
+  "authorization": "参考Claude Code复核结果，按你自己的判断修改有问题的题目，已由我人工授权"
+}

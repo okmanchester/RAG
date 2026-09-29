@@ -1,0 +1,659 @@
+{
+  "status": "source_grounded_revision_self_check_complete",
+  "created_at": "2026-09-28T13:41:29.948504+00:00",
+  "schema_version": 2,
+  "evidence_policy": "benchmark-evidence-v2.1",
+  "corpus": {
+    "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+    "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+  },
+  "generator": {
+    "model": "deepseek-flash",
+    "base_url": "https://api.deepseek.com",
+    "temperature": 0,
+    "max_tokens": 4096,
+    "thinking": "disabled",
+    "prompt_version": 4
+  },
+  "judge": {
+    "model": "qwen3.7-plus-2026-05-26",
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "temperature": 0,
+    "max_tokens": 4096,
+    "enable_thinking": false,
+    "enable_search": false,
+    "prompt_version": 1
+  },
+  "dependencies": {
+    "ragas": "0.4.3",
+    "openai": "1.109.1",
+    "instructor": "1.3.2",
+    "pydantic": "2.13.5",
+    "numpy": "2.5.2",
+    "scipy": "1.18.1",
+    "sentence-transformers": "6.0.1",
+    "httpx": "0.28.1"
+  },
+  "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+  "source_batches": [
+    {
+      "batch": "data\\benchmark\\batch_001",
+      "items_file": "candidates.jsonl",
+      "items_file_sha256": "da004a9330bfc8057f4fc1f58e4e784b2708594cda3b6ce94f62504d35a93a7e",
+      "included_sha256": "36de23984596cf83cab498462288e0cddec41fe19261c11637b0415b537e73fd",
+      "included_ids": [
+        "batch_001-0001",
+        "batch_001-0002",
+        "batch_001-0003",
+        "batch_001-0004",
+        "batch_001-0006",
+        "batch_001-0007",
+        "batch_001-0008",
+        "batch_001-0009",
+        "batch_001-0010",
+        "batch_001-0012",
+        "batch_001-0013",
+        "batch_001-0014",
+        "batch_001-0015",
+        "batch_001-0016",
+        "batch_001-0017",
+        "batch_001-0018",
+        "batch_001-0019",
+        "batch_001-0020",
+        "batch_001-0021",
+        "batch_001-0022",
+        "batch_001-0023",
+        "batch_001-0024",
+        "batch_001-0025",
+        "batch_001-0026",
+        "batch_001-0027",
+        "batch_001-0028",
+        "batch_001-0031",
+        "batch_001-0032",
+        "batch_001-0033",
+        "batch_001-0034",
+        "batch_001-0035",
+        "batch_001-0036",
+        "batch_001-0037",
+        "batch_001-0038",
+        "batch_001-0039",
+        "batch_001-0040",
+        "batch_001-0041",
+        "batch_001-0042",
+        "batch_001-0043",
+        "batch_001-0044",
+        "batch_001-0045",
+        "batch_001-0046",
+        "batch_001-0047",
+        "batch_001-0048",
+        "batch_001-0049",
+        "batch_001-0050",
+        "batch_001-0051",
+        "batch_001-0052",
+        "batch_001-0053",
+        "batch_001-0054",
+        "batch_001-0056",
+        "batch_001-0057",
+        "batch_001-0058",
+        "batch_001-0059",
+        "batch_001-0060"
+      ],
+      "manifest": {
+        "status": "candidates_pending_review",
+        "created_at": "2026-09-28T11:56:48.769080+00:00",
+        "identity": {
+          "corpus": {
+            "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+            "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+          },
+          "kg_sha256": "f3754628f2f6e0ff1ac693f2d7420815ef5be8db8277c57c4c3e9449e3045627",
+          "size": 60,
+          "seed": 20260916,
+          "pilot": false,
+          "generator": {
+            "model": "deepseek-flash",
+            "base_url": "https://api.deepseek.com",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "thinking": "disabled",
+            "prompt_version": 4
+          },
+          "judge": {
+            "model": "qwen3.7-plus-2026-05-26",
+            "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "enable_thinking": false,
+            "enable_search": false,
+            "prompt_version": 1
+          },
+          "dependencies": {
+            "ragas": "0.4.3",
+            "openai": "1.109.1",
+            "instructor": "1.3.2",
+            "pydantic": "2.13.5",
+            "numpy": "2.5.2",
+            "scipy": "1.18.1",
+            "sentence-transformers": "6.0.1",
+            "httpx": "0.28.1"
+          },
+          "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+          "reviewed_input_sha256": "4bc62293a6df3625bc21214ed87731eeefa79949faf997430546129d35c9fac5",
+          "schema_version": 2,
+          "evidence_policy": "benchmark-evidence-v2.1",
+          "implementation_sha256": {
+            "generation.py": "f5178d657de73034dcd61448068e788ffbeb4134f2f5fd027ab87fdc8f823d04",
+            "core.py": "9b1110edc6e508b0d25a4fd039d3cd8a568081cf89f3d1379f7cb7338aba0747",
+            "quality.py": "de4fc8544a237d4a010649537b126f2850b0cc43767a814d260c74c9c5f5f6a6"
+          }
+        },
+        "schema_version": 2,
+        "evidence_policy": "benchmark-evidence-v2.1",
+        "corpus": {
+          "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+          "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+        },
+        "generator": {
+          "model": "deepseek-flash",
+          "base_url": "https://api.deepseek.com",
+          "temperature": 0,
+          "max_tokens": 4096,
+          "thinking": "disabled",
+          "prompt_version": 4
+        },
+        "judge": {
+          "model": "qwen3.7-plus-2026-05-26",
+          "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+          "temperature": 0,
+          "max_tokens": 4096,
+          "enable_thinking": false,
+          "enable_search": false,
+          "prompt_version": 1
+        },
+        "dependencies": {
+          "ragas": "0.4.3",
+          "openai": "1.109.1",
+          "instructor": "1.3.2",
+          "pydantic": "2.13.5",
+          "numpy": "2.5.2",
+          "scipy": "1.18.1",
+          "sentence-transformers": "6.0.1",
+          "httpx": "0.28.1"
+        },
+        "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+        "tasks_sha256": "adb7461f7f052e02f0785dbf36f5f02ab639427283ccaa9f16633a011be7a2a9"
+      }
+    },
+    {
+      "batch": "data\\benchmark\\batch_001_supplement_01",
+      "items_file": "candidates.jsonl",
+      "items_file_sha256": "ff6a5c8cde3e8dcee4469cf3fd799f65cbf1dc05e65f70e0b347d876577b5198",
+      "included_sha256": "f17ad87101d56fe6b5c62e18201a414615f2fe458c2a6163c63383974209cf2d",
+      "included_ids": [
+        "batch_001_supplement_01-0001"
+      ],
+      "manifest": {
+        "status": "candidates_pending_review",
+        "created_at": "2026-09-28T12:02:15.660389+00:00",
+        "identity": {
+          "corpus": {
+            "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+            "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+          },
+          "kg_sha256": "f3754628f2f6e0ff1ac693f2d7420815ef5be8db8277c57c4c3e9449e3045627",
+          "size": 2,
+          "seed": 20260916,
+          "pilot": false,
+          "generator": {
+            "model": "deepseek-flash",
+            "base_url": "https://api.deepseek.com",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "thinking": "disabled",
+            "prompt_version": 4
+          },
+          "judge": {
+            "model": "qwen3.7-plus-2026-05-26",
+            "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "enable_thinking": false,
+            "enable_search": false,
+            "prompt_version": 1
+          },
+          "dependencies": {
+            "ragas": "0.4.3",
+            "openai": "1.109.1",
+            "instructor": "1.3.2",
+            "pydantic": "2.13.5",
+            "numpy": "2.5.2",
+            "scipy": "1.18.1",
+            "sentence-transformers": "6.0.1",
+            "httpx": "0.28.1"
+          },
+          "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+          "reviewed_input_sha256": "4bc62293a6df3625bc21214ed87731eeefa79949faf997430546129d35c9fac5",
+          "schema_version": 2,
+          "evidence_policy": "benchmark-evidence-v2.1",
+          "implementation_sha256": {
+            "generation.py": "f5178d657de73034dcd61448068e788ffbeb4134f2f5fd027ab87fdc8f823d04",
+            "core.py": "9b1110edc6e508b0d25a4fd039d3cd8a568081cf89f3d1379f7cb7338aba0747",
+            "quality.py": "de4fc8544a237d4a010649537b126f2850b0cc43767a814d260c74c9c5f5f6a6"
+          },
+          "targets": {
+            "category": "policy",
+            "expected_behavior": "answer"
+          }
+        },
+        "schema_version": 2,
+        "evidence_policy": "benchmark-evidence-v2.1",
+        "corpus": {
+          "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+          "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+        },
+        "generator": {
+          "model": "deepseek-flash",
+          "base_url": "https://api.deepseek.com",
+          "temperature": 0,
+          "max_tokens": 4096,
+          "thinking": "disabled",
+          "prompt_version": 4
+        },
+        "judge": {
+          "model": "qwen3.7-plus-2026-05-26",
+          "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+          "temperature": 0,
+          "max_tokens": 4096,
+          "enable_thinking": false,
+          "enable_search": false,
+          "prompt_version": 1
+        },
+        "dependencies": {
+          "ragas": "0.4.3",
+          "openai": "1.109.1",
+          "instructor": "1.3.2",
+          "pydantic": "2.13.5",
+          "numpy": "2.5.2",
+          "scipy": "1.18.1",
+          "sentence-transformers": "6.0.1",
+          "httpx": "0.28.1"
+        },
+        "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+        "tasks_sha256": "03b04a34ec1cce38cbe2fc2a540cefc0f45b265f64f668546c4827bf6c7861a7"
+      }
+    },
+    {
+      "batch": "data\\benchmark\\batch_001_supplement_02",
+      "items_file": "candidates.jsonl",
+      "items_file_sha256": "d8f7fec4f74563fa888f52af8b7523664da1bcc9517821aa7a87432eee4ff0e1",
+      "included_sha256": "12cdc0df2e34b341698f698266da1d3fc1136560bf23b1eac7b606e442accbaf",
+      "included_ids": [
+        "batch_001_supplement_02-0001"
+      ],
+      "manifest": {
+        "status": "candidates_pending_review",
+        "created_at": "2026-09-28T12:03:11.403307+00:00",
+        "identity": {
+          "corpus": {
+            "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+            "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+          },
+          "kg_sha256": "f3754628f2f6e0ff1ac693f2d7420815ef5be8db8277c57c4c3e9449e3045627",
+          "size": 1,
+          "seed": 20260916,
+          "pilot": false,
+          "generator": {
+            "model": "deepseek-flash",
+            "base_url": "https://api.deepseek.com",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "thinking": "disabled",
+            "prompt_version": 4
+          },
+          "judge": {
+            "model": "qwen3.7-plus-2026-05-26",
+            "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "enable_thinking": false,
+            "enable_search": false,
+            "prompt_version": 1
+          },
+          "dependencies": {
+            "ragas": "0.4.3",
+            "openai": "1.109.1",
+            "instructor": "1.3.2",
+            "pydantic": "2.13.5",
+            "numpy": "2.5.2",
+            "scipy": "1.18.1",
+            "sentence-transformers": "6.0.1",
+            "httpx": "0.28.1"
+          },
+          "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+          "reviewed_input_sha256": "4bc62293a6df3625bc21214ed87731eeefa79949faf997430546129d35c9fac5",
+          "schema_version": 2,
+          "evidence_policy": "benchmark-evidence-v2.1",
+          "implementation_sha256": {
+            "generation.py": "f5178d657de73034dcd61448068e788ffbeb4134f2f5fd027ab87fdc8f823d04",
+            "core.py": "9b1110edc6e508b0d25a4fd039d3cd8a568081cf89f3d1379f7cb7338aba0747",
+            "quality.py": "de4fc8544a237d4a010649537b126f2850b0cc43767a814d260c74c9c5f5f6a6"
+          },
+          "targets": {
+            "question_type": "condition",
+            "category": "policy",
+            "expected_behavior": "answer"
+          }
+        },
+        "schema_version": 2,
+        "evidence_policy": "benchmark-evidence-v2.1",
+        "corpus": {
+          "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+          "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+        },
+        "generator": {
+          "model": "deepseek-flash",
+          "base_url": "https://api.deepseek.com",
+          "temperature": 0,
+          "max_tokens": 4096,
+          "thinking": "disabled",
+          "prompt_version": 4
+        },
+        "judge": {
+          "model": "qwen3.7-plus-2026-05-26",
+          "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+          "temperature": 0,
+          "max_tokens": 4096,
+          "enable_thinking": false,
+          "enable_search": false,
+          "prompt_version": 1
+        },
+        "dependencies": {
+          "ragas": "0.4.3",
+          "openai": "1.109.1",
+          "instructor": "1.3.2",
+          "pydantic": "2.13.5",
+          "numpy": "2.5.2",
+          "scipy": "1.18.1",
+          "sentence-transformers": "6.0.1",
+          "httpx": "0.28.1"
+        },
+        "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+        "tasks_sha256": "2ee0e80c21965496d3c07ebf277ae1e40adce02b62e7ba1dd484b69edd717d3e"
+      }
+    },
+    {
+      "batch": "data\\benchmark\\batch_001_supplement_03",
+      "items_file": "candidates.jsonl",
+      "items_file_sha256": "3199fe28ecac930d6ed503dc5bd78c5947cd317cb5d2e5110b40807748f3f35a",
+      "included_sha256": "d85322739ef7095aca2e6fcbbb3abd0e713ba2481c22edb94a0b606762985c23",
+      "included_ids": [
+        "batch_001_supplement_03-0002",
+        "batch_001_supplement_03-0003"
+      ],
+      "manifest": {
+        "status": "candidates_pending_review",
+        "created_at": "2026-09-28T12:04:33.444646+00:00",
+        "identity": {
+          "corpus": {
+            "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+            "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+          },
+          "kg_sha256": "f3754628f2f6e0ff1ac693f2d7420815ef5be8db8277c57c4c3e9449e3045627",
+          "size": 3,
+          "seed": 20260916,
+          "pilot": false,
+          "generator": {
+            "model": "deepseek-flash",
+            "base_url": "https://api.deepseek.com",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "thinking": "disabled",
+            "prompt_version": 4
+          },
+          "judge": {
+            "model": "qwen3.7-plus-2026-05-26",
+            "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "enable_thinking": false,
+            "enable_search": false,
+            "prompt_version": 1
+          },
+          "dependencies": {
+            "ragas": "0.4.3",
+            "openai": "1.109.1",
+            "instructor": "1.3.2",
+            "pydantic": "2.13.5",
+            "numpy": "2.5.2",
+            "scipy": "1.18.1",
+            "sentence-transformers": "6.0.1",
+            "httpx": "0.28.1"
+          },
+          "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+          "reviewed_input_sha256": "4bc62293a6df3625bc21214ed87731eeefa79949faf997430546129d35c9fac5",
+          "schema_version": 2,
+          "evidence_policy": "benchmark-evidence-v2.1",
+          "implementation_sha256": {
+            "generation.py": "f5178d657de73034dcd61448068e788ffbeb4134f2f5fd027ab87fdc8f823d04",
+            "core.py": "9b1110edc6e508b0d25a4fd039d3cd8a568081cf89f3d1379f7cb7338aba0747",
+            "quality.py": "de4fc8544a237d4a010649537b126f2850b0cc43767a814d260c74c9c5f5f6a6"
+          },
+          "targets": {
+            "question_type": "condition",
+            "expected_behavior": "answer"
+          }
+        },
+        "schema_version": 2,
+        "evidence_policy": "benchmark-evidence-v2.1",
+        "corpus": {
+          "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+          "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+        },
+        "generator": {
+          "model": "deepseek-flash",
+          "base_url": "https://api.deepseek.com",
+          "temperature": 0,
+          "max_tokens": 4096,
+          "thinking": "disabled",
+          "prompt_version": 4
+        },
+        "judge": {
+          "model": "qwen3.7-plus-2026-05-26",
+          "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+          "temperature": 0,
+          "max_tokens": 4096,
+          "enable_thinking": false,
+          "enable_search": false,
+          "prompt_version": 1
+        },
+        "dependencies": {
+          "ragas": "0.4.3",
+          "openai": "1.109.1",
+          "instructor": "1.3.2",
+          "pydantic": "2.13.5",
+          "numpy": "2.5.2",
+          "scipy": "1.18.1",
+          "sentence-transformers": "6.0.1",
+          "httpx": "0.28.1"
+        },
+        "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+        "tasks_sha256": "3f5e576795b8c15e3d7f49631c6d78b57f5e75929561ade3d2dac11649f29513"
+      }
+    },
+    {
+      "batch": "data\\benchmark\\batch_001_supplement_04",
+      "items_file": "candidates.jsonl",
+      "items_file_sha256": "57f8d47620e8d3b879cbfe7c6cae77e9e20eb5df946a85d58b5c7b1cc3e651ed",
+      "included_sha256": "f5075fd7b12141c8344f5304ce1b018c835adfb2060e3e791ffb20eab5ed4ce8",
+      "included_ids": [
+        "batch_001_supplement_04-0001"
+      ],
+      "manifest": {
+        "status": "candidates_pending_review",
+        "created_at": "2026-09-28T12:08:22.909016+00:00",
+        "identity": {
+          "corpus": {
+            "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+            "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+          },
+          "kg_sha256": "f3754628f2f6e0ff1ac693f2d7420815ef5be8db8277c57c4c3e9449e3045627",
+          "size": 1,
+          "seed": 20260916,
+          "pilot": false,
+          "generator": {
+            "model": "deepseek-flash",
+            "base_url": "https://api.deepseek.com",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "thinking": "disabled",
+            "prompt_version": 4
+          },
+          "judge": {
+            "model": "qwen3.7-plus-2026-05-26",
+            "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "enable_thinking": false,
+            "enable_search": false,
+            "prompt_version": 1
+          },
+          "dependencies": {
+            "ragas": "0.4.3",
+            "openai": "1.109.1",
+            "instructor": "1.3.2",
+            "pydantic": "2.13.5",
+            "numpy": "2.5.2",
+            "scipy": "1.18.1",
+            "sentence-transformers": "6.0.1",
+            "httpx": "0.28.1"
+          },
+          "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+          "reviewed_input_sha256": "4bc62293a6df3625bc21214ed87731eeefa79949faf997430546129d35c9fac5",
+          "schema_version": 2,
+          "evidence_policy": "benchmark-evidence-v2.1",
+          "implementation_sha256": {
+            "generation.py": "f5178d657de73034dcd61448068e788ffbeb4134f2f5fd027ab87fdc8f823d04",
+            "core.py": "9b1110edc6e508b0d25a4fd039d3cd8a568081cf89f3d1379f7cb7338aba0747",
+            "quality.py": "de4fc8544a237d4a010649537b126f2850b0cc43767a814d260c74c9c5f5f6a6"
+          },
+          "targets": {
+            "category": "policy",
+            "expected_behavior": "answer",
+            "question_type": "fact"
+          }
+        },
+        "schema_version": 2,
+        "evidence_policy": "benchmark-evidence-v2.1",
+        "corpus": {
+          "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+          "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+        },
+        "generator": {
+          "model": "deepseek-flash",
+          "base_url": "https://api.deepseek.com",
+          "temperature": 0,
+          "max_tokens": 4096,
+          "thinking": "disabled",
+          "prompt_version": 4
+        },
+        "judge": {
+          "model": "qwen3.7-plus-2026-05-26",
+          "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+          "temperature": 0,
+          "max_tokens": 4096,
+          "enable_thinking": false,
+          "enable_search": false,
+          "prompt_version": 1
+        },
+        "dependencies": {
+          "ragas": "0.4.3",
+          "openai": "1.109.1",
+          "instructor": "1.3.2",
+          "pydantic": "2.13.5",
+          "numpy": "2.5.2",
+          "scipy": "1.18.1",
+          "sentence-transformers": "6.0.1",
+          "httpx": "0.28.1"
+        },
+        "prompt_sha256": "4b21403185359590ca731e91a4bf1aa22cbc1b0373cc9faeff4cce25d535e7b0",
+        "tasks_sha256": "d12b5e7d74225c00455f7966b6a0fe1dc4779a0cff84d9279561d0b65f1b4f1d"
+      }
+    }
+  ],
+  "existing_reviewed_reference": {
+    "path": "data\\benchmark\\trial30_final_v1\\gold.jsonl",
+    "sha256": "a73f8e8a2c155a53dcfb204c590ab0012cf7fd713f15e0e89122b5cfbacbc545",
+    "count": 30
+  },
+  "selection": {
+    "requested": 60,
+    "selected": 60,
+    "attempted_scenarios": 67,
+    "generation_failures": 4,
+    "excluded": 3,
+    "human_review_claimed": false,
+    "assembly_script_sha256": "3df1faa7912971b8209fa691620d00e2346df92ffe0fad1bad89cda857798dd8"
+  },
+  "source_batch": "data\\benchmark\\batch_001_review60",
+  "source_candidates_sha256": "0d5c8ddfb5063f7cf1601f7860db96c328044387f0f3e21661ce3b9485aebe43",
+  "source_first_review_sha256": "2edca77943f0c69a42782b781059e4ea0abfa2166e7ec5c3f363424c0d3bc6c6",
+  "claude_review_sha256": "e578935985014d454854b34106a2aee4ab8d55e898ff20d4d56cd53c9c2980c8",
+  "authorization": "参考Claude Code复核结果，按你自己的判断修改有问题的题目，已由我人工授权",
+  "script_sha256": "96bdc17c72f9c956aa0bae7736af15f4397184e9561f5aa01a12c7f9165f3a1d",
+  "protected_artifact_hashes": {
+    "data\\benchmark\\batch_001_review60\\candidates.jsonl": "0d5c8ddfb5063f7cf1601f7860db96c328044387f0f3e21661ce3b9485aebe43",
+    "data\\benchmark\\batch_001_review60\\families.json": "b14955742c03e80ed177a65b1a08744b81dc970632615869ed8758bd2a538301",
+    "data\\benchmark\\batch_001_review60\\generation_failures.jsonl": "88145f4f3c96c80498d8144f1f7ad7c746f1db5a7bfeb6bd2d76dc90c5261b54",
+    "data\\benchmark\\batch_001_review60\\machine_excluded.jsonl": "e63458321f6ba4ad169c157aa08b3769abc961182de668dd41479adde2853104",
+    "data\\benchmark\\batch_001_review60\\manifest.json": "1d7d574c8d9d108f8ee878ded4656ec8f97dff50f6745dc5132e85473df9fb03",
+    "data\\benchmark\\batch_001_review60\\README.md": "f79f04670e045cb3c0d20692a870850f92d2f83ea18a6333f9019e3dab124a4e",
+    "data\\benchmark\\batch_001_review60\\summary.json": "f5418e9f622cbf8f1abdd77b6316ae6f5a7543133f87d9079b57de1e065f5581",
+    "data\\benchmark\\batch_001_review60\\review\\evidence_audit.jsonl": "1df79afc0d29698588cb8ca4121beaae6e23bbd1d8266d21da7b5820bea21515",
+    "data\\benchmark\\batch_001_review60\\review\\reading.md": "7ea82f9d66895647a35315aa45b61866f46b1374f40269d928e38baa4bf5cd45",
+    "data\\benchmark\\batch_001_review60\\review\\review.csv": "f318ca4448f57c229f8011fae76609d2819758185b2ddf0c31ce1cf45c92d403",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\approved.jsonl": "331b9fe44361ab616139a3d4af7b007339e5b11498db9c2a78e5dc75d9c03094",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\artifact_hashes.json": "940eb8b6f7b23bbace4f0332ef25d7f4403e871dcc4e3e667445b345a00bab1c",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\assemble_review.py": "cbbbba0b1314cbf22fec877cac0212efa35b006f3185a2b85c95f9a153695581",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\audit.jsonl": "ac13e52f76fac5ac1cf35119c697bc001fb13cb5a4b1b69a01421ffa1558179d",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\corpus_search_audit.json": "b1083ed8bf318f46bfa30d4e1a75509db0942c9825feb22807507efaacbf99bb",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\evidence_audit.jsonl": "1df79afc0d29698588cb8ca4121beaae6e23bbd1d8266d21da7b5820bea21515",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\manifest.json": "04a765354300a693a5cd497150f1b8f2e8e8763560a94192fe5f4aab7c6c93ee",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\needs_revision.jsonl": "e2f5e3bdde52f9db4113a67666dd23ec071fc1d6023b7b05445e06c914333b80",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\reading.md": "b68b6dd64a1469d1e873bae6e48096d93af6c267ac88375dcbc3d7b1e8cf9ca1",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\README.md": "a804df1acfc60d6769c4b041a89b2dea2358e8d4a593bdc460f7f30f4fa8406d",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\rejected.jsonl": "3f84b6f3418a8b76f6d3d4fdbc87c3f1390d3f1cc75271f5a0e12a833c3cd590",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\review.csv": "24bf6da5b8540b01a173a29169867dfcf3ec1c1feb628d386e5efce80ecfef05",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\reviewed.jsonl": "2edca77943f0c69a42782b781059e4ea0abfa2166e7ec5c3f363424c0d3bc6c6",
+    "data\\benchmark\\batch_001_review60\\agent_review_v1\\summary.json": "e73a1c29f29810acce4431d6121a45d6a0243410c4ce701642211a5745d60a17",
+    "data\\benchmark\\trial30_final_v1\\chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0",
+    "data\\benchmark\\trial30_final_v1\\documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+    "data\\benchmark\\trial30_final_v1\\families.json": "08fb2c544295953cda0784c8bf3c779090b1259f892a9766030332e4261fb06b",
+    "data\\benchmark\\trial30_final_v1\\gold.jsonl": "a73f8e8a2c155a53dcfb204c590ab0012cf7fd713f15e0e89122b5cfbacbc545",
+    "data\\benchmark\\trial30_final_v1\\manifest.json": "8385b4107ae5d33c8923b1715b3165c4e6f1aa256f0fb1a50dd149d90ff9aec5",
+    "data\\benchmark\\trial30_final_v1\\queries.jsonl": "c25e450207c6dca45c5ce1498e793c7408a9f70c3ef725a91d96c9b9753e0892",
+    "data\\benchmark\\trial30_final_v1\\README.md": "dc78c51b493d0eb3737b4b62d864e22652e531bfdcd1e391a5b381c6bd987618",
+    "data\\benchmark\\trial30_final_v1\\run_template.jsonl": "ad80dd0e7aace765875162f512e76bdfa685fa3c68ba3abf4331bc22de85488b",
+    "data\\benchmark\\trial30_final_v1\\review\\evidence_audit.jsonl": "83481f2d77f35797fffd2aab23c7316824d7fd05f177f0f33ea60b7e398f4dbc",
+    "data\\benchmark\\trial30_final_v1\\review\\reading.md": "387a8eece22d5998390031eee66e594e2bf69747d282eae9e56c25006e74cd6d",
+    "data\\benchmark\\trial30_final_v1\\review\\review.csv": "663997a3efbb876e00c2a5147c86738712b74e4ca83cdc4ed83e9ef7af4f4597"
+  },
+  "no_freeze_performed": true,
+  "source_visual_checks": [
+    {
+      "path": "data/raw/technical/工业互联网企业网络安全分类分级管理指南（试行）.pdf",
+      "sha256": "4107f3c79a2738b48832520b6101ce3d756a35f896f16b63471182f3d6bebe69",
+      "physical_pages": [
+        8
+      ],
+      "result": "四方面及列归属已核"
+    },
+    {
+      "path": "data/raw/technical/工业互联网平台服务商评价方法.pdf",
+      "sha256": "5259a7b2036ba94b86103b259be40b0c8a9f1773deb64b5d1c0dd5bcabc59b3e",
+      "physical_pages": [
+        9
+      ],
+      "result": "T5权重字样存在于原PDF，修订题不考该公式"
+    }
+  ]
+}

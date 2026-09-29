@@ -574,3 +574,116 @@ def freeze_trial(items, corpus, families, output, manifest):
     except BaseException:
         shutil.rmtree(temporary)
         raise
+
+
+def freeze_reviewed(items, corpus, families, output, manifest, authorization,
+                    reference_releases=(), review_artifacts=()):
+    """Freeze an explicitly authorized reviewed batch as public dev only.
+
+    Does not select candidates or relax the separate 300-item release contract.
+    Existing releases are verified and used for cross-release deduplication.
+    """
+    output = Path(output)
+    if output.exists():
+        raise FileExistsError(f"Immutable release already exists: {output}")
+    if not isinstance(authorization, str) or not authorization.strip():
+        raise ValueError("Reviewed batch freeze requires recorded user authorization")
+    if not items or schema_version(items) != 2 or len({i['id'] for i in items}) != len(items):
+        raise ValueError("Reviewed batch requires distinct nonempty schema-v2 items")
+    if manifest['corpus'] != corpus.identity():
+        raise ValueError("Corpus changed since review")
+    mapping = families['family_by_doc']
+    if (set(mapping) != set(corpus.documents) or any(v not in mapping or mapping[v] != v for v in mapping.values())):
+        raise ValueError("Invalid family mapping")
+    if families.get('review_status') != 'approved' or not families.get('reviewer', '').strip():
+        raise ValueError("Document families need an attributed review")
+    artifacts = [Path(p) for p in review_artifacts]
+    if len({p.name for p in artifacts}) != len(artifacts) or any(not p.is_file() for p in artifacts):
+        raise ValueError("Review artifacts must be existing files with distinct basenames")
+    artifact_paths = {p.name:f'review_provenance/{p.name}' for p in artifacts}
+    selected = []
+    for row in items:
+        validate_item(row, corpus, approved=True)
+        if row.get('split') not in (None, 'dev'):
+            raise ValueError("Public reviewed batches cannot include holdout")
+        if span(row) == 'cross_document' and len(evidence_families(row, mapping)) < 2:
+            raise ValueError("Cross-document question uses duplicate document versions")
+        frozen_row = dict(copy.deepcopy(row), split='dev', pilot=True,
+            freeze_provenance={'method':'user_authorized_reviewed_batch',
+                'authorization':authorization, 'source_item_sha256':digest(row),
+                'public_dev_only':True, 'human_per_item_review_claimed':False})
+        for field, key in (('review_provenance','audit_file'), ('approval_provenance','audit_file'),
+                           ('corpus_search_provenance','current_search_file')):
+            provenance = frozen_row.get(field, {})
+            if provenance.get(key) in artifact_paths:
+                provenance[key] = artifact_paths[provenance[key]]
+        selected.append(frozen_row)
+    if sum(i['query_style'] == 'document' for i in selected) * 10 > len(selected):
+        raise ValueError("Reviewed batch document-hint cap is 10 percent")
+    previous, references = [], []
+    for directory in reference_releases:
+        directory = Path(directory)
+        rows, source_manifest = load_release(directory)
+        if source_manifest['corpus'] != manifest['corpus']:
+            raise ValueError("Reference release corpus differs from reviewed batch")
+        if source_manifest.get('judge') != manifest.get('judge'):
+            raise ValueError("Reference release judge differs from reviewed batch")
+        previous.extend(rows)
+        references.append({'release':directory.as_posix(), 'item_count':len(rows),
+            'gold_sha256':source_manifest['gold_sha256'], 'manifest_sha256':file_hash(directory/'manifest.json')})
+    combined = previous + selected
+    if len({i['id'] for i in combined}) != len(combined):
+        raise ValueError("Duplicate IDs across reviewed batch and reference releases")
+    _, all_links = duplicate_clusters(combined)
+    selected_ids = {i['id'] for i in selected}
+    links = [pair for pair in all_links if any(identifier in selected_ids for identifier in pair)]
+    if links:
+        raise ValueError(f"Duplicate reviewed questions, including reference releases: {links}")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    temporary = Path(tempfile.mkdtemp(prefix='.freeze-reviewed-', dir=output.parent))
+    try:
+        write_jsonl(temporary/'gold.jsonl', selected)
+        write_json(temporary/'families.json', families)
+        for name in ('documents.jsonl', 'chunks.jsonl'):
+            shutil.copyfile(corpus.directory/name, temporary/name)
+        export_review(selected, temporary/'review', corpus)
+        write_jsonl(temporary/'queries.jsonl', [{'id':i['id'], 'user_input':i['user_input']} for i in selected])
+        write_jsonl(temporary/'run_template.jsonl', [
+            {'id':i['id'], 'response':'', 'retrieved_contexts':[], 'citations':[],
+             'run_config':{'pipeline_version':'REPLACE_WITH_ACTUAL_RUN_CONFIG'}, 'error':'not_run'} for i in selected])
+        write_jsonl(temporary/'review_provenance/source_approved.jsonl', items)
+        for path in artifacts:
+            if path.name == 'source_approved.jsonl':
+                raise ValueError("Reserved review artifact name")
+            shutil.copyfile(path, temporary/'review_provenance'/path.name)
+        count = len(selected)
+        (temporary/'README.md').write_text(
+            f'# {count}题已审核批次金标准\n\n'
+            '状态：已冻结。gold.jsonl为本版本唯一金标准；review/reading.md及review/review.csv为审核归档。\n'
+            '审核方式见review_provenance和approval_provenance；用户授权冻结不冒称用户逐题复审。\n'
+            f'冻结授权原文：{authorization}\n\n'
+            f'全部{count}题为公开dev，pilot标志记录已公开使用，不能作为holdout。'
+            '本批次不应用300题正式集配额，也不代表正式集已完成。\n'
+            'previous_frozen_releases记录旧金标准及其哈希；本版不覆盖旧版。\n\n'
+            '只将queries.jsonl交给被测系统。复制run_template.jsonl到发布目录外填写真实结果，'
+            'not_run不表示系统已运行。评测时验证全部发布哈希。\n\n'
+            f'review_provenance保存冻结前{count}题和指定审核资料；'
+            '历史修订日志可能含已排除题，实际评测仅使用gold.jsonl。\n\n'
+            '在conda rag环境、仓库根目录运行：\n\n'
+            '```powershell\n'
+            f'python -m rag_baseline.benchmark evaluate --release {output.as_posix()} --runs tmp/actual_runs.jsonl --output tmp/{output.name}_retrieval_eval --retrieval-only\n'
+            '```\n\n'
+            '小样本切片仅供诊断；完整评测需评委配置及校准。纠错时发布新版本，禁止覆盖此目录。\n', encoding='utf-8')
+        hashes = {p.relative_to(temporary).as_posix():file_hash(p) for p in temporary.rglob('*') if p.is_file()}
+        write_json(temporary/'manifest.json', {**manifest, 'status':'frozen', 'dataset_kind':'reviewed_dev_batch',
+            'schema_version':2, 'release':output.name, 'frozen_at':now(), 'item_count':count,
+            'split_policy':'all_dev_no_holdout', 'full_benchmark_quotas_applied':False, 'no_freeze_performed':False,
+            'freeze_authorization':authorization, 'source_items_sha256':digest(items),
+            'selection':{'method':'all_reviewed_items_in_supplied_file', 'count':count},
+            'gold_sha256':file_hash(temporary/'gold.jsonl'), 'families_sha256':file_hash(temporary/'families.json'),
+            'artifacts_sha256':hashes, 'previous_frozen_releases':references,
+            'quotas':{'dev':quotas(selected,'dev'), 'holdout':quotas(selected,'holdout')}, 'duplicate_links':links})
+        temporary.rename(output)
+    except BaseException:
+        shutil.rmtree(temporary)
+        raise

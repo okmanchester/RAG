@@ -1,0 +1,5 @@
+# Frozen releases are hash-verified byte snapshots on every platform.
+# Preserve their original line endings instead of applying core.autocrlf.
+# Source quotations also retain whitespace; do not lint-fix frozen snapshots.
+data/benchmark/trial30_final_v1/** -text -whitespace
+data/benchmark/batch56_final_v1/** -text -whitespace
