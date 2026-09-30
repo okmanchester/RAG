@@ -206,6 +206,13 @@ class BenchmarkTests(unittest.TestCase):
             first = asyncio.run(evaluate_release(release, runs, out, retrieval_only=True))
             second = asyncio.run(evaluate_release(release, runs, out, retrieval_only=True))
         self.assertEqual(first["overall"], second["overall"])
+        selected = self.root/"selected_ids.jsonl"
+        dev_ids = [i["id"] for i in load_release(release)[0] if i["split"] == "dev"][:2]
+        write_jsonl(selected, [{"id": identifier} for identifier in dev_ids])
+        with redirect_stdout(io.StringIO()):
+            subset = asyncio.run(evaluate_release(release, runs, self.root/"subset", retrieval_only=True, ids_path=selected))
+        self.assertEqual(subset["overall"]["count"], 2)
+        self.assertEqual(subset["overall"]["statuses"], {"missing_run": 2})
         item = next(i for i in load_release(release)[0] if i["split"] == "dev")
         write_jsonl(runs, [{"id": item["id"], "response": "", "run_config": {"test": 1}, "error": "timeout", "retrieved_contexts": [], "citations": []}])
         with self.assertRaisesRegex(ValueError, "changed"):

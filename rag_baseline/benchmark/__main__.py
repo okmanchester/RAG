@@ -57,6 +57,7 @@ def main():
         if name == "evaluate":
             p.add_argument("--retrieval-only", action="store_true")
             p.add_argument("--retry-failed", action="store_true")
+            p.add_argument("--ids-file", type=Path, help="JSONL rows with id; score only these IDs in the selected split")
     p = sub.add_parser("compare")
     p.add_argument("--left", type=Path, required=True)
     p.add_argument("--right", type=Path, required=True)
@@ -155,7 +156,8 @@ def main():
         from .evaluation import (calibrate, calibration_template, evaluate_release,
                                  paired_comparison, ragas_export)
         if args.command == "evaluate":
-            report = asyncio.run(evaluate_release(args.release, args.runs, args.output, args.split, args.retrieval_only, args.retry_failed))
+            report = asyncio.run(evaluate_release(args.release, args.runs, args.output, args.split,
+                                                  args.retrieval_only, args.retry_failed, args.ids_file))
             print(json.dumps(report["overall"], ensure_ascii=False, indent=2))
             if any(k != "ok" for k in report["overall"]["statuses"]):
                 return 1

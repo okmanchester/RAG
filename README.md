@@ -1,6 +1,7 @@
 # RAG 文档 Chunking Baseline v1
 
 固定 RAG benchmark 的候选生成、人工审核、冻结和评测入口见 [docs/benchmark.md](docs/benchmark.md)。依赖单独固定在 `requirements-benchmark.txt`，不会改变原切分流程。
+首次检索、回答、Ragas 评分与 Langfuse 冒烟流程见 [docs/benchmark-first-run.md](docs/benchmark-first-run.md)。
 
 文本解析 → 结构识别 → recursive chunking。PDF 使用 PyMuPDF4LLM，DOCX 使用 python-docx；不做 OCR、embedding、检索或 LLM 调用。
 

@@ -164,10 +164,16 @@ def summarize_scores(items, scores, retrieval_only=False):
                 for value in sorted({v for i in items for v in values(i, field)})} for field in fields}}
 
 
-async def evaluate_release(release, runs_path, output, split="dev", retrieval_only=False, retry_failed=False):
+async def evaluate_release(release, runs_path, output, split="dev", retrieval_only=False, retry_failed=False, ids_path=None):
     items, release_manifest = load_release(release)
     all_ids = {i["id"] for i in items}
     items = [i for i in items if i["split"] == split]
+    if ids_path is not None:
+        requested = read_jsonl(ids_path)
+        ids = [r["id"] for r in requested]
+        if not ids or len(ids) != len(set(ids)) or set(ids) - {i["id"] for i in items}:
+            raise ValueError("IDs file must contain distinct IDs from the selected split")
+        items = [i for i in items if i["id"] in set(ids)]
     if not items:
         raise ValueError(f"Requested split has no questions: {split}")
     rows = read_jsonl(runs_path)
@@ -180,6 +186,7 @@ async def evaluate_release(release, runs_path, output, split="dev", retrieval_on
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     identity = {"gold_sha256": release_manifest["gold_sha256"], "runs_sha256": digest(rows), "split": split,
+                "selected_ids_sha256": digest([i["id"] for i in items]),
                 "judge": JUDGE_CONFIG, "rubric_sha256": digest(RUBRIC), "retrieval_only": retrieval_only,
                 "metric_version": 1, "dependencies": dependency_versions(),
                 "implementation_sha256": {name: file_hash(Path(__file__).with_name(name))
