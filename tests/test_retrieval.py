@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from rag_baseline.retrieval import annotate_chunk, iter_retrieval_chunks, mark_existing
+from rag.retrieval import annotate_chunk, iter_retrieval_chunks, mark_existing
 
 
 def chunk(headings, block=1):

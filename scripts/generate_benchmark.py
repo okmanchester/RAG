@@ -8,13 +8,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 os.environ.setdefault("RAGAS_DO_NOT_TRACK", "true")
 
-from rag_baseline.benchmark.core import read_jsonl
-from rag_baseline.benchmark.generation import generate_batch
+from rag.benchmark.core import read_jsonl
+from rag.benchmark.generation import generate_batch
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--corpus", type=Path, default=Path("data/processed/baseline_v1"))
+    parser.add_argument("--corpus", type=Path, required=True)
     parser.add_argument("--kg", type=Path, default=Path("data/benchmark/knowledge_graph.json"))
     parser.add_argument("--output", type=Path, default=Path("data/benchmark/pilot_v3"))
     parser.add_argument("--size", type=int, default=30)

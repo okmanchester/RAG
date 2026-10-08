@@ -29,7 +29,7 @@ from ragas.testset.transforms.base import BaseGraphTransformation
 from ragas.testset.transforms.extractors import NERExtractor
 from ragas.testset.transforms.extractors.llm_based import ThemesExtractor
 
-CHUNKS_PATH = Path("data/processed/baseline_v1/chunks.jsonl")
+CHUNKS_PATH = None  # Set by the explicit --corpus argument.
 BENCHMARK_DIR = Path("data/benchmark")
 FINAL_KG_PATH = BENCHMARK_DIR / "knowledge_graph.json"
 CACHE_DIR = BENCHMARK_DIR / "ragas_cache"
@@ -322,6 +322,7 @@ def parse_args():
         "--reset", action="store_true",
         help="删除当前 mode 的 checkpoint 后重新开始，保留共享 LLM cache。",
     )
+    parser.add_argument("--corpus", type=Path, required=True)
     return parser.parse_args()
 
 
@@ -333,11 +334,13 @@ def export_kg(kg: KnowledgeGraph, mode: str):
         print(f"  {kind}: {count}")
     print(f"Saved: {path.resolve()} ({path.stat().st_size / 1024 / 1024:.2f} MiB)")
     if mode == "smoke":
-        print("下一步：python scripts/build_benchmark_kg.py --mode full")
+        print("全量构图需再次显式提供 --corpus，并选择 --mode full")
 
 
 def main():
+    global CHUNKS_PATH
     args = parse_args()
+    CHUNKS_PATH = args.corpus / "chunks.jsonl"
     all_chunks = load_chunks(CHUNKS_PATH)
     chunks = select_smoke_chunks(all_chunks, SMOKE_SIZE) if args.mode == "smoke" else all_chunks
     print(f"Corpus chunks: {len(all_chunks)}; mode: {args.mode}; selected: {len(chunks)}")

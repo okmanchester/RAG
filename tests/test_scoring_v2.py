@@ -13,15 +13,14 @@ from unittest.mock import AsyncMock, Mock, patch
 
 os.environ["RAGAS_DO_NOT_TRACK"] = "true"
 
-from rag_baseline.benchmark.core import digest, file_hash, write_json, write_jsonl
-from rag_baseline.benchmark.evaluation import (evidence_hit, evaluate_release, load_faithfulness_cache,
+from rag.benchmark.core import digest, file_hash, write_json, write_jsonl
+from rag.benchmark.evaluation import (evidence_hit, evaluate_release, load_faithfulness_cache,
                                               protocol_comparison, summarize_scores)
-from rag_baseline.benchmark.first_run import publish_scores, remote_score_identity
-from rag_baseline.benchmark.generation import JUDGE_CONFIG, Probe, dependency_versions
-from rag_baseline.benchmark.scoring_v2 import (JudgmentV2, JudgmentRepair, apply_judgment_repair,
+from rag.benchmark.first_run import publish_scores, remote_score_identity
+from rag.benchmark.generation import JUDGE_CONFIG, Probe, dependency_versions
+from rag.benchmark.scoring_v2 import (JudgmentV2, JudgmentRepair, apply_judgment_repair,
                                              contains_quote, extract_citations_v2, grounding_issues,
                                              match_text, score_judgment_v2, validate_metrics)
-from rag_baseline.benchmark.reevaluate_v2 import select_dev20
 
 
 class ScoringV2Tests(unittest.TestCase):
@@ -196,24 +195,6 @@ class ScoringV2Tests(unittest.TestCase):
             expected, _ = remote_score_identity(digest({"run": 1}), {"metric_version": 2}, "q", "faithfulness")
             self.assertEqual(args["id"], expected)
 
-    def test_dev20_selection_order_and_seed(self):
-        items, scores = [], []
-        for group, count in (("boundary", 6), ("cross", 3), ("hard", 1), ("incomplete", 6), ("lowcite", 2), ("policy", 2), ("technical", 2)):
-            for n in range(count):
-                identifier = f"{group}-{n}"
-                items.append({"id": identifier, "split": "dev", "expected_behavior": "abstain" if group == "boundary" else "answer",
-                              "evidence_span": "cross_document" if group == "cross" else "single_unit",
-                              "difficulty": "hard" if group == "hard" else "easy",
-                              "category": "technical" if group == "technical" else "policy"})
-                scores.append({"id": identifier, "metrics": {"answer_point_completeness": .5 if group == "incomplete" else 1.,
-                               "citation_coverage": 0. if group == "lowcite" else 1., "faithfulness": 1., "citation_support": 1.}})
-        chosen = select_dev20(items, scores)
-        self.assertEqual(len(chosen), 20)
-        self.assertEqual(len({r["id"] for r in chosen}), 20)
-        self.assertEqual([r["selection_reason"] for r in chosen[:10]], ["all_boundary"]*6+["all_cross_document"]*3+["all_hard"])
-        self.assertEqual(chosen, select_dev20(list(reversed(items)), list(reversed(scores))))
-        self.assertEqual([r["category"] for r in chosen[-2:]], ["policy", "technical"])
-
 
 class EvaluationV2Tests(unittest.TestCase):
     def setUp(self):
@@ -237,8 +218,8 @@ class EvaluationV2Tests(unittest.TestCase):
         llm.agenerate = AsyncMock(side_effect=[Probe(ok=True), *outputs])
         client = Mock(); client.close = AsyncMock()
         faith = AsyncMock(return_value=Mock(value=1.))
-        with patch("rag_baseline.benchmark.evaluation.load_release", return_value=(self.items, {"gold_sha256": "gold"})), \
-             patch("rag_baseline.benchmark.evaluation.build_llm", return_value=(llm, client)), \
+        with patch("rag.benchmark.evaluation.load_release", return_value=(self.items, {"gold_sha256": "gold"})), \
+             patch("rag.benchmark.evaluation.build_llm", return_value=(llm, client)), \
              patch.object(Faithfulness, "ascore", new=faith), redirect_stdout(io.StringIO()):
             report = asyncio.run(evaluate_release(self.fixture.source, self.runs, self.root / "evaluation", **kwargs))
         return report, llm, faith
@@ -270,7 +251,7 @@ class EvaluationV2Tests(unittest.TestCase):
 
     def test_faithfulness_reuse_and_mismatch_checks(self):
         source = self.root / "old"
-        generation_hash = file_hash(Path(__file__).parents[1] / "rag_baseline" / "benchmark" / "generation.py")
+        generation_hash = file_hash(Path(__file__).parents[1] / "rag" / "benchmark" / "generation.py")
         identity = {"gold_sha256": "gold", "runs_sha256": digest(self.rows), "split": "dev", "judge": JUDGE_CONFIG,
                     "dependencies": dependency_versions(), "implementation_sha256": {"generation.py": generation_hash}}
         write_json(source / "manifest.json", {"identity": identity, "status": "complete"})

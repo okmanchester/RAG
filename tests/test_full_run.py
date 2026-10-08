@@ -3,16 +3,16 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from rag_baseline.benchmark.core import write_json, write_jsonl
-from rag_baseline.benchmark.full_run import summarize_full_run
+from rag.benchmark.core import write_json, write_jsonl
+from rag.benchmark.full_run import summarize_full_run
 
 
 class FullRunTests(unittest.TestCase):
     def test_full_report_weights_scored_questions_and_requires_full_coverage(self):
-        items = [{"id": f"q{n:03d}", "schema_version": 2, "split": "dev" if n < 120 else "holdout",
+        items = [{"id": f"q{n:03d}", "schema_version": 2, "split": "dev" if n < 6 else "holdout",
                   "category": "policy", "answer_form": ["fact"], "evidence_span": "single_unit",
                   "difficulty": "easy", "query_style": "natural",
-                  "expected_behavior": "answer" if n < 149 else "abstain"} for n in range(150)]
+                  "expected_behavior": "answer" if n < 7 else "abstain"} for n in range(8)]
         with tempfile.TemporaryDirectory() as root:
             output = Path(root)
             for split in ("dev", "holdout"):
@@ -26,15 +26,15 @@ class FullRunTests(unittest.TestCase):
                 write_json(folder / "trace_map.json", {item["id"]: f"trace-{item['id']}" for item in selected})
                 write_json(folder / "evaluation" / "report.json", {"overall": {"count": len(selected)}, "identity": {"split": split}})
                 write_json(folder / "remote_verification.json", {"status": "complete"})
-            with patch("rag_baseline.benchmark.full_run.load_release", return_value=(items, {"gold_sha256": "gold"})):
+            with patch("rag.benchmark.full_run.load_release", return_value=(items, {"gold_sha256": "gold"})):
                 report = summarize_full_run(output / "release", output)
-                self.assertEqual(report["overall"]["count"], 150)
-                self.assertEqual(report["overall"]["statuses"], {"ok": 150})
+                self.assertEqual(report["overall"]["count"], 8)
+                self.assertEqual(report["overall"]["statuses"], {"ok": 8})
                 metric = report["overall"]["metrics"]["faithfulness"]
-                self.assertEqual(metric["scored_count"], 149)
-                self.assertAlmostEqual(metric["mean_scored"], 120 / 149)
+                self.assertEqual(metric["scored_count"], 7)
+                self.assertAlmostEqual(metric["mean_scored"], 6 / 7)
                 write_jsonl(output / "holdout" / "runs.jsonl", [])
-                with self.assertRaisesRegex(ValueError, "exactly 150"):
+                with self.assertRaisesRegex(ValueError, "per frozen question"):
                     summarize_full_run(output / "release", output)
 
 

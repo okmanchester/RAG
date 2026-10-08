@@ -323,7 +323,7 @@ def source_blocks(task, corpus):
     blocks = {}
     for cid in task["chunk_ids"]:
         chunk = corpus.chunks[cid]
-        ids = {s["block_id"] for s in chunk["sources"]} | set(chunk.get("heading_block_ids", []))
+        ids = {s["block_id"] for s in [*chunk["sources"], *chunk.get("context_sources", [])]} | set(chunk.get("heading_block_ids", []))
         for bid in sorted(ids):
             blocks[(chunk["doc_id"], bid)] = {"doc_id": chunk["doc_id"], "block_id": bid,
                                             "title": chunk["title"], "text": corpus.blocks[(chunk["doc_id"], bid)]["text"]}

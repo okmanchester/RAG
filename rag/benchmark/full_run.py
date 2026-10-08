@@ -1,4 +1,4 @@
-"""Run the frozen dev120 and holdout30 with one fixed baseline configuration."""
+"""Run every split of an explicitly supplied frozen release."""
 from __future__ import annotations
 
 import argparse
@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .core import file_hash, load_release, now, read_jsonl, write_json, write_jsonl
 from .evaluation import evaluate_release, summarize_scores
-from .first_run import (DEFAULT_RELEASE, DenseIndex, preflight, publish_scores,
+from .first_run import (DenseIndex, preflight, publish_scores,
                         run_baseline, usable_release, verify_uploaded)
 
 
@@ -24,8 +24,8 @@ def summarize_full_run(release: Path, output: Path) -> dict:
         reports[split] = json.loads((folder / "evaluation" / "report.json").read_text(encoding="utf-8"))
         remote[split] = json.loads((folder / "remote_verification.json").read_text(encoding="utf-8"))
     expected = {item["id"] for item in items}
-    if len(expected) != 150 or len(runs) != 150 or len(scores) != 150:
-        raise ValueError("Full baseline requires exactly 150 runs and 150 scores")
+    if len(runs) != len(expected) or len(scores) != len(expected):
+        raise ValueError("Full baseline requires one run and score per frozen question")
     if {row["id"] for row in runs} != expected or {row["id"] for row in scores} != expected or set(traces) != expected:
         raise ValueError("Full baseline question coverage differs from frozen release")
     versions = {report["identity"].get("metric_version", 1) for report in reports.values()}
@@ -49,7 +49,7 @@ def summarize_full_run(release: Path, output: Path) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--release", type=Path, default=DEFAULT_RELEASE)
+    parser.add_argument("--release", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--retry-failed", action="store_true", help="Retry failed saved evaluations")
     parser.add_argument("--evaluation-concurrency", type=int, default=4)
@@ -67,8 +67,8 @@ def main() -> None:
     langfuse = get_client()
     items, _ = load_release(release)
     counts = {split: sum(item["split"] == split for item in items) for split in ("dev", "holdout")}
-    if len(items) != 150 or counts != {"dev": 120, "holdout": 30}:
-        raise ValueError(f"Expected frozen dev120/holdout30, got {counts}")
+    if any(count == 0 for count in counts.values()) or sum(counts.values()) != len(items):
+        raise ValueError(f"Expected a release with nonempty dev/holdout splits, got {counts}")
     if not (args.verify_only or args.sync_scores):
         index = DenseIndex(release)
         for split in ("dev", "holdout"):

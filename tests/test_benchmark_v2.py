@@ -11,12 +11,12 @@ from unittest.mock import AsyncMock, Mock, patch
 
 os.environ["RAGAS_DO_NOT_TRACK"] = "true"
 
-from rag_baseline.benchmark.core import (Corpus, REVIEW_CHECKS, export_review, import_review,
+from rag.benchmark.core import (Corpus, REVIEW_CHECKS, export_review, import_review,
     read_jsonl, select_release, validate_item, validate_quotas, write_jsonl, digest, schema_version)
-from rag_baseline.benchmark.quality import (CONTENT_CHECKS, block_flags, expanded_blocks,
+from rag.benchmark.quality import (CONTENT_CHECKS, block_flags, expanded_blocks,
     content_problems, named_document, evidence_audit, content_fingerprint)
-from rag_baseline.benchmark.generation import AnnotatedV2, SemanticCheck, generate_one
-from rag_baseline.benchmark.evaluation import summarize_scores
+from rag.benchmark.generation import AnnotatedV2, SemanticCheck, generate_one
+from rag.benchmark.evaluation import summarize_scores
 
 
 class V2Tests(unittest.TestCase):
@@ -167,41 +167,6 @@ class V2Tests(unittest.TestCase):
         dev=[i for i in selected if i['split']=='dev']
         for i in dev[:25]:i['query_style']='document'
         with self.assertRaisesRegex(ValueError,'style cap'):validate_quotas(selected)
-
-
-@unittest.skipUnless(Path('data/benchmark/trial_v1/candidates.jsonl').exists(), 'Local corpus fixture is not distributed')
-class TrialRegressionTests(unittest.TestCase):
-    def test_all_revisions_and_specific_source_fixes(self):
-        from scripts.revise_benchmark_trial import revise
-        corpus=Corpus('data/processed/baseline_v1')
-        before=corpus.identity()
-        rows=revise(corpus,read_jsonl('data/benchmark/trial_v1/candidates.jsonl'))
-        self.assertEqual(len(rows),30)
-        self.assertEqual(sum(i['query_style']=='document' for i in rows),0)
-        self.assertEqual(sum(i['expected_behavior']!='answer' for i in rows),2)
-        self.assertEqual(before,corpus.identity())
-        def row(suffix):return next(i for i in rows if i['source_id']=='pilot_v2-'+suffix)
-        def bids(suffix):return {e['block_id'] for g in row(suffix)['evidence_groups'] for a in g['alternatives'] for e in a}
-        self.assertIn(172,bids('0001'))
-        self.assertTrue({24,26,28,29,30}<=bids('0009'))
-        self.assertTrue({35,36}<=bids('0029'))
-        self.assertTrue({625,628,629,630}<=bids('0002'))
-        self.assertTrue({165,166}<=bids('0007'))
-        self.assertTrue({415,416}<=bids('0026'))
-        self.assertTrue({110,111}<=bids('0016'))
-        self.assertNotIn(166,bids('0012'))
-        self.assertNotIn(240,bids('0030'))
-        self.assertNotIn('十四周岁',row('0013')['answer_points'][-1])
-        self.assertIn('采信',row('0022')['reference'])
-        self.assertNotIn('运行',row('0022')['reference'])
-        self.assertIn('具身智能',row('0021')['reference'])
-        self.assertNotIn('卫星',row('0021')['reference'])
-        self.assertNotIn('什么时候',row('0027')['user_input'])
-        for i in rows:
-            validate_item(i,corpus)
-            self.assertEqual(i['review_status'],'pending')
-            self.assertFalse(i['review_checks'])
-            self.assertEqual(evidence_audit(i,corpus)['issues'],[])
 
 
 if __name__=='__main__':

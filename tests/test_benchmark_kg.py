@@ -122,7 +122,7 @@ class KGTests(unittest.TestCase):
         checkpoint = builder.Checkpoint(self.root / "kg_build" / "smoke", identity)
         checkpoint.save(KnowledgeGraph(), len(builder.STAGE_NAMES))
         with patch.object(builder, "BENCHMARK_DIR", self.root), \
-             patch.object(builder, "parse_args", return_value=Mock(mode="smoke", reset=False)), \
+             patch.object(builder, "parse_args", return_value=Mock(mode="smoke", reset=False, corpus=self.root)), \
              patch.object(builder, "load_chunks", return_value=[]), \
              patch.object(builder, "build_identity", return_value=identity), \
              patch.object(builder, "build_llm") as llm, \

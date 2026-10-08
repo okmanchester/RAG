@@ -1,100 +1,82 @@
-# RAG 文档 Chunking Baseline v1
+# MinerU 结构化解析与切块
 
-固定 RAG benchmark 的候选生成、人工审核、冻结和评测入口见 [docs/benchmark.md](docs/benchmark.md)。依赖单独固定在 `requirements-benchmark.txt`，不会改变原切分流程。
-首次检索、回答、Ragas 评分与 Langfuse 冒烟流程见 [docs/benchmark-first-run.md](docs/benchmark-first-run.md)。
+在 `conda rag` 中使用 MinerU 4.0.10 本地解析 PDF/DOCX，再生成可直接 embedding 的结构切块。PDF 使用 Standard、自动 OCR；DOCX 使用 Flash 原生解析。Torch 小模型与 llama.cpp 模型位置由 [AGENTS.md](AGENTS.md) 指定，项目配置在 `config/mineru.yaml`。
 
-文本解析 → 结构识别 → recursive chunking。PDF 使用 PyMuPDF4LLM，DOCX 使用 python-docx；不做 OCR、embedding、检索或 LLM 调用。
-
-## 本次数据集结果
-
-33 份文档（24 PDF、9 DOCX）全部处理成功，生成 **1,390 个 chunks**。最终文本长度 26–400 tokens，平均 266.34；overlap 最大 50 tokens。17 项测试通过，全量重放核对了 5,303 个来源区间，chunk ID 和内容一致。
-
-15 个 PDF 页面没有可提取文本，已记录并跳过。抽查详情与限制见 `data/processed/baseline_v1/quality_review.md`；完整统计见同目录 `report.json` 和 `verification.json`。原始数据、派生产物和临时检查文件已在 `.gitignore` 中排除。
+模型已准备完成时，解析设为 `local`，缺失模型明确报错。关闭远程 VLM、LLM 辅助后处理和额外图像描述；文档及推理串行执行，不自动降低档位。模型运行需要在模型目录创建临时锁文件。
 
 ## 运行
-
-在项目根目录执行：
 
 ```powershell
 conda activate rag
 python -m pip install -r requirements.txt
-python -m rag_baseline.chunk --input data/raw --output data/processed/baseline_v1
-python -m rag_baseline.verify --output data/processed/baseline_v1
+
+# 本次验收：只运行代表性样本和自包含扫描页
+python -m rag.smoke
 python -m unittest discover -s tests -v
+
+# 后续全量重建（本次任务不执行）
+python -m rag.chunk --input data/raw --output data/processed/mineru_v1
+python -m rag.verify --output data/processed/mineru_v1
+
+# 修改切块参数后复用保存的解析结果，不再进行模型推理
+python -m rag.chunk --input data/raw --output data/processed/mineru_v1 --reuse-parsed
 ```
 
-当前 `rag` 环境已具备运行依赖；测试使用标准库 unittest。`requirements.txt` 固定直接依赖，实际 Python 和依赖版本记录在报告中。
+`--include` 接收输入目录内的相对文件路径；`--pages 1-2` 只限制 PDF，DOCX 仍读取全文。无页范围时解析全部 PDF 页。运行报告记录输入选择与页范围，冒烟结果不作为全量语料。
 
-默认 tokenizer 路径：`D:/WorkSpace/AIModels/BAAI/bge-large-zh-v1.5`。仅加载本地 tokenizer，不加载模型权重、不访问模型服务、不读取 API key。可用 `--model-path` 指定其他本地路径。默认 `--max-tokens 400 --overlap-tokens 50`；计数不包含模型特殊 token。本地 BGE 模型最大输入为 512，因此默认文本预算为后续模型输入留有余量。
+默认 BGE tokenizer 为 `D:/WorkSpace/AIModels/BAAI/bge-large-zh-v1.5`，仅加载本地 tokenizer。默认 `--max-tokens 400 --overlap-tokens 50`，标题计入 400 token，总计不包含特殊 token。
 
-每次运行按相对路径排序处理所有 PDF/DOCX，覆盖指定输出目录中的三个主产物。其他文件不处理。文档失败后继续处理剩余文档；失败或无可提取文本的文档会使命令退出码为 1。参数错误、模型缺失和输入为空也返回 1。
+## 切块规则
 
-## 切分规则
+- 文档、章节为硬边界。优先采用 MinerU 标题类型与层级，中文及数字编号规则补充缺失结构；条款正文保留为正文。
+- 正文按段落、条款、列表合并，超长时按句子、分句、字符切分；同章节相邻正文组最多重叠 50 token。
+- 表格、公式、代码和图片文字独立成组。表格保存完整 HTML，并按物理单元格及行线性化，保留 rowspan/colspan；不重复展开合并单元格。
+- 大表按行切块，重复明确识别的表头、表题；表头依据 HTML 的 th/thead，或首行全部为已知列名（至少两列），不默认把首行当表头。单行超限先按单元格拆分，再拆分超长单元格。重复上下文单独记录来源，不参与正文重组。表头/表题本身超出上下文预算时完整保留在正文，记录 `table_context_omitted_budget`。
+- 公式保留 LaTeX；超长结构标记 `structure_split`。表格、公式、代码和图片文字均不使用正文 overlap。
+- 保存图片和图表资产、图题及脚注，不额外生成描述。无文字资产保留审计记录，不生成空文本 chunk。
+- 目录保留切块但排除检索；页眉、页脚、页码及边栏保留审计记录并排除检索；页面脚注参与内容切块。未知类型告警并保留可读取文字。
 
-- 文档与章节为硬边界，页码为来源信息；同章节可跨 PDF 页。
-- 优先保留段落、条款、表格行；超长时按句子、分句、字符逐级拆分。使用原始字符切片，避免 token 解码改变文字。
-- `text = 文档标题 + 换行分隔的章节路径 + 空行 + body`，整体最多 400 tokens；每次合并重新计数，不做静默截断。
-- overlap 从前一个 chunk 正文尾部选择连续完整单元，最多 50 tokens。自然边界不足时细化至字符边界；空间不足可缩小或归零。每个新 chunk 都包含新正文。
-- 标题使用解析结果、Word 样式／大纲和中文、数字、附录编号规则，兼容 PDF 多余的编号空格及 Markdown 项目符号。含正文的条款不是标题；目录（含“目次”）保留文字并隔离标题状态。
-- 文档标题优先匹配开头的明确标题与文件名；排除发文序号、导航和“中华人民共和国国家标准”等通用标签，失败时使用文件名。
-- PDF 仅删除解析器标记的页眉页脚；其中符合显式编号规则的章节标题会保留，并记录在 `rescued_edge_headings`。被过滤内容记录为 `filtered_edges`，便于审计。
-- 对解析器标为公式、Markdown 未输出的区域，使用 PyMuPDF 按该区域读取已有文本层，并在 `recovered_formula_text` 记录；不做 OCR 或公式识别。这也可补回被误判为公式的章节标题。
-- DOCX 按段落／表格的原顺序读取，表格按行线性化，合并单元格在每行内去重；嵌套表格文字保留。无真实页码，使用从 1 开始的内容块和行索引。
-- 标题前缀耗尽预算时，该文档失败并记录原因。短章节保留，标题无正文且未由后续章节继承时保留为单独内容。
+## 输出接口：schema v2
 
-## 输出接口
-
-所有 JSONL 均为 UTF-8，每行一个对象。schema v1。
-
-| 文件 | 内容 |
+| 产物 | 内容 |
 | --- | --- |
-| `documents.jsonl` | 文档 ID、相对来源路径、分类、输入 SHA-256、状态、标题、解析器信息、规范化文本块、章节及来源位置 |
-| `chunks.jsonl` | 每个 chunk 的 `body`、最终 embedding 输入 `text`、标题路径、token 数、实际 overlap、稳定 ID 和来源区间 |
-| `report.json` | 参数、依赖与代码版本指纹、tokenizer 文件哈希、每文档状态、空文本页、告警和长度分布 |
-| `verification.json` | 独立校验命令产出；对保存的解析块重放结构识别和切分，核对 ID、完整内容及来源 |
+| `documents.jsonl` | 原始输入哈希、规范化块、章节、排除原因、解析档位及资产清单 |
+| `chunks.jsonl` | `body`、最终 embedding 输入 `text`、结构类型、标题路径、token、重叠与来源 |
+| `report.json` | 选择范围、版本指纹、产物哈希、文档状态、统计及告警 |
+| `verification.json` | 原始解析适配校验、来源覆盖、资产完整性及确定性重放结果 |
+| `parsed/<doc_id>/` | MinerU Markdown、Middle JSON、结构化内容、模型输出（如有）和图片 |
 
-后续 embedding 应直接读取 **`chunks.jsonl` 的 `text` 字段**，不要再次拼接标题。`body` 用于检查正文和重叠。
+来源包含 MinerU 类型、原始块索引及 JSON pointer；PDF `page` 从 1 开始，`page_idx` 从 0 开始。DOCX `content_index` 是内容位置，不是实际页码。字符区间均为左闭右开，指向规范化块；表格另有行列、合并跨度和单元格内字符区间。
 
-### 检索排除标记
+`sources` 描述正文及 overlap，`context_sources` 描述重复表头/表题在最终 `text` 中的位置；`title_prefix_char_count` 标记标题前缀。图片通过 `asset_refs` 与文档下的解析目录关联。
 
-目录 chunks 保留原文、ID 和来源，增加以下字段：
+`doc_id` 由相对输入路径及文件哈希生成；chunk ID 包含解析适配版本、切块版本、参数、内容和来源。保存解析结果的切块重放应完全一致；重新执行模型推理不保证字节一致。
 
-- `content_type`：`toc` 表示目录相关内容，`body` 表示其他内容。
-- `retrieval_enabled`：目录为 `false`，其他为 `true`。
-- `retrieval_exclusion_reasons`：目录为 `["table_of_contents"]`，其他为空列表。
-
-按已有目录块角色、来源（含 overlap）和精确目录标题识别，不因正文提及“目录”或标题包含“产品目录”“行业分类指导目录”而排除。此标记不改变切分边界或物理删除记录。当前 82 个目录 chunks 占记录数 5.90%、token 数 6.96%，剩余 **1,308 个**允许进入检索链路。逐文档统计与排除 ID 见 `report.json` 的 `retrieval_filter`。
-
-新运行 chunking 会自动标记；既有产物可原地补标记，不重新解析或切分：
-
-```powershell
-python -m rag_baseline.retrieval --output data/processed/baseline_v1
-python -m rag_baseline.verify --output data/processed/baseline_v1
-```
-
-后续 embedding／建索引统一使用过滤入口：
+只有 `retrieval_enabled == true` 的块进入 embedding：
 
 ```python
 from pathlib import Path
-from rag_baseline.retrieval import iter_retrieval_chunks
+from rag.retrieval import iter_retrieval_chunks
 
-for chunk in iter_retrieval_chunks(Path("data/processed/baseline_v1/chunks.jsonl")):
-    text = chunk["text"]  # 仅包含 retrieval_enabled == True 的记录
-    # embedding / 写入索引
+for chunk in iter_retrieval_chunks(Path("data/processed/mineru_v1/chunks.jsonl")):
+    text = chunk["text"]
 ```
 
-读取入口对缺少标记的旧记录报错，避免未经筛选进入索引。未来检索模块也应使用相同标记；若使用全量索引，查询必须过滤 `retrieval_enabled == true`。当前项目尚无向量库或检索实现。
+单文档失败记录原因并继续。失败、损坏输入、无可用正文或模型/资源不足时返回非零状态。解析缓存仅在输入身份、页范围及保存文件校验全部一致时复用；中断产生的不完整缓存必须重新解析。验证也检查报告哈希，拒绝混合或修改的产物。
 
-- `doc_id` 由相对来源路径和文件内容 SHA-256 生成；`chunk_id` 包含文档 ID、章节、字符范围、参数和文本。相同输入及实现得到相同结果；变更输入或切分会改变相关 ID。
-- `heading_block_ids` 指向文档解析块中的继承标题；文档标题来源块的 `role` 为 `document_title`，文件名回退见告警。
-- `section_char_start/end` 是章节拼接正文中的左闭右开字符区间。正文块以两个换行连接。
-- `sources` 指向原规范化文本块：`block_char_start/end` 是块内左闭右开区间，`body_char_start/end` 是当前 chunk 正文区间。PDF 的 `page` 从 1 开始；DOCX 的 `content_index` 从 1 开始，表格另附 `table_index`（所在内容块索引）及 `row`。
-- `is_overlap` 标识来自上一 chunk 的文本；`overlap_char_count` 便于去重重组，`overlap_token_count` 为其实际 token 数。拼接产生的换行无单独来源区间。
+## 通用评测
 
-## 验证与限制
+旧解析数据、旧金标准、旧评测运行及缓存已清理。本次不重建题库，不调用外部评测服务；没有当前可用的冻结评测发布。
 
-每个成功文档都执行章节正文逐字重组检查。独立校验额外确认全部解析块都被正文、标题或继承标题覆盖，并核对来源字符区间及重放结果。
+通用生成、审核、冻结、检索及评分代码保留。相关命令必须显式指定 `--corpus` 或 `--release`，不自动恢复旧发布：
 
-重放验证从保存的解析块开始，不代表不同 PDF 解析器版本会产生相同文本。运行指纹用于识别这种差异。
+```powershell
+python scripts/build_benchmark_kg.py --corpus data/processed/mineru_v1 --mode smoke
+python scripts/generate_benchmark.py --help
+python -m rag.benchmark --help
+python -m rag.benchmark.first_run --help
+```
 
-PDF 标题、阅读顺序和表格文字质量仍受解析器影响；编号标题和目录边界为保守规则。图片、扫描件、图示信息不转写。空文本页可能是空白页或图片页，不自动认定为扫描件。DOCX 文本框、修订记录、页眉页脚不在本版提取范围。保留正文中的网站导航等文字，不做复杂清洗或跨文档去重。
+评测依赖单独保留在 `requirements-benchmark.txt`。未来生成新题库时重新审核新来源位置；embedding 与后续回答仍使用本地 BGE、DeepSeek-flash，密钥从环境变量读取。
+
+冒烟验证解析和切块可运行、预算与来源可校验；不代表 33 份文档已全部处理，也不证明检索或回答质量提升。

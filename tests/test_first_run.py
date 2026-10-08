@@ -7,8 +7,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from rag_baseline.benchmark.core import digest, write_json, write_jsonl
-from rag_baseline.benchmark.first_run import (DenseIndex, extract_citations, publish_scores, run_baseline,
+from rag.benchmark.core import digest, write_json, write_jsonl
+from rag.benchmark.first_run import (DenseIndex, extract_citations, publish_scores, run_baseline,
                                               select_smoke_ids, verify_uploaded)
 
 
@@ -65,7 +65,7 @@ class FirstRunTests(unittest.TestCase):
             ])
             encoder = Mock()
             encoder.encode.side_effect = [np.array([[1., 0.]], dtype="float32"), np.array([[1., 0.]], dtype="float32")]
-            with patch("rag_baseline.benchmark.first_run.MODEL_PATH", str(model)), \
+            with patch("rag.benchmark.first_run.MODEL_PATH", str(model)), \
                  patch("sentence_transformers.SentenceTransformer", return_value=encoder):
                 index = DenseIndex(release, base / "cache")
                 self.assertEqual(len(index.chunks), 1)
@@ -113,9 +113,9 @@ class FirstRunTests(unittest.TestCase):
                 self.assertEqual(set(result), {"question_id", "status"})
                 return SimpleNamespace(item_results=[SimpleNamespace(item=kwargs["data"][0], trace_id="trace-1")])
             langfuse.run_experiment.side_effect = experiment
-            with patch("openai.OpenAI"), patch("rag_baseline.benchmark.first_run.answer_question",
+            with patch("openai.OpenAI"), patch("rag.benchmark.first_run.answer_question",
                                                 return_value=("private answer[1]。", {"total_tokens": 3})) as answer, \
-                 patch("rag_baseline.benchmark.first_run.validate_run"):
+                 patch("rag.benchmark.first_run.validate_run"):
                 run_baseline(release, ["q1"], output, index, langfuse)
                 run_baseline(release, ["q1"], output, index, langfuse)
             self.assertEqual(answer.call_count, 1)
@@ -132,13 +132,13 @@ class FirstRunTests(unittest.TestCase):
             langfuse = Mock()
             langfuse.start_as_current_observation.side_effect = lambda **kwargs: nullcontext(Mock())
             def experiment(**kwargs):
-                self.assertEqual(kwargs["name"], "rag-gold150-holdout")
+                self.assertEqual(kwargs["name"], "rag-benchmark-holdout")
                 self.assertEqual(kwargs["metadata"]["split"], "holdout")
                 kwargs["task"](item=kwargs["data"][0])
                 return SimpleNamespace(item_results=[SimpleNamespace(item=kwargs["data"][0], trace_id="holdout-trace")])
             langfuse.run_experiment.side_effect = experiment
-            with patch("openai.OpenAI"), patch("rag_baseline.benchmark.first_run.answer_question", return_value=("answer", {})), \
-                 patch("rag_baseline.benchmark.first_run.validate_run"):
+            with patch("openai.OpenAI"), patch("rag.benchmark.first_run.answer_question", return_value=("answer", {})), \
+                 patch("rag.benchmark.first_run.validate_run"):
                 run_baseline(release, ["h1"], output, index, langfuse, split="holdout")
                 with self.assertRaisesRegex(ValueError, "distinct holdout"):
                     run_baseline(release, ["dev-id"], output, index, langfuse, split="holdout")

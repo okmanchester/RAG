@@ -12,15 +12,15 @@ from unittest.mock import AsyncMock, patch
 
 os.environ["RAGAS_DO_NOT_TRACK"] = "true"
 
-from rag_baseline.benchmark.core import (
+from rag.benchmark.core import (
     Corpus, REVIEW_CHECKS, TYPES, digest, duplicate_clusters, export_review, freeze,
     import_review, load_release, select_release, validate_item, validate_quotas, write_json, write_jsonl,
 )
-from rag_baseline.benchmark.evaluation import (
+from rag.benchmark.evaluation import (
     Judgment, evidence_hit, evaluate_release, retrieval_metrics, score_judgment,
     summarize_scores, validate_run,
 )
-from rag_baseline.benchmark.generation import UsageRecorder, build_llm, generate_batch, generate_one, AnnotatedDraft, Probe
+from rag.benchmark.generation import UsageRecorder, build_llm, generate_batch, generate_one, AnnotatedDraft, Probe
 
 
 class BenchmarkTests(unittest.TestCase):
@@ -239,8 +239,8 @@ class BenchmarkTests(unittest.TestCase):
         judgment=Judgment(point_verdicts=["correct"],citation_verdicts=[True],claims=[{"claim":"完成检查","citation_supported":True}],boundary_correct=None,reason="test")
         llm=Mock(spec=InstructorBaseRagasLLM);llm.agenerate=AsyncMock(side_effect=[Probe(ok=True),judgment,RuntimeError("simulated judge failure")])
         client=Mock();client.close=AsyncMock()
-        with patch("rag_baseline.benchmark.evaluation.load_release",return_value=([a,b],{"gold_sha256":"test"})), \
-             patch("rag_baseline.benchmark.evaluation.build_llm",return_value=(llm,client)), \
+        with patch("rag.benchmark.evaluation.load_release",return_value=([a,b],{"gold_sha256":"test"})), \
+             patch("rag.benchmark.evaluation.build_llm",return_value=(llm,client)), \
              patch.object(Faithfulness,"ascore",new=AsyncMock(return_value=Mock(value=1.0))), \
              redirect_stdout(io.StringIO()):
             report=asyncio.run(evaluate_release(self.source,run_path,self.root/"scores", metric_version=1))
@@ -276,8 +276,8 @@ class BenchmarkTests(unittest.TestCase):
         client = Mock()
         client.close = AsyncMock()
         output = self.root / "parallel-scores"
-        with patch("rag_baseline.benchmark.evaluation.load_release", return_value=(items, {"gold_sha256": "test"})), \
-             patch("rag_baseline.benchmark.evaluation.build_llm", return_value=(llm, client)), \
+        with patch("rag.benchmark.evaluation.load_release", return_value=(items, {"gold_sha256": "test"})), \
+             patch("rag.benchmark.evaluation.build_llm", return_value=(llm, client)), \
              patch.object(Faithfulness, "ascore", new=AsyncMock(return_value=Mock(value=1.))), \
              redirect_stdout(io.StringIO()):
             report = asyncio.run(evaluate_release(self.source, run_path, output, concurrency=2, metric_version=1))
@@ -326,10 +326,10 @@ class BenchmarkTests(unittest.TestCase):
         llm = Mock()
         gen = AsyncMock(side_effect=[self.item(0), RuntimeError("simulated")])
         out = self.root/"batch"
-        patches = [patch("rag_baseline.benchmark.generation.build_tasks", return_value=tasks),
-                   patch("rag_baseline.benchmark.generation.build_llm", return_value=(llm,client)),
-                   patch("rag_baseline.benchmark.generation.CorpusSearch"),
-                   patch("rag_baseline.benchmark.generation.generate_one", gen)]
+        patches = [patch("rag.benchmark.generation.build_tasks", return_value=tasks),
+                   patch("rag.benchmark.generation.build_llm", return_value=(llm,client)),
+                   patch("rag.benchmark.generation.CorpusSearch"),
+                   patch("rag.benchmark.generation.generate_one", gen)]
         from contextlib import ExitStack
         with ExitStack() as stack:
             for p in patches: stack.enter_context(p)

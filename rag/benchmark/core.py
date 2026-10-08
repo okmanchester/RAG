@@ -96,6 +96,8 @@ class Corpus:
     def __init__(self, directory):
         self.directory = Path(directory)
         self.documents = {d["doc_id"]: d for d in read_jsonl(self.directory / "documents.jsonl")}
+        if any(d.get("status", "ok") != "ok" for d in self.documents.values()):
+            raise ValueError("Benchmark corpus contains failed/empty documents; complete corpus parsing first")
         self.blocks = {(d["doc_id"], b["block_id"]): b for d in self.documents.values() for b in d["blocks"]}
         all_chunks = read_jsonl(self.directory / "chunks.jsonl")
         if any(type(c.get("retrieval_enabled")) is not bool for c in all_chunks):
@@ -131,6 +133,8 @@ class Corpus:
 
     def evidence(self, doc_id, block_id, quote, chunk_id=None):
         block = self.blocks[(doc_id, block_id)]
+        if block.get("role") in {"excluded", "toc"}:
+            raise ValueError("Evidence points to content excluded from retrieval")
         start = block["text"].find(quote)
         if not quote.strip() or start < 0:
             raise ValueError(f"Evidence is not an exact source substring: {doc_id}/{block_id}")
@@ -143,6 +147,8 @@ class Corpus:
     def validate_evidence(self, e):
         doc = self.documents[e["doc_id"]]
         block = self.blocks[(e["doc_id"], e["block_id"])]
+        if block.get("role") in {"excluded", "toc"}:
+            raise ValueError("Evidence points to content excluded from retrieval")
         start, end = e["block_char_start"], e["block_char_end"]
         if not isinstance(e["text"], str) or not e["text"].strip():
             raise ValueError("Evidence text must be substantive")
@@ -577,8 +583,8 @@ def freeze_trial(items, corpus, families, output, manifest):
             '模板中的not_run表示尚未运行，不是模型评测结果。未提供sources时，只按同一文档哈希下的证据文本匹配。\n\n'
             '在conda rag环境、仓库根目录运行（将tmp/actual_runs.jsonl替换为真实运行结果）：\n\n'
             '```powershell\n'
-            f'python -m rag_baseline.benchmark evaluate --release {output.as_posix()} --runs tmp/actual_runs.jsonl --output tmp/trial30_retrieval_eval --retrieval-only\n'
-            f'python -m rag_baseline.benchmark evaluate --release {output.as_posix()} --runs tmp/actual_runs.jsonl --output tmp/trial30_full_eval\n'
+            f'python -m rag.benchmark evaluate --release {output.as_posix()} --runs tmp/actual_runs.jsonl --output tmp/trial30_retrieval_eval --retrieval-only\n'
+            f'python -m rag.benchmark evaluate --release {output.as_posix()} --runs tmp/actual_runs.jsonl --output tmp/trial30_full_eval\n'
             '```\n\n'
             '完整评测需配置DASHSCOPE_API_KEY并完成人工/委托校准；数据定稿不表示评委已校准或RAG系统已通过评测。\n'
             '发布文件均有哈希校验；纠错时发布新版本，不覆盖本目录。\n', encoding='utf-8')
@@ -689,7 +695,7 @@ def freeze_reviewed(items, corpus, families, output, manifest, authorization,
             '历史修订日志可能含已排除题，实际评测仅使用gold.jsonl。\n\n'
             '在conda rag环境、仓库根目录运行：\n\n'
             '```powershell\n'
-            f'python -m rag_baseline.benchmark evaluate --release {output.as_posix()} --runs tmp/actual_runs.jsonl --output tmp/{output.name}_retrieval_eval --retrieval-only\n'
+            f'python -m rag.benchmark evaluate --release {output.as_posix()} --runs tmp/actual_runs.jsonl --output tmp/{output.name}_retrieval_eval --retrieval-only\n'
             '```\n\n'
             '小样本切片仅供诊断；完整评测需评委配置及校准。纠错时发布新版本，禁止覆盖此目录。\n', encoding='utf-8')
         hashes = {p.relative_to(temporary).as_posix():file_hash(p) for p in temporary.rglob('*') if p.is_file()}

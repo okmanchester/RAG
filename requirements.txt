@@ -1,6 +1,5 @@
-pymupdf4llm==1.28.2
-PyMuPDF==1.28.2
-pymupdf-layout==1.28.2
-python-docx==1.2.0
+mineru[torch]==4.0.10
+docvortex==0.5.11
+PyYAML==6.0.3
 transformers==5.16.1
 tokenizers==0.23.1

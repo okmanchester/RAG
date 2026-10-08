@@ -70,7 +70,7 @@ def expanded_blocks(task, corpus):
     selected = {}
     for cid in task["chunk_ids"]:
         c = corpus.chunks[cid]
-        selected.setdefault(c["doc_id"], set()).update(s["block_id"] for s in c["sources"])
+        selected.setdefault(c["doc_id"], set()).update(s["block_id"] for s in [*c["sources"], *c.get("context_sources", [])])
     result = []
     for doc_id, bids in selected.items():
         doc = corpus.documents[doc_id]
@@ -92,7 +92,8 @@ def expanded_blocks(task, corpus):
             if "|" in b["text"]:
                 for step in (-1, 1):
                     j = p+step
-                    while 0 <= j < len(blocks) and "|" in blocks[j]["text"]:
+                    while (0 <= j < len(blocks) and "|" in blocks[j]["text"]
+                           and (not b.get("group_id") or blocks[j].get("group_id") == b["group_id"])):
                         included.add(j)
                         j += step
             list_item = re.compile(r"^\s*(?:-\s+\S|(?:-\s*)?(?:[（(][一二三四五六七八九十\d]+[）)]|[a-z\d]+\s*[）)]))")
@@ -104,6 +105,8 @@ def expanded_blocks(task, corpus):
                         j += step
         for p in sorted(included):
             b = blocks[p]
+            if b.get("role") in {"excluded", "toc"}:
+                continue
             result.append({"doc_id": doc_id, "block_id": b["block_id"],
                            "title": doc.get("title", doc["source_path"]), "text": b["text"],
                            "quality_flags": block_flags(corpus, doc_id, b["block_id"])})

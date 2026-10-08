@@ -8,7 +8,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-POLICY = "exclude_toc_v1"
+POLICY = "exclude_navigation_v2"
 FIELDS = {"content_type", "retrieval_enabled", "retrieval_exclusion_reasons"}
 
 
@@ -18,7 +18,7 @@ def annotate_chunk(chunk: dict, toc_block_ids=()) -> None:
     toc = any(re.fullmatch(r"(?:目\s*[录次]|[图表]\s*目\s*录|contents|table of contents|list of (?:figures|tables))",
                           title.strip(), re.I) for title in chunk["heading_path"])
     toc = toc or any(span["block_id"] in toc_block_ids for span in chunk["sources"])
-    chunk.update(content_type="toc" if toc else "body", retrieval_enabled=not toc,
+    chunk.update(content_type="toc" if toc else chunk.get("structure_type", "body"), retrieval_enabled=not toc,
                  retrieval_exclusion_reasons=["table_of_contents"] if toc else [])
 
 
@@ -42,7 +42,7 @@ def iter_retrieval_chunks(path: Path):
         for line in stream:
             chunk = json.loads(line)
             if type(chunk.get("retrieval_enabled")) is not bool:
-                raise ValueError("Missing/invalid retrieval_enabled; run python -m rag_baseline.retrieval first")
+                raise ValueError("Missing/invalid retrieval_enabled; run python -m rag.retrieval first")
             if chunk["retrieval_enabled"]:
                 yield chunk
 
@@ -71,6 +71,8 @@ def mark_existing(output_dir: Path):
     temp = path.with_suffix(".jsonl.tmp")
     temp.write_text("".join(json.dumps(c, ensure_ascii=False) + "\n" for c in updated), encoding="utf-8")
     report_temp = report_path.with_suffix(".json.tmp")
+    if "artifacts_sha256" in report:
+        report["artifacts_sha256"]["chunks.jsonl"] = hashlib.sha256(temp.read_bytes()).hexdigest()
     report_temp.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     temp.replace(path)
     report_temp.replace(report_path)
@@ -81,5 +83,5 @@ def mark_existing(output_dir: Path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=Path("data/processed/baseline_v1"))
+    parser.add_argument("--output", type=Path, default=Path("data/processed/mineru_v1"))
     mark_existing(parser.parse_args().output)

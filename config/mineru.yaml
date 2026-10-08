@@ -1,0 +1,13 @@
+# Independent project configuration; model path follows AGENTS.md.
+model:
+  base_dir: D:/WorkSpace/AIModels/MinerU/models
+  source: local
+  small_backend: torch
+  vlm:
+    engine: llama-cpp
+    server_url: ""
+    max_concurrency: 1
+llm_aided:
+  features:
+    title_leveling: false
+    cross_page_table_cell_merge: false

@@ -13,7 +13,7 @@ def plain(text: str) -> str:
 
 def heading_level(block: dict) -> int | None:
     text = plain(block["text"])
-    if block["kind"] == "table_row":
+    if block["kind"] != "paragraph" or block.get("exclusion_reason") or block.get("is_toc"):
         return None
     if re.fullmatch(rf"第\s*[{CN}]+\s*号", text) or "首页" in text or " > " in text:
         return None
@@ -46,11 +46,15 @@ def heading_level(block: dict) -> int | None:
 
 
 def title_index(blocks: list[dict], fallback: str) -> int | None:
+    explicit = next((i for i, b in enumerate(blocks) if b.get("is_title")
+                     and not b.get("exclusion_reason") and not b.get("is_toc")), None)
+    if explicit is not None:
+        return explicit
     candidates = []
     compact_fallback = re.sub(r"\s+", "", fallback)
     for index, block in enumerate(blocks[:8]):
         text = plain(block["text"])
-        if block["kind"] != "paragraph" or len(text) > 150:
+        if block["kind"] != "paragraph" or block.get("exclusion_reason") or block.get("is_toc") or len(text) > 150:
             continue
         if re.search(r"[。；;！？!?]", text) or re.match(r"^(附件|附录)\s*\d*\s*$", text):
             continue
@@ -92,11 +96,24 @@ def build_sections(blocks: list[dict], fallback: str) -> tuple[str, list[dict], 
 
     for i, block in enumerate(blocks):
         block["role"] = "body"
+        if block.get("exclusion_reason"):
+            block["role"] = "excluded"
+            continue
         if i == index:
             block["role"] = "document_title"
             continue
         value = plain(block["text"])
         level = heading_level(block) if index is None or i > index else None
+        if block.get("is_toc"):
+            if not in_toc:
+                stack = []
+                active = new_section(["目录"], [])
+            in_toc = True
+            block["role"] = "toc"
+            active["blocks"].append(block)
+            continue
+        if i > 0 and blocks[i - 1].get("is_toc"):
+            in_toc, stack, active = False, [], None
         if (level is not None and stack and re.match(r"^附录\s*[A-Z]", stack[-1][1])
                 and i > 0 and re.fullmatch(r"[（(](?:资料性|规范性)(?:附录)?[）)]", plain(blocks[i - 1]["text"]))
                 and not re.match(r"^[A-Z]\s*\.", value)):

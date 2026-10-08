@@ -10,26 +10,5 @@ data/processed/
 # ===== 临时产物 =====
 tmp/
 
-# ===== data/benchmark：Git保留核心，完整历史仅本地保存 =====
-# 默认忽略历史发布、KG、缓存、生成/补题/审核/修订/实验及未来版本。
-/data/benchmark/**
-!/data/benchmark/README.md
-!/data/benchmark/gold150_final_v1/
-!/data/benchmark/gold150_final_v1/dev/
-!/data/benchmark/gold150_final_v1/holdout/
-
-# 当前v1仅放行11个运行核心文件；原始manifest及150题字节保持不变。
-# review/、review_provenance/和分集gold副本保留本地，完整校验使用 --include-history。
-!/data/benchmark/gold150_final_v1/README.md
-!/data/benchmark/gold150_final_v1/gold.jsonl
-!/data/benchmark/gold150_final_v1/documents.jsonl
-!/data/benchmark/gold150_final_v1/chunks.jsonl
-!/data/benchmark/gold150_final_v1/families.json
-!/data/benchmark/gold150_final_v1/manifest.json
-!/data/benchmark/gold150_final_v1/split.json
-!/data/benchmark/gold150_final_v1/dev/queries.jsonl
-!/data/benchmark/gold150_final_v1/dev/run_template.jsonl
-!/data/benchmark/gold150_final_v1/holdout/queries.jsonl
-!/data/benchmark/gold150_final_v1/holdout/run_template.jsonl
-
-docs/
+# ===== 新评测产物：生成后独立审核与发布 =====
+/data/benchmark/

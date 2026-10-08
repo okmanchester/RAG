@@ -1,4 +1,4 @@
-"""CLI: python -m rag_baseline.chunk --input data/raw --output data/processed/baseline_v1."""
+"""CLI: python -m rag.chunk --input data/raw --output data/processed/mineru_v1."""
 from __future__ import annotations
 
 import argparse
@@ -7,14 +7,15 @@ import importlib.metadata
 import json
 import platform
 import sys
+from collections import Counter
 from pathlib import Path
 
-from .parsers import parse
-from .splitter import DEFAULT_MODEL, TokenCounter, chunk_document
+from .parsers import DEFAULT_CONFIG, parse
+from .splitter import DEFAULT_MODEL, STRATEGY, TokenCounter, chunk_document
 from .structure import build_sections
 from .retrieval import summarize
 
-PACKAGES = ("pymupdf4llm", "pymupdf", "pymupdf-layout", "python-docx", "transformers", "tokenizers")
+PACKAGES = ("mineru", "docvortex", "torch", "mineru-llama-cpp", "transformers", "tokenizers")
 
 
 def digest(path):
@@ -40,13 +41,20 @@ def distribution(values):
             "p50": values[(len(values) - 1) // 2], "p95": values[int((len(values) - 1) * .95)]}
 
 
-def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400, overlap=50):
+def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400, overlap=50,
+        *, reuse_parsed=False, page_range="", config_path=DEFAULT_CONFIG, include=None):
+    input_dir, output_dir = Path(input_dir), Path(output_dir)
     if maximum <= 0 or not 0 <= overlap < maximum:
         raise ValueError("require max-tokens > overlap-tokens >= 0")
     if not input_dir.is_dir():
         raise ValueError(f"input directory does not exist: {input_dir}")
     files = sorted((p for p in input_dir.rglob("*") if p.suffix.lower() in (".pdf", ".docx") and p.is_file()),
                    key=lambda p: p.relative_to(input_dir).as_posix())
+    if include:
+        requested = set(include)
+        files = [p for p in files if p.relative_to(input_dir).as_posix() in requested]
+        if {p.relative_to(input_dir).as_posix() for p in files} != requested:
+            raise ValueError("--include must name existing PDF/DOCX paths relative to input")
     if not files:
         raise ValueError("no PDF or DOCX inputs found")
     counter = TokenCounter(model_path)
@@ -54,18 +62,22 @@ def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400
     fingerprint = {p.name: digest(p) for p in sorted(model.iterdir())
                    if p.name in {"tokenizer.json", "tokenizer_config.json", "vocab.txt", "special_tokens_map.json",
                                  "config.json", "sentence_bert_config.json"}}
-    report = {"schema_version": 1, "strategy": "structure_recursive_v1",
+    report = {"schema_version": 2, "strategy": STRATEGY,
               "parameters": {"input": input_dir.as_posix(), "model_path": str(model_path),
                              "max_tokens": maximum, "overlap_tokens": overlap,
                              "title_in_budget": True, "special_tokens_in_budget": False,
-                             "ocr": False, "overlap_across_sections": False},
+                             "ocr": "auto", "pdf_tier": "standard", "docx_tier": "flash",
+                             "image_analysis": False, "page_range": page_range,
+                             "include": list(include) if include else None,
+                             "mineru_config": str(config_path), "reuse_parsed": reuse_parsed,
+                             "overlap_across_sections": False},
               "versions": versions(), "tokenizer_files_sha256": fingerprint,
               "implementation_sha256": {p.name: digest(p) for p in sorted(Path(__file__).parent.glob("*.py"))},
-              "limitations": ["Image-only content is not transcribed; OCR is disabled.",
-                              "PDF reading order and headings depend on parser layout accuracy.",
-                              "Numbered headings and TOC boundaries use conservative heuristics.",
-                              "DOCX textboxes, tracked revisions, headers and footers are outside the baseline.",
-                              "Tables retain text rows; complex table structure is not reconstructed."],
+              "limitations": ["Parsing quality depends on MinerU layout/OCR accuracy.",
+                              "No generated descriptions for pictures or charts.",
+                              "DOCX content positions are not physical page numbers.",
+                              "Oversized structures are split without silently truncating text.",
+                              "Replay verifies saved parsing, not repeated model inference."],
               "documents": []}
     output_dir.mkdir(parents=True, exist_ok=True)
     lengths, overlaps, doc_count, chunk_count = [], [], 0, 0
@@ -75,7 +87,7 @@ def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400
             (output_dir / "chunks.jsonl.tmp").open("w", encoding="utf-8", newline="\n") as chunks_stream:
         for number, path in enumerate(files, 1):
             relative = path.relative_to(input_dir).as_posix()
-            document = {"source_path": relative, "category": path.relative_to(input_dir).parts[0]
+            document = {"schema_version": 2, "source_path": relative, "category": path.relative_to(input_dir).parts[0]
                         if len(path.relative_to(input_dir).parts) > 1 else "uncategorized",
                         "format": path.suffix.lower()[1:], "blocks": []}
             chunks = []
@@ -83,18 +95,26 @@ def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400
                 file_hash = digest(path)
                 document.update(sha256=file_hash, doc_id=hashlib.sha256(
                     f"{relative}:{file_hash}".encode()).hexdigest()[:24])
-                blocks, metadata = parse(path)
+                artifact_relative = Path("parsed") / document["doc_id"]
+                blocks, metadata = parse(path, artifact_dir=output_dir / artifact_relative,
+                                         reuse=reuse_parsed, page_range=page_range, config_path=config_path)
+                metadata["artifacts"] = artifact_relative.as_posix()
+                metadata["artifact_files_sha256"] = {p.relative_to(output_dir / artifact_relative).as_posix(): digest(p)
+                    for p in sorted((output_dir / artifact_relative).rglob("*")) if p.is_file()}
                 document.update(metadata, blocks=blocks)
                 title, sections, warnings = build_sections(blocks, path.stem)
-                document.update(title=title, warnings=warnings,
+                document.update(title=title, warnings=warnings + document.get("parser_warnings", []),
                                 sections=[{**s, "blocks": [b["block_id"] for b in s["blocks"]]} for s in sections])
-                if not blocks:
+                if not sections:
                     document.update(status="empty", warnings=warnings + ["no_extractable_text"])
                 else:
                     chunks = chunk_document(document, sections, counter, maximum, overlap)
                     document["status"] = "ok"
             except Exception as exc:
                 document.update(status="failed", error=f"{type(exc).__name__}: {exc}")
+            document["excluded_block_count"] = sum(b.get("role") == "excluded" for b in document["blocks"])
+            document["exclusions"] = [{"block_id": b["block_id"], "reason": b.get("exclusion_reason"),
+                                       "source": b["source"]} for b in document["blocks"] if b.get("role") == "excluded"]
             document["chunk_count"] = len(chunks)
             documents_stream.write(json.dumps(document, ensure_ascii=False) + "\n")
             for chunk in chunks:
@@ -116,6 +136,11 @@ def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400
                               "all_overlaps_within_budget": all(x <= overlap for x in overlaps),
                               "section_text_reconstruction": "passed for all successfully chunked documents"})
     report["retrieval_filter"] = summarize(all_chunks)
+    report["audit"] = {"excluded_blocks": sum(d["excluded_block_count"] for d in report["documents"]),
+                       "structure_types": {}}
+    report["audit"]["structure_types"] = dict(Counter(c["structure_type"] for c in all_chunks))
+    report["artifacts_sha256"] = {name: digest(output_dir / (name + ".tmp"))
+                                  for name in ("documents.jsonl", "chunks.jsonl")}
     (output_dir / "report.json.tmp").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for name in ("documents.jsonl", "chunks.jsonl", "report.json"):
         (output_dir / (name + ".tmp")).replace(output_dir / name)
@@ -127,13 +152,19 @@ def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=Path("data/raw"))
-    parser.add_argument("--output", type=Path, default=Path("data/processed/baseline_v1"))
+    parser.add_argument("--output", type=Path, default=Path("data/processed/mineru_v1"))
     parser.add_argument("--model-path", default=DEFAULT_MODEL)
     parser.add_argument("--max-tokens", type=int, default=400)
     parser.add_argument("--overlap-tokens", type=int, default=50)
+    parser.add_argument("--reuse-parsed", action="store_true", help="Rechunk validated saved parsing without inference")
+    parser.add_argument("--pages", default="", help="PDF page range (one-based); empty means all pages")
+    parser.add_argument("--include", nargs="+", help="Input-relative PDF/DOCX paths; useful for smoke tests")
+    parser.add_argument("--mineru-config", type=Path, default=DEFAULT_CONFIG)
     args = parser.parse_args()
     try:
-        return run(args.input, args.output, args.model_path, args.max_tokens, args.overlap_tokens)
+        return run(args.input, args.output, args.model_path, args.max_tokens, args.overlap_tokens,
+                   reuse_parsed=args.reuse_parsed, page_range=args.pages,
+                   config_path=args.mineru_config, include=args.include)
     except Exception as exc:
         print(f"error: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
