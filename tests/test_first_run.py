@@ -71,6 +71,31 @@ class FirstRunTests(unittest.TestCase):
                 self.assertEqual(len(index.chunks), 1)
                 self.assertEqual(index.search("question")[0]["id"], "body")
 
+    def test_concurrent_score_resume_reuses_fixed_ids(self):
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root)
+            evaluation = output / "evaluation"
+            write_json(output / "trace_map.json", {"q1": "t1", "q2": "t2"})
+            write_json(output / "run_manifest.json", {"identity": {"pipeline_version": "test"}})
+            write_jsonl(evaluation / "scores.jsonl", [
+                {"id": "q1", "metrics": {"faithfulness": .5}},
+                {"id": "q2", "metrics": {"faithfulness": 1.}},
+            ])
+            remote = {}
+            client = Mock()
+            def create(**kwargs):
+                entry = SimpleNamespace(id=kwargs["id"], name=kwargs["name"], value=kwargs["value"],
+                    subject=SimpleNamespace(kind="trace", id=kwargs["trace_id"]))
+                remote[entry.id] = entry
+                return entry
+            client.api.scores.create.side_effect = create
+            client.api.scores_v3.get_many_v3.side_effect = lambda **kwargs: SimpleNamespace(
+                data=[entry for entry in remote.values() if entry.subject.id == kwargs["trace_id"]])
+            self.assertEqual(publish_scores(output, evaluation, client, concurrency=2), 2)
+            self.assertEqual(publish_scores(output, evaluation, client, concurrency=2), 2)
+            self.assertEqual(client.api.scores.create.call_count, 2)
+            self.assertEqual(json.loads((output / "score_sync.json").read_text())["created_count"], 0)
+
     def test_experiment_receives_id_only_and_resume_skips_model(self):
         with tempfile.TemporaryDirectory() as root:
             base = Path(root)
@@ -94,7 +119,30 @@ class FirstRunTests(unittest.TestCase):
                 run_baseline(release, ["q1"], output, index, langfuse)
                 run_baseline(release, ["q1"], output, index, langfuse)
             self.assertEqual(answer.call_count, 1)
+            self.assertEqual(langfuse.run_experiment.call_count, 1)
             self.assertEqual(json.loads((output / "trace_map.json").read_text()), {"q1": "trace-1"})
+
+    def test_holdout_run_reads_only_holdout_queries(self):
+        with tempfile.TemporaryDirectory() as root:
+            release, output = Path(root) / "release", Path(root) / "run"
+            write_json(release / "manifest.json", {"gold_sha256": "gold"})
+            write_jsonl(release / "holdout" / "queries.jsonl", [{"id": "h1", "user_input": "holdout question"}])
+            index = Mock(identity={"index_version": 1})
+            index.search.return_value = []
+            langfuse = Mock()
+            langfuse.start_as_current_observation.side_effect = lambda **kwargs: nullcontext(Mock())
+            def experiment(**kwargs):
+                self.assertEqual(kwargs["name"], "rag-gold150-holdout")
+                self.assertEqual(kwargs["metadata"]["split"], "holdout")
+                kwargs["task"](item=kwargs["data"][0])
+                return SimpleNamespace(item_results=[SimpleNamespace(item=kwargs["data"][0], trace_id="holdout-trace")])
+            langfuse.run_experiment.side_effect = experiment
+            with patch("openai.OpenAI"), patch("rag_baseline.benchmark.first_run.answer_question", return_value=("answer", {})), \
+                 patch("rag_baseline.benchmark.first_run.validate_run"):
+                run_baseline(release, ["h1"], output, index, langfuse, split="holdout")
+                with self.assertRaisesRegex(ValueError, "distinct holdout"):
+                    run_baseline(release, ["dev-id"], output, index, langfuse, split="holdout")
+            index.search.assert_called_once_with("holdout question")
 
     def test_remote_verification_uses_current_read_apis_and_checks_privacy(self):
         with tempfile.TemporaryDirectory() as root:

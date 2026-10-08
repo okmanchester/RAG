@@ -243,10 +243,48 @@ class BenchmarkTests(unittest.TestCase):
              patch("rag_baseline.benchmark.evaluation.build_llm",return_value=(llm,client)), \
              patch.object(Faithfulness,"ascore",new=AsyncMock(return_value=Mock(value=1.0))), \
              redirect_stdout(io.StringIO()):
-            report=asyncio.run(evaluate_release(self.source,run_path,self.root/"scores"))
+            report=asyncio.run(evaluate_release(self.source,run_path,self.root/"scores", metric_version=1))
         self.assertEqual(report["overall"]["statuses"],{"ok":1,"judge_error":1})
         self.assertEqual(report["overall"]["metrics"]["answer_point_accuracy"]["completion_rate"],.5)
         self.assertEqual(report["overall"]["metrics"]["faithfulness"]["completion_rate"],1.)
+        client.close.assert_awaited_once()
+
+    def test_concurrent_evaluation_preserves_order_and_limits_inflight(self):
+        from unittest.mock import Mock
+        from ragas.metrics.collections import Faithfulness
+        from ragas.llms.base import InstructorBaseRagasLLM
+        items = [self.item(n) for n in range(3)]
+        for item in items:
+            item["split"] = "dev"
+        rows = [{"id": item["id"], "response": "完成检查。", "error": None,
+                 "run_config": {"version": "mock"}, "retrieved_contexts": [], "citations": []} for item in items]
+        run_path = self.root / "parallel-runs.jsonl"
+        write_jsonl(run_path, rows)
+        active, peak = 0, 0
+        async def judge(prompt, model):
+            nonlocal active, peak
+            if model is Probe:
+                return Probe(ok=True)
+            active += 1
+            peak = max(peak, active)
+            await asyncio.sleep(.02)
+            active -= 1
+            return Judgment(point_verdicts=["correct"], citation_verdicts=[], claims=[],
+                            boundary_correct=None, reason="test")
+        llm = Mock(spec=InstructorBaseRagasLLM)
+        llm.agenerate = AsyncMock(side_effect=judge)
+        client = Mock()
+        client.close = AsyncMock()
+        output = self.root / "parallel-scores"
+        with patch("rag_baseline.benchmark.evaluation.load_release", return_value=(items, {"gold_sha256": "test"})), \
+             patch("rag_baseline.benchmark.evaluation.build_llm", return_value=(llm, client)), \
+             patch.object(Faithfulness, "ascore", new=AsyncMock(return_value=Mock(value=1.))), \
+             redirect_stdout(io.StringIO()):
+            report = asyncio.run(evaluate_release(self.source, run_path, output, concurrency=2, metric_version=1))
+        self.assertEqual(peak, 2)
+        self.assertEqual(report["overall"]["statuses"], {"ok": 3})
+        self.assertEqual([json.loads(line)["id"] for line in (output / "scores.jsonl").read_text(encoding="utf-8").splitlines()],
+                         [item["id"] for item in items])
         client.close.assert_awaited_once()
 
     def test_usage_logging_omits_prompt_and_key(self):

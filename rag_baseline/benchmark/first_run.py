@@ -10,6 +10,7 @@ import os
 import re
 import subprocess
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from .core import GOLD150_CORE_FILES, Corpus, digest, file_hash, load_release, now, read_jsonl, write_json, write_jsonl
@@ -163,11 +164,13 @@ def preflight(release: Path, require_langfuse: bool = True) -> None:
             raise ValueError("Langfuse authentication failed")
 
 
-def run_baseline(release: Path, ids: list[str], output: Path, index: DenseIndex, langfuse) -> None:
+def run_baseline(release: Path, ids: list[str], output: Path, index: DenseIndex, langfuse, split: str = "dev") -> None:
     from openai import OpenAI
-    queries = {r["id"]: r["user_input"] for r in read_jsonl(release / "dev" / "queries.jsonl")}
+    if split not in ("dev", "holdout"):
+        raise ValueError(f"Unsupported split: {split}")
+    queries = {r["id"]: r["user_input"] for r in read_jsonl(release / split / "queries.jsonl")}
     if not ids or len(ids) != len(set(ids)) or set(ids) - queries.keys():
-        raise ValueError("Requested IDs must be distinct dev questions")
+        raise ValueError(f"Requested IDs must be distinct {split} questions")
     identity = {"release_gold_sha256": json.loads((release / "manifest.json").read_text(encoding="utf-8"))["gold_sha256"],
                 "selected_ids": ids, "index": index.identity, "pipeline_version": PIPELINE_VERSION,
                 "answer_model": GENERATOR_CONFIG["model"], "prompt_sha256": hashlib.sha256(ANSWER_PROMPT.encode()).hexdigest()}
@@ -176,6 +179,14 @@ def run_baseline(release: Path, ids: list[str], output: Path, index: DenseIndex,
         raise ValueError("Run inputs changed; use a new output directory")
     if not manifest.exists():
         write_json(manifest, {"identity": identity, "created_at": now(), "status": "running"})
+    trace_path = output / "trace_map.json"
+    traces = json.loads(trace_path.read_text(encoding="utf-8")) if trace_path.exists() else {}
+    pending_ids = []
+    for identifier in ids:
+        saved_path = output / "items" / f"{identifier}.json"
+        saved = json.loads(saved_path.read_text(encoding="utf-8")) if saved_path.exists() else None
+        if saved is None or saved["error"] is not None or not traces.get(identifier):
+            pending_ids.append(identifier)
     client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"], base_url=GENERATOR_CONFIG["base_url"],
                     timeout=120, max_retries=2)
 
@@ -207,30 +218,53 @@ def run_baseline(release: Path, ids: list[str], output: Path, index: DenseIndex,
                "error": error}
         validate_run(row, index.corpus)
         write_json(saved_path, row)
+        print(f"[RUN] {split} {identifier} {'ok' if error is None else error}", flush=True)
         return {"question_id": identifier, "status": "ok" if error is None else "run_error"}
 
     try:
-        result = langfuse.run_experiment(name="rag-gold150-dev", run_name=output.name,
-                                         data=[{"input": identifier} for identifier in ids], task=task,
-                                         max_concurrency=1, metadata={"pipeline_version": PIPELINE_VERSION,
-                                                                       "split": "dev", "item_count": str(len(ids))})
+        if pending_ids:
+            result = langfuse.run_experiment(name=f"rag-gold150-{split}", run_name=output.name,
+                                             data=[{"input": identifier} for identifier in pending_ids], task=task,
+                                             max_concurrency=1, metadata={"pipeline_version": PIPELINE_VERSION,
+                                                                           "split": split, "item_count": str(len(ids))})
+            traces.update({entry.item["input"]: entry.trace_id for entry in result.item_results})
     finally:
         client.close()
         langfuse.flush()
-    traces = {entry.item["input"]: entry.trace_id for entry in result.item_results}
-    write_json(output / "trace_map.json", traces)
+    write_json(trace_path, traces)
     rows = [json.loads((output / "items" / f"{identifier}.json").read_text(encoding="utf-8")) for identifier in ids]
     write_jsonl(output / "runs.jsonl", rows)
     write_json(manifest, {"identity": identity, "status": "complete", "completed_at": now(),
                           "run_error_count": sum(row["error"] is not None for row in rows)})
 
 
-def publish_scores(output: Path, evaluation: Path, langfuse) -> int:
+def score_protocol(evaluation: Path) -> dict:
+    path = evaluation / "manifest.json"
+    identity = json.loads(path.read_text(encoding="utf-8"))["identity"] if path.exists() else {}
+    if identity.get("metric_version", 1) not in (1, 2):
+        raise ValueError("Unknown metric protocol")
+    return identity
+
+
+def remote_score_identity(run_identity, evaluation_identity, question_id, name):
+    if evaluation_identity.get("metric_version", 1) == 2:
+        remote_name = f"benchmark.v2/{name}"
+        key = f"{run_identity}:{digest(evaluation_identity)}:{question_id}:{remote_name}"
+    else:
+        remote_name = name
+        key = f"{run_identity}:{question_id}:{name}"
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, key)), remote_name
+
+
+def publish_scores(output: Path, evaluation: Path, langfuse, concurrency: int = 1) -> int:
+    if concurrency < 1:
+        raise ValueError("Sync concurrency must be positive")
     traces = json.loads((output / "trace_map.json").read_text(encoding="utf-8"))
     scores = read_jsonl(evaluation / "scores.jsonl")
     run_identity = digest(json.loads((output / "run_manifest.json").read_text(encoding="utf-8"))["identity"])
-    count, created = 0, 0
-    for row in scores:
+    evaluation_identity = score_protocol(evaluation)
+    def publish_row(row):
+        count, created = 0, 0
         trace_id = traces.get(row["id"])
         if not trace_id:
             raise ValueError(f"Missing Langfuse trace: {row['id']}")
@@ -239,35 +273,52 @@ def publish_scores(output: Path, evaluation: Path, langfuse) -> int:
         for name, value in row["metrics"].items():
             if not isinstance(value, (float, int)) or not math.isfinite(value):
                 continue
-            score_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{run_identity}:{row['id']}:{name}"))
+            if evaluation_identity.get("metric_version") == 2 and not 0 <= value <= 1:
+                raise ValueError(f"Score outside [0,1]: {name}")
+            score_id, remote_name = remote_score_identity(run_identity, evaluation_identity, row["id"], name)
             existing = remote_scores.get(score_id)
             if existing is not None:
-                if (existing.subject.kind != "trace" or existing.subject.id != trace_id or existing.name != name
+                if (existing.subject.kind != "trace" or existing.subject.id != trace_id or existing.name != remote_name
                         or not math.isclose(float(existing.value), float(value))):
                     raise ValueError(f"Existing Langfuse score mismatch: {row['id']}/{name}")
             else:
-                result = langfuse.api.scores.create(id=score_id, trace_id=trace_id, name=name,
+                result = langfuse.api.scores.create(id=score_id, trace_id=trace_id, name=remote_name,
                     value=float(value), data_type="NUMERIC",
-                    metadata={"question_id": row["id"], "protocol": "uncalibrated_diagnostic"})
+                    metadata={"question_id": row["id"], "protocol": "uncalibrated_diagnostic",
+                              **({"metric_version": 2, "evaluation_sha256": digest(evaluation_identity)}
+                                 if evaluation_identity.get("metric_version") == 2 else {})})
                 if result.id != score_id:
                     raise ValueError(f"Langfuse score ID mismatch: {row['id']}/{name}")
                 created += 1
             count += 1
+        if concurrency > 1:
+            print(f"[SYNC] {output.name} {row['id']} {count}", flush=True)
+        return count, created
+
+    with ThreadPoolExecutor(max_workers=concurrency) as pool:
+        results = list(pool.map(publish_row, scores))
+    count = sum(result[0] for result in results)
+    created = sum(result[1] for result in results)
     write_json(output / "score_sync.json", {"synced_at": now(), "score_count": count,
                                              "created_count": created,
                                              "evaluation": evaluation.as_posix()})
     return count
 
 
-def verify_uploaded(output: Path, release: Path, langfuse) -> dict:
+def verify_uploaded(output: Path, release: Path, langfuse, split: str = "dev", concurrency: int = 1) -> dict:
     """Read back v2 observations and v3 scores, checking metadata-only payloads."""
     traces = json.loads((output / "trace_map.json").read_text(encoding="utf-8"))
     runs = {row["id"]: row for row in read_jsonl(output / "runs.jsonl")}
     scores = {row["id"]: row for row in read_jsonl(output / "evaluation" / "scores.jsonl")}
-    queries = {row["id"]: row["user_input"] for row in read_jsonl(release / "dev" / "queries.jsonl")}
+    queries = {row["id"]: row["user_input"] for row in read_jsonl(release / split / "queries.jsonl")}
     run_identity = digest(json.loads((output / "run_manifest.json").read_text(encoding="utf-8"))["identity"])
-    verified_scores, expected_scores = 0, 0
-    for identifier, trace_id in traces.items():
+    evaluation_identity = score_protocol(output / "evaluation")
+    if concurrency < 1:
+        raise ValueError("Verification concurrency must be positive")
+
+    def verify_trace(entry):
+        identifier, trace_id = entry
+        verified_scores, expected_scores = 0, 0
         observations = langfuse.api.observations.get_many(trace_id=trace_id,
             fields="core,basic,io,metadata,usage", limit=100)
         if not observations.data:
@@ -283,14 +334,22 @@ def verify_uploaded(output: Path, release: Path, langfuse) -> dict:
             if not isinstance(value, (float, int)) or not math.isfinite(value):
                 continue
             expected_scores += 1
-            score_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{run_identity}:{identifier}:{name}"))
+            score_id, remote_name = remote_score_identity(run_identity, evaluation_identity, identifier, name)
             remote = remote_scores.get(score_id)
             if remote is None:
                 continue  # Score reads can lag ingestion; --verify-only can be retried.
-            if (remote.subject.kind != "trace" or remote.subject.id != trace_id or remote.name != name
+            if (remote.subject.kind != "trace" or remote.subject.id != trace_id or remote.name != remote_name
                     or not math.isclose(float(remote.value), float(value))):
                 raise ValueError(f"Langfuse score mismatch: {identifier}/{name}")
             verified_scores += 1
+        if concurrency > 1:
+            print(f"[VERIFY] {split} {identifier} {verified_scores}/{expected_scores}", flush=True)
+        return verified_scores, expected_scores
+
+    with ThreadPoolExecutor(max_workers=concurrency) as pool:
+        results = list(pool.map(verify_trace, traces.items()))
+    verified_scores = sum(result[0] for result in results)
+    expected_scores = sum(result[1] for result in results)
     result = {"verified_at": now(), "trace_count": len(traces), "score_count": verified_scores,
               "expected_score_count": expected_scores,
               "status": "complete" if verified_scores == expected_scores else "pending_score_index",
@@ -304,6 +363,7 @@ def main() -> None:
     parser.add_argument("--release", type=Path, default=DEFAULT_RELEASE)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--full-dev", action="store_true", help="Run all 120 dev questions; default is six-question smoke")
+    parser.add_argument("--metric-version", type=int, choices=[1, 2], default=2)
     parser.add_argument("--verify-only", action="store_true", help="Read back prior Langfuse traces and scores")
     parser.add_argument("--sync-scores", action="store_true", help="Sync saved local scores through the acknowledged Scores API")
     args = parser.parse_args()
@@ -331,7 +391,7 @@ def main() -> None:
     run_baseline(release, ids, args.output, index, langfuse)
     evaluation = args.output / "evaluation"
     report = asyncio.run(evaluate_release(release, args.output / "runs.jsonl", evaluation,
-                                          ids_path=ids_file))
+                                          ids_path=ids_file, metric_version=args.metric_version))
     report["calibration_status"] = "uncalibrated_diagnostic"
     write_json(evaluation / "report.json", report)
     synced = publish_scores(args.output, evaluation, langfuse)

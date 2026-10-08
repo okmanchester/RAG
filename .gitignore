@@ -31,3 +31,5 @@ tmp/
 !/data/benchmark/gold150_final_v1/dev/run_template.jsonl
 !/data/benchmark/gold150_final_v1/holdout/queries.jsonl
 !/data/benchmark/gold150_final_v1/holdout/run_template.jsonl
+
+docs/

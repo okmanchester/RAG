@@ -58,10 +58,14 @@ def main():
             p.add_argument("--retrieval-only", action="store_true")
             p.add_argument("--retry-failed", action="store_true")
             p.add_argument("--ids-file", type=Path, help="JSONL rows with id; score only these IDs in the selected split")
+            p.add_argument("--metric-version", type=int, choices=[1, 2], default=2)
+            p.add_argument("--reuse-faithfulness-from", type=Path)
+            p.add_argument("--concurrency", type=int, default=1)
     p = sub.add_parser("compare")
     p.add_argument("--left", type=Path, required=True)
     p.add_argument("--right", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--protocol-difference", action="store_true", help="Compare saved identical answers across scoring protocols")
     for name in ("calibration-template", "calibrate"):
         p = sub.add_parser(name)
         p.add_argument("--release", type=Path, required=True)
@@ -154,17 +158,19 @@ def main():
         print(f"Frozen release: {args.output}")
     else:
         from .evaluation import (calibrate, calibration_template, evaluate_release,
-                                 paired_comparison, ragas_export)
+                                 paired_comparison, protocol_comparison, ragas_export)
         if args.command == "evaluate":
             report = asyncio.run(evaluate_release(args.release, args.runs, args.output, args.split,
-                                                  args.retrieval_only, args.retry_failed, args.ids_file))
+                                                  args.retrieval_only, args.retry_failed, args.ids_file,
+                                                  concurrency=args.concurrency, metric_version=args.metric_version,
+                                                  reuse_faithfulness_from=args.reuse_faithfulness_from))
             print(json.dumps(report["overall"], ensure_ascii=False, indent=2))
             if any(k != "ok" for k in report["overall"]["statuses"]):
                 return 1
         elif args.command == "export-ragas":
             ragas_export(args.release, args.runs, args.output, args.split)
         elif args.command == "compare":
-            paired_comparison(args.left, args.right, args.output)
+            (protocol_comparison if args.protocol_difference else paired_comparison)(args.left, args.right, args.output)
         elif args.command == "calibration-template":
             calibration_template(args.release, args.output)
         elif args.command == "calibrate":
