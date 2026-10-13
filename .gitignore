@@ -21,6 +21,14 @@ data/benchmark/**/full_runs/
 data/benchmark/**/review_provenance/
 data/benchmark/**/revision_history/
 
+# ===== pilot/ 试跑目录：只入库人可读结论，运行产物不入库 =====
+# 参见 AGENTS.md「入库的只有人可读的结论」。runs/items/scores/history/
+# implementation_snapshot 等可由 release + 代码重建，且 manifest 未覆盖它们。
+data/benchmark/**/pilot/*
+!data/benchmark/**/pilot/report.json
+!data/benchmark/**/pilot/point_review.jsonl
+!data/benchmark/**/pilot/judge_disagreements.json
+
 # ===== 运行残留 =====
 *.tmp
 .pytest_cache/
