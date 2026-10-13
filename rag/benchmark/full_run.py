@@ -7,7 +7,8 @@ import json
 import os
 from pathlib import Path
 
-from .core import file_hash, load_release, now, read_jsonl, write_json, write_jsonl
+from .core import (RUN_DIR_ROOT, default_run_dir, file_hash, load_release, now,
+                   read_jsonl, write_json, write_jsonl)
 from .evaluation import evaluate_release, summarize_scores
 from .first_run import (DenseIndex, preflight, publish_scores,
                         run_baseline, usable_release, verify_uploaded)
@@ -50,7 +51,10 @@ def summarize_full_run(release: Path, output: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--release", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--output", type=Path,
+                        help="Artifact directory (default: <run-root>/<release>/<stamp>_full)")
+    parser.add_argument("--run-root", type=Path, default=RUN_DIR_ROOT,
+                        help="Root for the default output directory (git-ignored)")
     parser.add_argument("--retry-failed", action="store_true", help="Retry failed saved evaluations")
     parser.add_argument("--evaluation-concurrency", type=int, default=4)
     parser.add_argument("--metric-version", type=int, choices=[1, 2], default=2)
@@ -59,6 +63,7 @@ def main() -> None:
     mode.add_argument("--verify-only", action="store_true")
     mode.add_argument("--sync-scores", action="store_true")
     args = parser.parse_args()
+    output = args.output or default_run_dir(args.release, "full", args.run_root)
     os.environ.setdefault("RAGAS_DO_NOT_TRACK", "true")
     os.environ.setdefault("LANGFUSE_TIMEOUT", "30")
     release = usable_release(args.release)
@@ -72,7 +77,7 @@ def main() -> None:
     if not (args.verify_only or args.sync_scores):
         index = DenseIndex(release)
         for split in ("dev", "holdout"):
-            folder = args.output / split
+            folder = output / split
             ids = sorted(item["id"] for item in items if item["split"] == split)
             ids_file = folder / "selected_ids.jsonl"
             if ids_file.exists() and [row["id"] for row in read_jsonl(ids_file)] != ids:
@@ -80,19 +85,19 @@ def main() -> None:
             write_jsonl(ids_file, [{"id": identifier} for identifier in ids])
             run_baseline(release, ids, folder, index, langfuse, split=split)
         for split in ("dev", "holdout"):
-            folder = args.output / split
+            folder = output / split
             report = asyncio.run(evaluate_release(release, folder / "runs.jsonl", folder / "evaluation",
                 split=split, retry_failed=args.retry_failed, ids_path=folder / "selected_ids.jsonl",
                 concurrency=args.evaluation_concurrency, metric_version=args.metric_version))
             report["calibration_status"] = "uncalibrated_diagnostic"
             write_json(folder / "evaluation" / "report.json", report)
     for split in ("dev", "holdout"):
-        folder = args.output / split
+        folder = output / split
         if not args.verify_only:
             publish_scores(folder, folder / "evaluation", langfuse, concurrency=args.remote_concurrency)
         verify_uploaded(folder, release, langfuse, split=split, concurrency=args.remote_concurrency)
-    report = summarize_full_run(release, args.output)
-    print(json.dumps({"output": args.output.as_posix(), "question_count": report["overall"]["count"],
+    report = summarize_full_run(release, output)
+    print(json.dumps({"output": output.as_posix(), "question_count": report["overall"]["count"],
                       "statuses": report["overall"]["statuses"],
                       "remote_verification": report["remote_verification"]}, ensure_ascii=False, indent=2))
 

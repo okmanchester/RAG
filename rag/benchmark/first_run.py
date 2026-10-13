@@ -13,7 +13,8 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from .core import Corpus, digest, file_hash, load_release, now, read_jsonl, write_json, write_jsonl
+from .core import (Corpus, RUN_DIR_ROOT, default_run_dir, digest, file_hash, load_release,
+                   now, read_jsonl, write_json, write_jsonl)
 from .evaluation import calibration_template, evaluate_release, validate_run
 from .generation import GENERATOR_CONFIG, MODEL_PATH
 
@@ -23,6 +24,8 @@ ANSWER_PROMPT = ("你是固定语料的中文问答助手。只根据提供的�
                  "每个可由材料支持的事实主张紧随对应编号引用，例如[1]；只引用实际提供的编号。"
                  "概括回答必要事实、条件和例外，最多六句、450个汉字。不使用外部知识补足材料。")
 PIPELINE_VERSION = "dense-bge-deepseek-v2"
+# Embedding cache lives under the repo root (git-ignored), not the caller's CWD.
+CACHE_ROOT = Path(__file__).resolve().parents[2] / "tmp" / "benchmark_cache"
 
 
 def load_local_env(root: Path = Path(".")) -> None:
@@ -55,7 +58,7 @@ def select_smoke_ids(items: list[dict], count: int = 6) -> list[str]:
 
 
 class DenseIndex:
-    def __init__(self, release: Path, cache_root: Path = Path("tmp/benchmark_cache")):
+    def __init__(self, release: Path, cache_root: Path = CACHE_ROOT):
         import numpy as np
         from sentence_transformers import SentenceTransformer
         self.corpus = Corpus(release)
@@ -367,7 +370,10 @@ def verify_uploaded(output: Path, release: Path, langfuse, split: str = "dev", c
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--release", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--output", type=Path,
+                        help="Artifact directory (default: <run-root>/<release>/<stamp>_smoke|dev)")
+    parser.add_argument("--run-root", type=Path, default=RUN_DIR_ROOT,
+                        help="Root for the default output directory (git-ignored)")
     parser.add_argument("--full-dev", action="store_true", help="Run all dev questions; default is six-question smoke")
     parser.add_argument("--metric-version", type=int, choices=[1, 2], default=2)
     parser.add_argument('--allow-evolving', action='store_true')
@@ -377,6 +383,8 @@ def main() -> None:
     parser.add_argument("--verify-only", action="store_true", help="Read back prior Langfuse traces and scores")
     parser.add_argument("--sync-scores", action="store_true", help="Sync saved local scores through the acknowledged Scores API")
     args = parser.parse_args()
+    output = args.output or default_run_dir(
+        args.release, "dev" if args.full_dev else "smoke", args.run_root)
     os.environ.setdefault("RAGAS_DO_NOT_TRACK", "true")
     if args.local_only and (args.verify_only or args.sync_scores):
         parser.error('--local-only cannot verify or sync Langfuse')
@@ -387,45 +395,45 @@ def main() -> None:
         from langfuse import get_client
         langfuse = get_client()
     if args.verify_only:
-        print(json.dumps(verify_uploaded(args.output, release, langfuse), ensure_ascii=False, indent=2))
+        print(json.dumps(verify_uploaded(output, release, langfuse), ensure_ascii=False, indent=2))
         return
     if args.sync_scores:
-        synced = publish_scores(args.output, args.output / "evaluation", langfuse)
+        synced = publish_scores(output, output / "evaluation", langfuse)
         print(json.dumps({"synced_scores": synced,
-                          "remote_verification": verify_uploaded(args.output, release, langfuse)},
+                          "remote_verification": verify_uploaded(output, release, langfuse)},
                          ensure_ascii=False, indent=2))
         return
     items, _ = load_release(release, allow_evolving=args.allow_evolving)
     ids = sorted(i["id"] for i in items if i["split"] == "dev") if args.full_dev else select_smoke_ids(items)
     if args.ids_file:
         ids = [row['id'] for row in read_jsonl(args.ids_file)]
-    ids_file = args.output / "selected_ids.jsonl"
+    ids_file = output / "selected_ids.jsonl"
     if ids_file.exists() and [row["id"] for row in read_jsonl(ids_file)] != ids:
         raise ValueError("Selected IDs changed; use a new output directory")
     write_jsonl(ids_file, [{"id": identifier} for identifier in ids])
     index = DenseIndex(release)
-    run_baseline(release, ids, args.output, index, langfuse, allow_evolving=args.allow_evolving)
-    evaluation = args.output / "evaluation"
-    report = asyncio.run(evaluate_release(release, args.output / "runs.jsonl", evaluation,
+    run_baseline(release, ids, output, index, langfuse, allow_evolving=args.allow_evolving)
+    evaluation = output / "evaluation"
+    report = asyncio.run(evaluate_release(release, output / "runs.jsonl", evaluation,
                                           ids_path=ids_file, metric_version=args.metric_version,
                                           allow_evolving=args.allow_evolving, retry_failed=args.retry_failed))
     report["calibration_status"] = "uncalibrated_diagnostic"
     write_json(evaluation / "report.json", report)
     if args.local_only:
         print(json.dumps({'question_count':len(ids), 'statuses':report['overall']['statuses'],
-                          'telemetry':'local_only', 'output':args.output.as_posix()}, ensure_ascii=False, indent=2))
+                          'telemetry':'local_only', 'output':output.as_posix()}, ensure_ascii=False, indent=2))
         if any(status != 'ok' for status in report['overall']['statuses']):
             raise SystemExit(1)
         return
-    synced = publish_scores(args.output, evaluation, langfuse)
-    template = args.output / "calibration_template.jsonl"
+    synced = publish_scores(output, evaluation, langfuse)
+    template = output / "calibration_template.jsonl"
     if not template.exists():
         calibration_template(release, template)
-    remote = verify_uploaded(args.output, release, langfuse)
+    remote = verify_uploaded(output, release, langfuse)
     print(json.dumps({"release": release.as_posix(), "question_count": len(ids),
                       "statuses": report["overall"]["statuses"], "langfuse_scores": synced,
                       "remote_verification": remote,
-                      "output": args.output.as_posix()}, ensure_ascii=False, indent=2))
+                      "output": output.as_posix()}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

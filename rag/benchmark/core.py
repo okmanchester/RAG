@@ -78,6 +78,20 @@ def write_jsonl(path, rows):
     temporary.replace(path)
 
 
+# Git-ignored root for run artifacts; see AGENTS.md「产物与版本管理约定」.
+RUN_DIR_ROOT = Path("tmp/runs")
+
+
+def default_run_dir(release, kind, root=RUN_DIR_ROOT):
+    """Default location for a run's outputs: <root>/<release name>/<utc stamp>_<kind>.
+
+    ``root`` (default ``tmp/runs``) is git-ignored, so outputs never land inside a
+    tracked release directory. CLI ``--output`` overrides this.
+    """
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return Path(root) / Path(release).name / f"{stamp}_{kind}"
+
+
 def normalize(text):
     return re.sub(r"[\W_]+", "", text).lower()
 

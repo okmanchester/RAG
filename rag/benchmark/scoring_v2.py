@@ -145,8 +145,14 @@ def extract_citations_v2(response, contexts):
     result = []
     for group in re.finditer(r"\[\d+\](?:[ \t]*\[\d+\])*", response):
         prefix = response[:group.start()]
+        # A reference after terminal punctuation still belongs to that sentence.
+        # Do not scan across a paragraph or an earlier reference.
+        search_end = len(prefix.rstrip(" \t”’\"')）"))
+        if search_end and prefix[search_end-1] in "。！？!?.”’\"'":
+            search_end -= 1
         # A sentence-end reference covers semicolon-separated clauses too.
-        start = max(prefix.rfind(c) for c in "。！？\n!?") + 1
+        boundaries = list(re.finditer(r"[。！？\n!?]|(?<!\d)\.(?!\d)", prefix[:search_end]))
+        start = boundaries[-1].end() if boundaries else 0
         # A preceding citation in the same sentence is an attachment boundary.
         previous = list(re.finditer(r"\[\d+\]", prefix[start:]))
         if previous:
@@ -189,10 +195,15 @@ def grounding_issues(item, row, judgment):
     n = len(item["answer_points"])
     citations = extract_citations_v2(row["response"], row["retrieved_contexts"])
     issues = []
-    def issue(path, error, candidates=None):
-        issues.append({"path": path, "error": error, **({"verbatim_candidates": candidates} if candidates else {})})
-    if len(judgment.point_verdicts) != n or len(judgment.point_response_quotes) != n or len(judgment.citation_verdicts) != len(citations):
-        issue("judgment", "Judge output cardinality mismatch")
+    def issue(path, error, candidates=None, group=None):
+        group = group or ("points" if path.startswith("point_") or path == "answer_points" else
+                          "boundary" if path.startswith("boundary_") else "citations")
+        issues.append({"path": path, "error": error, "group": group,
+                       **({"verbatim_candidates": candidates} if candidates else {})})
+    if len(judgment.point_verdicts) != n or len(judgment.point_response_quotes) != n:
+        issue("point_verdicts", "Judge output cardinality mismatch", group="points")
+    if len(judgment.citation_verdicts) != len(citations):
+        issue("citation_verdicts", "Judge output cardinality mismatch")
     for index, (verdict, quote) in enumerate(zip(judgment.point_verdicts, judgment.point_response_quotes)):
         if verdict == "missing":
             if quote != "":
@@ -203,9 +214,9 @@ def grounding_issues(item, row, judgment):
     seen, by_citation = set(), {i: [] for i in range(len(citations))}
     for index, claim in enumerate(judgment.claims):
         quote = match_text(claim.response_quote)
-        key = (quote, claim.citation_index)
+        key = (match_text(claim.claim).strip(), quote, claim.citation_index)
         if key in seen:
-            issue(f"claims[{index}]", "duplicate response_quote at same citation; use distinct atomic quotes or merge duplicate claims")
+            issue(f"claims[{index}]", "duplicate atomic claim at same citation; merge repeated facts")
         seen.add(key)
         if not contains_quote(row["response"], quote):
             issue(f"claims[{index}].response_quote", "quote absent from response", quote_candidates(row["response"], quote))
@@ -258,17 +269,36 @@ def score_judgment_v2(item, row, judgment):
     issues = grounding_issues(item, row, judgment)
     if issues:
         raise ValueError("; ".join(f"{i['path']}: {i['error']}" for i in issues))
+    return score_judgment_v2_parts(item, row, judgment)[0]
+
+
+def score_judgment_v2_parts(item, row, judgment, extra_issues=()):
+    """Score independent metric groups, never fill a failed metric with zero."""
+    issues = [*grounding_issues(item, row, judgment), *extra_issues]
+    errors = {}
+    metrics = {}
+    def valid(group, names):
+        problems = [i for i in issues if i["group"] == group]
+        if problems:
+            message = "; ".join(f"{i['path']}: {i['error']}" for i in problems)
+            errors.update({name: message for name in names})
+        return not problems
     if item["expected_behavior"] != "answer":
-        return {"boundary_behavior_accuracy": float(judgment.boundary_correct)}
+        if valid("boundary", ["boundary_behavior_accuracy"]):
+            metrics["boundary_behavior_accuracy"] = float(judgment.boundary_correct)
+        return metrics, errors, issues
     n = len(item["answer_points"])
     citations = extract_citations_v2(row["response"], row["retrieved_contexts"])
     verdicts = judgment.point_verdicts
     credits = sum({"correct": 1., "partial": .5, "incorrect": 0., "missing": 0.}[v] for v in verdicts)
     missing = verdicts.count("missing")
-    metrics = {"answer_point_accuracy": credits/(n-missing) if n > missing else 0.,
-               "answer_point_completeness": credits/n, "answer_point_missing_rate": missing/n,
-               "answer_all_points_correct": float(all(v == "correct" for v in verdicts)),
-               "citation_support": sum(judgment.citation_verdicts)/len(citations) if citations else 0.,
-               "citation_coverage": sum(c.citation_supported for c in judgment.claims)/len(judgment.claims) if judgment.claims else 0.}
+    point_names = ["answer_point_accuracy", "answer_point_completeness", "answer_point_missing_rate", "answer_all_points_correct"]
+    if valid("points", point_names):
+        metrics.update(answer_point_accuracy=credits/(n-missing) if n > missing else 0.,
+                       answer_point_completeness=credits/n, answer_point_missing_rate=missing/n,
+                       answer_all_points_correct=float(all(v == "correct" for v in verdicts)))
+    if valid("citations", ["citation_support", "citation_coverage"]):
+        metrics.update(citation_support=sum(judgment.citation_verdicts)/len(citations) if citations else 0.,
+                       citation_coverage=sum(c.citation_supported for c in judgment.claims)/len(judgment.claims) if judgment.claims else 0.)
     validate_metrics(metrics)
-    return metrics
+    return metrics, errors, issues

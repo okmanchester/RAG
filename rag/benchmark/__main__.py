@@ -6,8 +6,9 @@ import os
 import sys
 from pathlib import Path
 
-from .core import (Corpus, digest, duplicate_clusters, export_review, freeze, import_review,
-                   quotas, read_jsonl, validate_item, write_json, write_jsonl)
+from .core import (Corpus, RUN_DIR_ROOT, default_run_dir, digest, duplicate_clusters,
+                   export_review, freeze, import_review, quotas, read_jsonl, validate_item,
+                   write_json, write_jsonl)
 from .core import schema_version, freeze_reviewed, load_release, GOLD150_CORE_FILES
 from .quality import boundary
 
@@ -49,15 +50,20 @@ def main():
         p = sub.add_parser(name)
         p.add_argument("--release", type=Path, required=True)
         p.add_argument("--runs", type=Path, required=True)
-        p.add_argument("--output", type=Path, required=True)
+        p.add_argument("--output", type=Path, required=(name != "evaluate"),
+                       help="Artifact directory (evaluate default: <run-root>/<release>/<stamp>_eval)")
         p.add_argument("--split", choices=["dev", "holdout"], default="dev")
         if name == "evaluate":
+            p.add_argument("--run-root", type=Path, default=RUN_DIR_ROOT,
+                           help="Root for the default output directory (git-ignored)")
             p.add_argument('--allow-evolving', action='store_true')
             p.add_argument("--retrieval-only", action="store_true")
             p.add_argument("--retry-failed", action="store_true")
             p.add_argument("--ids-file", type=Path, help="JSONL rows with id; score only these IDs in the selected split")
             p.add_argument("--metric-version", type=int, choices=[1, 2], default=2)
+            p.add_argument("--judge-protocol", choices=['fragments', 'verbatim'], default='fragments')
             p.add_argument("--reuse-faithfulness-from", type=Path)
+            p.add_argument("--reuse-judgments-from", type=Path)
             p.add_argument("--concurrency", type=int, default=1)
     p = sub.add_parser("compare")
     p.add_argument("--left", type=Path, required=True)
@@ -71,6 +77,8 @@ def main():
         if name == "calibrate":
             p.add_argument("--labels", type=Path, required=True)
     args = parser.parse_args()
+    if args.command == "evaluate":
+        args.output = args.output or default_run_dir(args.release, "eval", args.run_root)
     if args.command == 'verify-release':
         rows, manifest = load_release(args.release, verify_history=args.include_history, allow_evolving=args.allow_evolving)
         core_only = manifest.get('dataset_kind') == 'gold150' and not args.include_history
@@ -159,7 +167,8 @@ def main():
                                                   args.retrieval_only, args.retry_failed, args.ids_file,
                                                   concurrency=args.concurrency, metric_version=args.metric_version,
                                                   reuse_faithfulness_from=args.reuse_faithfulness_from,
-                                                  allow_evolving=args.allow_evolving))
+                                                  allow_evolving=args.allow_evolving, judge_protocol=args.judge_protocol,
+                                                  reuse_judgments_from=args.reuse_judgments_from))
             print(json.dumps(report["overall"], ensure_ascii=False, indent=2))
             if any(k != "ok" for k in report["overall"]["statuses"]):
                 return 1

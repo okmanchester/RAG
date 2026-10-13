@@ -3,11 +3,19 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from rag.benchmark.core import write_json, write_jsonl
+from rag.benchmark.core import RUN_DIR_ROOT, default_run_dir, write_json, write_jsonl
 from rag.benchmark.full_run import summarize_full_run
 
 
 class FullRunTests(unittest.TestCase):
+    def test_default_run_dir_is_gitignored_and_release_scoped(self):
+        run = default_run_dir(Path("data/benchmark/gold150_hard_v2"), "full")
+        self.assertEqual(run.parent, Path("tmp/runs/gold150_hard_v2"))
+        self.assertRegex(run.name, r"^\d{8}T\d{6}Z_full$")
+        custom = default_run_dir(Path("rel"), "eval", root=Path("tmp/other"))
+        self.assertEqual(custom.parent, Path("tmp/other/rel"))
+        self.assertEqual(RUN_DIR_ROOT, Path("tmp/runs"))
+
     def test_full_report_weights_scored_questions_and_requires_full_coverage(self):
         items = [{"id": f"q{n:03d}", "schema_version": 2, "split": "dev" if n < 6 else "holdout",
                   "category": "policy", "answer_form": ["fact"], "evidence_span": "single_unit",

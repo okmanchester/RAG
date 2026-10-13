@@ -11,7 +11,18 @@ data/processed/
 tmp/
 
 # ===== 新评测产物：生成后独立审核与发布 =====
+# 只有 gold150_hard_v2 进入版本管理；其它 release 目录一律不入库
 /data/benchmark/*
 !/data/benchmark/gold150_hard_v2/
-/data/benchmark/gold150_hard_v2/review_provenance/
-/data/benchmark/gold150_hard_v2/revision_history/
+
+# ===== 评测运行产物：体积大、可由 release + 代码重建，不入库 =====
+# 按目录名全局忽略（任意深度），新增同类产物目录无需再逐条追加
+data/benchmark/**/full_runs/
+data/benchmark/**/review_provenance/
+data/benchmark/**/revision_history/
+
+# ===== 运行残留 =====
+*.tmp
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

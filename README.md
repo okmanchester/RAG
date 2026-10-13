@@ -96,7 +96,7 @@ for chunk in iter_retrieval_chunks(Path("data/processed/mineru_v1/chunks.jsonl")
 
 当前评测集为 `data/benchmark/gold150_hard_v2`，从旧150题金标准的本地备份演进而来。沿用原始33份文档与切块快照，政策、技术各75题；基础15题、中等45题、困难60题，拒答、纠错、澄清各10题。全部为开发集，原冻结决定已撤销，本版未重新冻结。题集、查询文件、证据审核及版本指纹可校验；审核方式为Codex离线来源审核，不声称人工复审。
 
-使用 `--allow-evolving` 显式评测演进集，`--local-only` 运行本地流程而不连接Langfuse。真实试跑仅限运行前选定的5道困难题，详见 [难度演进与5题验证](docs/benchmark-hard150-v2-20261013.md)。旧高分baseline与本轮不同题目、不同评分协议，不直接比较均值。
+使用 `--allow-evolving` 显式评测演进集，`--local-only` 运行本地流程而不连接Langfuse。初次5题验证见 [难度演进与5题验证](docs/benchmark-hard150-v2-20261013.md)，原全量运行见 [历史全量结果](docs/benchmark-full150-v2-20261013.md)。评分流程现已修复：原15题全部恢复，150/150题的适用指标完成率100%，见 [评分修复与最终结果](docs/benchmark-scoring-fix-v2-20261013.md)。默认 `--judge-protocol fragments` 使用可回溯片段，按指标独立校验并检查每个引用位置的评估覆盖；`--reuse-judgments-from` 显式校验模型判定来源后重算，`--reuse-faithfulness-from` 校验并复用忠实度，完整复用可离线运行。自动评委仍有已记录的语义分歧，结果保留未校准诊断标记；不同题目、协议或分母的均值不直接比较。
 
 通用生成、审核、冻结、检索及评分代码保留。相关命令必须显式指定 `--corpus` 或 `--release`，不自动恢复旧发布：
 

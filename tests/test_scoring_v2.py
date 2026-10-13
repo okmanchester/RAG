@@ -218,6 +218,7 @@ class EvaluationV2Tests(unittest.TestCase):
         llm.agenerate = AsyncMock(side_effect=[Probe(ok=True), *outputs])
         client = Mock(); client.close = AsyncMock()
         faith = AsyncMock(return_value=Mock(value=1.))
+        kwargs.setdefault('judge_protocol', 'verbatim')
         with patch("rag.benchmark.evaluation.load_release", return_value=(self.items, {"gold_sha256": "gold"})), \
              patch("rag.benchmark.evaluation.build_llm", return_value=(llm, client)), \
              patch.object(Faithfulness, "ascore", new=faith), redirect_stdout(io.StringIO()):
