@@ -1,2 +1,9 @@
-# Preserve manifest-verified bytes for the current frozen release.
-data/benchmark/gold150_final_v1/** -text -whitespace
+# 保留 manifest 校验所需的原始字节。
+#
+# 本机 core.autocrlf=true：不加保护时 git 会把 CRLF 归一成 LF 入库，于是
+# 仓库里存的是 LF、manifest 记的是 CRLF，任何 clone 都过不了 manifest SHA 校验。
+# -text 关闭 EOL 转换，使「仓库字节 == 工作区字节 == manifest 记录的字节」。
+# 新增 release 自动受保护，无需逐条追加。
+data/benchmark/**/*.jsonl -text -whitespace
+data/benchmark/**/*.json  -text -whitespace
+data/benchmark/**/*.md    -text -whitespace
