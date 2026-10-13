@@ -10,10 +10,12 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from .parsers import DEFAULT_CONFIG, parse
+from .parsers import DEFAULT_CONFIG, parse, load_settings
 from .splitter import DEFAULT_MODEL, STRATEGY, TokenCounter, chunk_document
 from .structure import build_sections
 from .retrieval import summarize
+from .tables import TABLE_VERSION, build_table_views, fingerprint as table_fingerprint
+from .table_llm import options as table_options, collect_decisions
 
 PACKAGES = ("mineru", "docvortex", "torch", "mineru-llama-cpp", "transformers", "tokenizers")
 
@@ -42,7 +44,8 @@ def distribution(values):
 
 
 def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400, overlap=50,
-        *, reuse_parsed=False, page_range="", config_path=DEFAULT_CONFIG, include=None):
+        *, reuse_parsed=False, page_range="", config_path=DEFAULT_CONFIG, include=None, refresh_table_decisions=False,
+        table_geometry_path=None):
     input_dir, output_dir = Path(input_dir), Path(output_dir)
     if maximum <= 0 or not 0 <= overlap < maximum:
         raise ValueError("require max-tokens > overlap-tokens >= 0")
@@ -58,6 +61,14 @@ def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400
     if not files:
         raise ValueError("no PDF or DOCX inputs found")
     counter = TokenCounter(model_path)
+    table_config = table_options(load_settings(config_path))
+    geometry_documents = {}
+    if table_geometry_path:
+        geometry_data = json.loads(Path(table_geometry_path).read_text(encoding="utf-8"))
+        for item in geometry_data["documents"]:
+            if item["source_path"] in geometry_documents:
+                raise ValueError("duplicate source in table geometry")
+            geometry_documents[item["source_path"]] = item
     model = Path(model_path)
     fingerprint = {p.name: digest(p) for p in sorted(model.iterdir())
                    if p.name in {"tokenizer.json", "tokenizer_config.json", "vocab.txt", "special_tokens_map.json",
@@ -71,6 +82,7 @@ def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400
                              "include": list(include) if include else None,
                              "mineru_config": str(config_path), "reuse_parsed": reuse_parsed,
                              "overlap_across_sections": False},
+              "table_processing": table_config,
               "versions": versions(), "tokenizer_files_sha256": fingerprint,
               "implementation_sha256": {p.name: digest(p) for p in sorted(Path(__file__).parent.glob("*.py"))},
               "limitations": ["Parsing quality depends on MinerU layout/OCR accuracy.",
@@ -95,6 +107,11 @@ def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400
                 file_hash = digest(path)
                 document.update(sha256=file_hash, doc_id=hashlib.sha256(
                     f"{relative}:{file_hash}".encode()).hexdigest()[:24])
+                if relative in geometry_documents:
+                    geometry = geometry_documents[relative]
+                    if geometry["source_sha256"] != file_hash:
+                        raise ValueError("table geometry source checksum mismatch")
+                    document["table_geometry"] = geometry["cells"]
                 artifact_relative = Path("parsed") / document["doc_id"]
                 blocks, metadata = parse(path, artifact_dir=output_dir / artifact_relative,
                                          reuse=reuse_parsed, page_range=page_range, config_path=config_path)
@@ -105,6 +122,36 @@ def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400
                 title, sections, warnings = build_sections(blocks, path.stem)
                 document.update(title=title, warnings=warnings + document.get("parser_warnings", []),
                                 sections=[{**s, "blocks": [b["block_id"] for b in s["blocks"]]} for s in sections])
+                rules = build_table_views(document, sections)
+                decision_path = output_dir / "tables" / document["doc_id"] / "table_decisions.json"
+                decision_identity = {"config": table_config, "middle_sha256": digest(output_dir / artifact_relative / "middle_json.json"),
+                                     "geometry_sha256": table_fingerprint(document.get("table_geometry", []))}
+                if table_config["llm_enabled"] and reuse_parsed and not refresh_table_decisions:
+                    if not decision_path.is_file():
+                        raise ValueError("saved table decisions missing; use --refresh-table-decisions with --reuse-parsed")
+                    saved_decisions = json.loads(decision_path.read_text(encoding="utf-8"))
+                    if saved_decisions.get("identity") != decision_identity:
+                        raise ValueError("saved table decision identity mismatch")
+                    decisions = saved_decisions["decisions"]
+                else:
+                    decisions = collect_decisions(rules, table_config)
+                    # Derived artifacts stay outside the immutable native parse
+                    # directory/checksum manifest.
+                if table_config["llm_enabled"]:
+                    contexts = {o["context_id"] for view in rules for o in view["operations"]}
+                    if set(decisions) != contexts:
+                        raise ValueError("saved table decisions do not cover the actual boundaries; refresh required")
+                document.update(table_view_version=TABLE_VERSION, table_processing=table_config,
+                                table_decisions=decisions, table_views=build_table_views(document, sections, decisions))
+                document["table_processing_identity"] = table_fingerprint({"version": TABLE_VERSION, "config": table_config,
+                                                                     "decisions": decisions, "geometry": document.get("table_geometry", [])})
+                derived_dir = output_dir / "tables" / document["doc_id"]
+                derived_dir.mkdir(parents=True, exist_ok=True)
+                saved_path = derived_dir / "table_decisions.json"
+                saved_path.write_text(json.dumps({"identity": decision_identity, "decisions": decisions},
+                                                ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                document["table_decision_artifact"] = saved_path.relative_to(output_dir).as_posix()
+                document["table_decision_sha256"] = digest(saved_path)
                 if not sections:
                     document.update(status="empty", warnings=warnings + ["no_extractable_text"])
                 else:
@@ -157,6 +204,9 @@ def main():
     parser.add_argument("--max-tokens", type=int, default=400)
     parser.add_argument("--overlap-tokens", type=int, default=50)
     parser.add_argument("--reuse-parsed", action="store_true", help="Rechunk validated saved parsing without inference")
+    parser.add_argument("--refresh-table-decisions", action="store_true",
+                        help="Request new project table decisions while reusing native parsing")
+    parser.add_argument("--table-geometry", type=Path, help="Verified source-bound cell geometry JSON (optional)")
     parser.add_argument("--pages", default="", help="PDF page range (one-based); empty means all pages")
     parser.add_argument("--include", nargs="+", help="Input-relative PDF/DOCX paths; useful for smoke tests")
     parser.add_argument("--mineru-config", type=Path, default=DEFAULT_CONFIG)
@@ -164,7 +214,8 @@ def main():
     try:
         return run(args.input, args.output, args.model_path, args.max_tokens, args.overlap_tokens,
                    reuse_parsed=args.reuse_parsed, page_range=args.pages,
-                   config_path=args.mineru_config, include=args.include)
+                   config_path=args.mineru_config, include=args.include,
+                   refresh_table_decisions=args.refresh_table_decisions, table_geometry_path=args.table_geometry)
     except Exception as exc:
         print(f"error: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

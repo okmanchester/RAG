@@ -1,0 +1,308 @@
+{
+  "id": "trial_v3-pilot_v2-0010",
+  "response": "",
+  "retrieved_contexts": [
+    {
+      "id": "fe99f1c67282c78a5fa71d11",
+      "text": "网络安全标准实践指南 ——网络数据标签标识技术要求\n6 网络数据标签标识的属性格式和生成规则\n6.2 动态标签标识的属性格式\n6.2.4 数据分级\n\n数据分级属性字段占位 1 个字节，采用二进制编码的方式，按 照 GB/T 43697 中相应规则或行业主管部门认定情况对数据对象进行 判定是否属于核心数据、重要数据、一般数据、个人信息、敏感个人 信息，分别依次对应 8 个比特位的前 5 位，第 6 位表示本次传输数据 是否出境，第 7、8 位作为扩展位留作以后备用，比特位为“1”标识表 示“是”，比特位为“0”标识表示“否”。",
+      "doc_id": "3d757e76072c2a8d5674f956",
+      "document_sha256": "d0f5d291ebb0fb153e5ab502dbdaa967a0a05f58c24acffd340073c897944f49",
+      "sources": [
+        {
+          "block_id": 152,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 190,
+          "body_char_start": 0,
+          "body_char_end": 190,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "3d9910467d84812c25e39eaa",
+      "text": "网络安全标准实践指南 ——网络数据标签标识技术要求\n6 网络数据标签标识的属性格式和生成规则\n6.1 静态标签标识的属性格式\n6.1.3 数据分级\n\n数据分级属性字段占位 1 个字节，采用二进制编码的方式，按\n\n照 GB/T 43697 中相应规则或行业主管部门认定情况对数据对象进行 判定是否属于核心数据、重要数据、一般数据、个人信息、敏感个人 信息，分别依次对应 8 个比特位的前 5 位，第 6 位表示后续数据是否 出境，第 7、8 位作为扩展位留作以后备用，比特位为“1”标识表示“是”， 比特位为“0”标识表示“否”。",
+      "doc_id": "3d757e76072c2a8d5674f956",
+      "document_sha256": "d0f5d291ebb0fb153e5ab502dbdaa967a0a05f58c24acffd340073c897944f49",
+      "sources": [
+        {
+          "block_id": 137,
+          "page": 12,
+          "block_char_start": 0,
+          "block_char_end": 29,
+          "body_char_start": 0,
+          "body_char_end": 29,
+          "is_overlap": false
+        },
+        {
+          "block_id": 138,
+          "page": 12,
+          "block_char_start": 0,
+          "block_char_end": 158,
+          "body_char_start": 31,
+          "body_char_end": 189,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "d9e48953c84bfdeac2583108",
+      "text": "网络安全标准实践指南 ——网络数据标签标识技术要求\n6 网络数据标签标识的属性格式和生成规则\n6.2 动态标签标识的属性格式\n6.2.2 数据发送方\n\n数据发送方属性字段表示本次网络数据传输中数据对象的发送 主体，采用 GB 32100 中规定的法人和其他组织统一社会信用代码编 码的方式，占位 18 个字节。",
+      "doc_id": "3d757e76072c2a8d5674f956",
+      "document_sha256": "d0f5d291ebb0fb153e5ab502dbdaa967a0a05f58c24acffd340073c897944f49",
+      "sources": [
+        {
+          "block_id": 147,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 79,
+          "body_char_start": 0,
+          "body_char_end": 79,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "3996e29d047d8548b801e526",
+      "text": "网络安全标准实践指南 ——网络数据标签标识技术要求\n6 网络数据标签标识的属性格式和生成规则\n6.2 动态标签标识的属性格式\n6.2.1 数据源主体\n\n数据源主体属性字段表示数据对象采集或产生的源头主体，采用 GB 32100 中规定的法人和其他组织统一社会信用代码编码的方式。 占位 18 字节。",
+      "doc_id": "3d757e76072c2a8d5674f956",
+      "document_sha256": "d0f5d291ebb0fb153e5ab502dbdaa967a0a05f58c24acffd340073c897944f49",
+      "sources": [
+        {
+          "block_id": 145,
+          "page": 12,
+          "block_char_start": 0,
+          "block_char_end": 73,
+          "body_char_start": 0,
+          "body_char_end": 73,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "a80f222b502b8c560a2b5e7e",
+      "text": "工业数据分类分级指南（试行）\n第四章分级管理\n\n应能 抵御大规模、较强恶意攻击；针对一级数据采取的防护措施，应 能抵御一般恶意攻击。\n\n第十五条鼓励企业在做好数据管理的前提下适当共享一、 二级数据，充分释放工业数据的潜在价值。二级数据只对确需获 取该级数据的授权机构及相关人员开放。三级数据原则上不共享， 确需共享的应严格控制知悉范围。\n\n第十六条工业数据遭篡改、破坏、泄露或非法利用时，企 业应根据事先制定的应急预案立即进行应急处置。涉及三级数据 时，还应将事件及时上报数据所在地的省级工业和信息化主管部 门，并于应急工作结束后 30 日内补充上报事件处置情况。",
+      "doc_id": "951505085aafa85dc9064d5b",
+      "document_sha256": "942642d872213d00194f2d90788bf5725197c7e1daf6af87337077bd99140d19",
+      "sources": [
+        {
+          "block_id": 25,
+          "page": 4,
+          "block_char_start": 53,
+          "block_char_end": 95,
+          "body_char_start": 0,
+          "body_char_end": 42,
+          "is_overlap": true
+        },
+        {
+          "block_id": 26,
+          "page": 5,
+          "block_char_start": 0,
+          "block_char_end": 100,
+          "body_char_start": 44,
+          "body_char_end": 144,
+          "is_overlap": false
+        },
+        {
+          "block_id": 27,
+          "page": 5,
+          "block_char_start": 0,
+          "block_char_end": 112,
+          "body_char_start": 146,
+          "body_char_end": 258,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "1aae60ac8591d6a4fb258411",
+      "text": "网络安全标准实践指南 ——网络数据标签标识技术要求\n6 网络数据标签标识的属性格式和生成规则\n6.2 动态标签标识的属性格式\n6.2.8 扩展字段\n\n网络数据处理者组织还可根据实际业务需要增加扩展字段，扩展 字段可包含数据分类、安全控制要求、数据用途和留存期限等属性内 容，本文件不再对扩展字段进行规定。占位 64 字节。",
+      "doc_id": "3d757e76072c2a8d5674f956",
+      "document_sha256": "d0f5d291ebb0fb153e5ab502dbdaa967a0a05f58c24acffd340073c897944f49",
+      "sources": [
+        {
+          "block_id": 163,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 86,
+          "body_char_start": 0,
+          "body_char_end": 86,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "fffccdcbc46fa7be0a00dba3",
+      "text": "网络安全标准实践指南 ——网络数据标签标识技术要求\n附录 B\n网络数据标签标识格式示例\nB.1 网络数据标签标识属性格式模板示例\nB.1.1 静态标签标识属性格式模板示例\n\n|数据源主体|18|12165432117800056Q|丙公司所存储数据对象的源头是甲公<br>司。|\n\n|数据提供方|18|914405123456358117|该数据对象由乙公司直接提供给丙公<br>司。|\n\n|数据分级|1|00011100|该数据对象既是个人信息、又是敏感个<br>人信息、且未来可能出境、但不属于重<br>要数据|\n\n|扩展字段|64|——|可由企业根据需要自定义。|\n\n|静态标识|16|550e8400e29b41d4a71<br>6446655440000|UUID通常表示为32个十六进制字符。|\n\n|---|---|---|---|",
+      "doc_id": "3d757e76072c2a8d5674f956",
+      "document_sha256": "d0f5d291ebb0fb153e5ab502dbdaa967a0a05f58c24acffd340073c897944f49",
+      "sources": [
+        {
+          "block_id": 312,
+          "page": 28,
+          "block_char_start": 0,
+          "block_char_end": 52,
+          "body_char_start": 0,
+          "body_char_end": 52,
+          "is_overlap": true
+        },
+        {
+          "block_id": 313,
+          "page": 28,
+          "block_char_start": 0,
+          "block_char_end": 52,
+          "body_char_start": 54,
+          "body_char_end": 106,
+          "is_overlap": false
+        },
+        {
+          "block_id": 314,
+          "page": 28,
+          "block_char_start": 0,
+          "block_char_end": 63,
+          "body_char_start": 108,
+          "body_char_end": 171,
+          "is_overlap": false
+        },
+        {
+          "block_id": 315,
+          "page": 28,
+          "block_char_start": 0,
+          "block_char_end": 25,
+          "body_char_start": 173,
+          "body_char_end": 198,
+          "is_overlap": false
+        },
+        {
+          "block_id": 316,
+          "page": 29,
+          "block_char_start": 0,
+          "block_char_end": 66,
+          "body_char_start": 200,
+          "body_char_end": 266,
+          "is_overlap": false
+        },
+        {
+          "block_id": 317,
+          "page": 29,
+          "block_char_start": 0,
+          "block_char_end": 17,
+          "body_char_start": 268,
+          "body_char_end": 285,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "4e7a4cafb41b5bddc3abb7bf",
+      "text": "网络安全标准实践指南 ——网络数据标签标识技术要求\n6 网络数据标签标识的属性格式和生成规则\n6.2 动态标签标识的属性格式\n6.2.3 数据接收方\n\n数据接收方属性字段表示本次网络数据传输中数据对象的接收 主体，对于境内数据接收方采用 GB 32100 中规定的法人和其他组织 统一社会信用代码编码的方式，对于境外数据接收方可采用 GB/T 42495.1 中规定的全球法人机构识别编码的前 18 位或其他可唯一标识 的编码。占位 18 字节。\n\n注：如 6.1.3 中第 6 位为“0”则此处采用统一社会信用代码的方式，为“1”则此处可采用全球法人机构 识别编码的方式。",
+      "doc_id": "3d757e76072c2a8d5674f956",
+      "document_sha256": "d0f5d291ebb0fb153e5ab502dbdaa967a0a05f58c24acffd340073c897944f49",
+      "sources": [
+        {
+          "block_id": 149,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 147,
+          "body_char_start": 0,
+          "body_char_end": 147,
+          "is_overlap": false
+        },
+        {
+          "block_id": 150,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 62,
+          "body_char_start": 149,
+          "body_char_end": 211,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "2c3bf6ab5b6ec976c19d04ce",
+      "text": "网络安全标准实践指南 ——网络数据标签标识技术要求\n6 网络数据标签标识的属性格式和生成规则\n6.2 动态标签标识的属性格式\n6.2.10 数字签名\n\n通过非对称加密密码技术，对动态标签标识全部属性字段进行运 算，生成的数字签名字段，用于保障动态标签标识的完整性、真实性。 占位 64 字节。",
+      "doc_id": "3d757e76072c2a8d5674f956",
+      "document_sha256": "d0f5d291ebb0fb153e5ab502dbdaa967a0a05f58c24acffd340073c897944f49",
+      "sources": [
+        {
+          "block_id": 167,
+          "page": 15,
+          "block_char_start": 0,
+          "block_char_end": 70,
+          "body_char_start": 0,
+          "body_char_end": 70,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "7f2f6b5ca67891017e1aa9a3",
+      "text": "工业数据分类分级指南（试行）\n第一章总则\n\n涉及国家秘密信息的工 业数据，应遵守保密法律法规的规定，不适用本指南。\n\n第四条工业数据分类分级以提升企业数据管理能力为目标， 坚持问题导向、目标导向和结果导向相结合，企业主体、行业指 导和属地监管相结合，分类标识、逐类定级和分级管理相结合。",
+      "doc_id": "951505085aafa85dc9064d5b",
+      "document_sha256": "942642d872213d00194f2d90788bf5725197c7e1daf6af87337077bd99140d19",
+      "sources": [
+        {
+          "block_id": 5,
+          "page": 1,
+          "block_char_start": 44,
+          "block_char_end": 79,
+          "body_char_start": 0,
+          "body_char_end": 35,
+          "is_overlap": true
+        },
+        {
+          "block_id": 6,
+          "page": 1,
+          "block_char_start": 0,
+          "block_char_end": 84,
+          "body_char_start": 37,
+          "body_char_end": 121,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    }
+  ],
+  "citations": [],
+  "run_config": {
+    "pipeline_version": "dense-bge-deepseek-v2",
+    "top_k": 10,
+    "embedding": "D:/WorkSpace/AIModels/BAAI/bge-large-zh-v1.5",
+    "answer_model": "deepseek-flash",
+    "prompt_sha256": "01aa8cca6232229bdcdb0700bd830f0a61e5fbd9318feec800bd0b05a7e288ab",
+    "index_sha256": "b35f7b47d7609b7e5af0d4d82c63739510afd5ef30ebd5b2d90e0427b099ad67"
+  },
+  "error": "APIConnectionError: Connection error.",
+  "usage": {},
+  "elapsed_seconds": 1.5974319999995714
+}

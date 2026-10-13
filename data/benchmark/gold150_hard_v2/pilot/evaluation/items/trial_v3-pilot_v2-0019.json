@@ -1,0 +1,297 @@
+{
+  "id": "trial_v3-pilot_v2-0019",
+  "status": "ok",
+  "metrics": {
+    "evidence_recall@5": 0.75,
+    "all_evidence@5": 0.0,
+    "evidence_recall@10": 1.0,
+    "all_evidence@10": 1.0,
+    "answer_point_accuracy": 0.9285714285714286,
+    "answer_point_completeness": 0.7222222222222222,
+    "answer_point_missing_rate": 0.2222222222222222,
+    "answer_all_points_correct": 0.0,
+    "citation_support": 0.8333333333333334,
+    "citation_coverage": 0.9,
+    "faithfulness": 1.0
+  },
+  "metric_errors": {},
+  "at": "2026-10-13T03:52:32.753093+00:00",
+  "evaluated_citations": [
+    {
+      "claim": "金融账户信息属敏感个人信息，处理前须有特定目的和充分必要性并采取严格保护措施",
+      "context_ids": [
+        "8484105851a8cb9fdb0484a5"
+      ],
+      "citation_numbers": [
+        1
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        0,
+        38
+      ],
+      "citation_span": [
+        38,
+        41
+      ]
+    },
+    {
+      "claim": "；须取得个人单独同意，法律、行政法规要求书面同意的从其规定",
+      "context_ids": [
+        "8484105851a8cb9fdb0484a5"
+      ],
+      "citation_numbers": [
+        1
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        41,
+        70
+      ],
+      "citation_span": [
+        70,
+        73
+      ]
+    },
+    {
+      "claim": "；还须告知处理必要性及对个人权益的影响",
+      "context_ids": [
+        "8484105851a8cb9fdb0484a5"
+      ],
+      "citation_numbers": [
+        1
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        73,
+        92
+      ],
+      "citation_span": [
+        92,
+        95
+      ]
+    },
+    {
+      "claim": "事件发生后应立即采取补救措施，并通知履行个人信息保护职责的部门和个人",
+      "context_ids": [
+        "2a671158ac3d73180c5ffa2d"
+      ],
+      "citation_numbers": [
+        10
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        96,
+        130
+      ],
+      "citation_span": [
+        130,
+        134
+      ]
+    },
+    {
+      "claim": "；若措施能有效避免危害，可不通知个人，但部门认为可能造成危害时有权要求通知个人",
+      "context_ids": [
+        "d955b1f6578cdc3733722dcb"
+      ],
+      "citation_numbers": [
+        9
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        134,
+        173
+      ],
+      "citation_span": [
+        173,
+        176
+      ]
+    },
+    {
+      "claim": "成年客户不涉及不满十四周岁未成年人的监护人同意规则",
+      "context_ids": [
+        "8484105851a8cb9fdb0484a5",
+        "101901a500ba5a9abad19796"
+      ],
+      "citation_numbers": [
+        1,
+        2
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        177,
+        202
+      ],
+      "citation_span": [
+        202,
+        208
+      ]
+    }
+  ],
+  "judge_attempts": [
+    {
+      "attempt": 1,
+      "status": "ok"
+    }
+  ],
+  "judgment": {
+    "point_verdicts": [
+      "correct",
+      "correct",
+      "correct",
+      "correct",
+      "missing",
+      "correct",
+      "partial",
+      "correct",
+      "missing"
+    ],
+    "point_response_quotes": [
+      "金融账户信息属敏感个人信息",
+      "处理前须有特定目的和充分必要性并采取严格保护措施",
+      "须取得个人单独同意，法律、行政法规要求书面同意的从其规定",
+      "还须告知处理必要性及对个人权益的影响",
+      "",
+      "事件发生后应立即采取补救措施",
+      "若措施能有效避免危害，可不通知个人",
+      "部门认为可能造成危害时有权要求通知个人",
+      ""
+    ],
+    "citation_verdicts": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    "claims": [
+      {
+        "claim": "金融账户信息属于敏感个人信息",
+        "response_quote": "金融账户信息属敏感个人信息",
+        "citation_index": 0,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "8484105851a8cb9fdb0484a5",
+            "support_quote": "金融账户"
+          }
+        ]
+      },
+      {
+        "claim": "处理敏感个人信息须具有特定目的和充分必要性并采取严格保护措施",
+        "response_quote": "处理前须有特定目的和充分必要性并采取严格保护措施",
+        "citation_index": 0,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "8484105851a8cb9fdb0484a5",
+            "support_quote": "只有在具有特定的目的和充分的必要性，并采取严格保护措施的情形下，个人信息处理者方可处理敏感个人信息。"
+          }
+        ]
+      },
+      {
+        "claim": "处理敏感个人信息应取得个人单独同意",
+        "response_quote": "须取得个人单独同意",
+        "citation_index": 1,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "8484105851a8cb9fdb0484a5",
+            "support_quote": "第二十九条 处理敏感个人信息应当取得个人的单独同意"
+          }
+        ]
+      },
+      {
+        "claim": "法律、行政法规规定处理敏感个人信息应当取得书面同意的，从其规定",
+        "response_quote": "法律、行政法规要求书面同意的从其规定",
+        "citation_index": 1,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "8484105851a8cb9fdb0484a5",
+            "support_quote": "法律、行政法规规定处理敏感个人信息应当取得书面同意的，从其规定。"
+          }
+        ]
+      },
+      {
+        "claim": "处理敏感个人信息应告知处理必要性及对个人权益的影响",
+        "response_quote": "还须告知处理必要性及对个人权益的影响",
+        "citation_index": 2,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "8484105851a8cb9fdb0484a5",
+            "support_quote": "还应当向个人告知处理敏感个人信息的必要性以及对个人权益的影响"
+          }
+        ]
+      },
+      {
+        "claim": "发生个人信息泄露等事件应立即采取补救措施",
+        "response_quote": "事件发生后应立即采取补救措施",
+        "citation_index": 3,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 10,
+            "context_id": "2a671158ac3d73180c5ffa2d",
+            "support_quote": "发生或者可能发生个人信息泄露、篡改、丢失的，个人信息处理者应当立即采取补救措施"
+          }
+        ]
+      },
+      {
+        "claim": "发生个人信息泄露等事件应通知履行个人信息保护职责的部门和个人",
+        "response_quote": "并通知履行个人信息保护职责的部门和个人",
+        "citation_index": 3,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 10,
+            "context_id": "2a671158ac3d73180c5ffa2d",
+            "support_quote": "并通知履行个人信息保护职责的部门和个人"
+          }
+        ]
+      },
+      {
+        "claim": "采取措施能够有效避免危害的，可以不通知个人",
+        "response_quote": "若措施能有效避免危害，可不通知个人",
+        "citation_index": 4,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 9,
+            "context_id": "d955b1f6578cdc3733722dcb",
+            "support_quote": "个人信息处理者采取措施能够有效避免信息泄露、篡改、丢失造成危害的，个人信息处理者可以不通知个人"
+          }
+        ]
+      },
+      {
+        "claim": "履行个人信息保护职责的部门认为可能造成危害的，有权要求通知个人",
+        "response_quote": "但部门认为可能造成危害时有权要求通知个人",
+        "citation_index": 4,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 9,
+            "context_id": "d955b1f6578cdc3733722dcb",
+            "support_quote": "履行个人信息保护职责的部门认为可能造成危害的，有权要求个人信息处理者通知个人"
+          }
+        ]
+      },
+      {
+        "claim": "成年客户不涉及不满十四周岁未成年人的监护人同意规则",
+        "response_quote": "成年客户不涉及不满十四周岁未成年人的监护人同意规则",
+        "citation_index": 5,
+        "citation_supported": false,
+        "supports": []
+      }
+    ],
+    "boundary_correct": null,
+    "reason": "回答涵盖了敏感个人信息的定义、处理条件、单独同意、告知义务及泄露后的补救与通知例外。要点5（额外告知的法定例外）和要点9（补救不免除事前同意及部门通知义务）未涉及，判missing。要点7仅提及不通知个人的例外，未提及“不免除通知保护职责部门的义务”，判partial。引用[10]和[9]均得到材料支持，判true。引用[1]和[2]支持的“成年客户”主张在材料中无直接依据（材料仅规定未成年人需监护人同意，未明确排除成年人或定义成年客户规则），故该处citation_supported为false。"
+  }
+}

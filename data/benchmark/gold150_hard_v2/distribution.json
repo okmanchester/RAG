@@ -1,0 +1,27 @@
+{
+  "category": {
+    "policy": 75,
+    "technical": 75
+  },
+  "difficulty": {
+    "easy": 15,
+    "hard": 60,
+    "medium": 45,
+    "None": 30
+  },
+  "expected_behavior": {
+    "answer": 120,
+    "abstain": 10,
+    "correct_premise": 10,
+    "clarify": 10
+  },
+  "evidence_span": {
+    "single_unit": 50,
+    "within_document": 67,
+    "cross_document": 23,
+    "none": 10
+  },
+  "query_style": {
+    "natural": 150
+  }
+}

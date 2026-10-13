@@ -1,0 +1,474 @@
+{
+  "id": "batch_002_64-0047",
+  "status": "ok",
+  "metrics": {
+    "evidence_recall@5": 1.0,
+    "all_evidence@5": 1.0,
+    "evidence_recall@10": 1.0,
+    "all_evidence@10": 1.0,
+    "answer_point_accuracy": 0.9444444444444444,
+    "answer_point_completeness": 0.85,
+    "answer_point_missing_rate": 0.1,
+    "answer_all_points_correct": 0.0,
+    "citation_support": 0.8333333333333334,
+    "citation_coverage": 0.8888888888888888,
+    "faithfulness": 1.0
+  },
+  "metric_errors": {},
+  "at": "2026-10-13T03:51:22.603384+00:00",
+  "evaluated_citations": [
+    {
+      "claim": "视频显式标识通常应在视频起始画面和播放周边适当位置添加，可在末尾和中间适当位置添加",
+      "context_ids": [
+        "0b78103c97dfc3fdd62fd979"
+      ],
+      "citation_numbers": [
+        1
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        0,
+        41
+      ],
+      "citation_span": [
+        41,
+        44
+      ]
+    },
+    {
+      "claim": "；提供下载、复制、导出等功能时，应确保文件中含有满足要求的显式标识",
+      "context_ids": [
+        "0b78103c97dfc3fdd62fd979"
+      ],
+      "citation_numbers": [
+        1
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        44,
+        77
+      ],
+      "citation_span": [
+        77,
+        80
+      ]
+    },
+    {
+      "claim": "用户申请无显式标识版本的，服务提供者可在通过用户协议明确其标识义务和使用责任后提供，并依法留存提供对象信息等相关日志不少于六个月",
+      "context_ids": [
+        "22bad4629db8faf5c20b497c"
+      ],
+      "citation_numbers": [
+        5
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        81,
+        145
+      ],
+      "citation_span": [
+        145,
+        148
+      ]
+    },
+    {
+      "claim": "文件元数据隐式标识属强制：应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+      "context_ids": [
+        "0b78103c97dfc3fdd62fd979"
+      ],
+      "citation_numbers": [
+        1
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        149,
+        225
+      ],
+      "citation_span": [
+        225,
+        228
+      ]
+    },
+    {
+      "claim": "；数字水印等形式的隐式标识则是鼓励添加",
+      "context_ids": [
+        "0b78103c97dfc3fdd62fd979",
+        "e80c87545aa460aa47146f81"
+      ],
+      "citation_numbers": [
+        1,
+        2
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        228,
+        247
+      ],
+      "citation_span": [
+        247,
+        253
+      ]
+    },
+    {
+      "claim": "此外，任何组织和个人不得恶意删除、篡改、伪造、隐匿标识",
+      "context_ids": [
+        "22bad4629db8faf5c20b497c"
+      ],
+      "citation_numbers": [
+        5
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        254,
+        281
+      ],
+      "citation_span": [
+        281,
+        284
+      ]
+    }
+  ],
+  "judge_attempts": [
+    {
+      "attempt": 1,
+      "status": "invalid",
+      "error": "ValueError: point_response_quotes[9]: quote absent from response; keep verdict and quote consistent",
+      "judgment": {
+        "point_verdicts": [
+          "correct",
+          "correct",
+          "correct",
+          "correct",
+          "correct",
+          "correct",
+          "correct",
+          "partial",
+          "correct",
+          "correct"
+        ],
+        "point_response_quotes": [
+          "视频显式标识通常应在视频起始画面和播放周边适当位置添加，可在末尾和中间适当位置添加",
+          "提供下载、复制、导出等功能时，应确保文件中含有满足要求的显式标识",
+          "文件元数据隐式标识属强制：应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+          "文件元数据隐式标识属强制：应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+          "文件元数据隐式标识属强制：应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+          "文件元数据隐式标识属强制：应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+          "数字水印等形式的隐式标识则是鼓励添加",
+          "用户申请无显式标识版本的，服务提供者可在通过用户协议明确其标识义务和使用责任后提供",
+          "依法留存提供对象信息等相关日志不少于六个月",
+          "用户申请无显式标识只影响显式标识，不免除文件元数据隐式标识和申请提供日志义务"
+        ],
+        "citation_verdicts": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "claims": [
+          {
+            "claim": "视频显式标识通常应在视频起始画面和播放周边适当位置添加",
+            "response_quote": "视频显式标识通常应在视频起始画面和播放周边适当位置添加",
+            "citation_index": 0,
+            "citation_supported": true,
+            "supports": [
+              {
+                "citation_number": 1,
+                "context_id": "0b78103c97dfc3fdd62fd979",
+                "support_quote": "（四）在视频起始画面和视频播放周边的适当位置添加显著的 提示标识"
+              }
+            ]
+          },
+          {
+            "claim": "可在末尾和中间适当位置添加",
+            "response_quote": "可在末尾和中间适当位置添加",
+            "citation_index": 0,
+            "citation_supported": true,
+            "supports": [
+              {
+                "citation_number": 1,
+                "context_id": "0b78103c97dfc3fdd62fd979",
+                "support_quote": "可以在视频末尾和中间适当位置添加显著的提示标识"
+              }
+            ]
+          },
+          {
+            "claim": "提供下载、复制、导出等功能时，应确保文件中含有满足要求的显式标识",
+            "response_quote": "提供下载、复制、导出等功能时，应确保文件中含有满足要求的显式标识",
+            "citation_index": 1,
+            "citation_supported": true,
+            "supports": [
+              {
+                "citation_number": 1,
+                "context_id": "0b78103c97dfc3fdd62fd979",
+                "support_quote": "服务提供者提供生成合成内容下载、复制、导出等功能时，应 当确保文件中含有满足要求的显式标识。"
+              }
+            ]
+          },
+          {
+            "claim": "用户申请无显式标识版本的，服务提供者可在通过用户协议明确其标识义务和使用责任后提供",
+            "response_quote": "用户申请无显式标识版本的，服务提供者可在通过用户协议明确其标识义务和使用责任后提供",
+            "citation_index": 2,
+            "citation_supported": true,
+            "supports": [
+              {
+                "citation_number": 5,
+                "context_id": "22bad4629db8faf5c20b497c",
+                "support_quote": "用户申请服务提供者提供没有添加显式标识的生成合成 内容的，服务提供者可以在通过用户协议明确用户的标识义务和使 用责任后，提供不含显式标识的生成合成内容"
+              }
+            ]
+          },
+          {
+            "claim": "依法留存提供对象信息等相关日志不少于六个月",
+            "response_quote": "依法留存提供对象信息等相关日志不少于六个月",
+            "citation_index": 2,
+            "citation_supported": true,
+            "supports": [
+              {
+                "citation_number": 5,
+                "context_id": "22bad4629db8faf5c20b497c",
+                "support_quote": "并依法留存提供对 象信息等相关日志不少于六个月。"
+              }
+            ]
+          },
+          {
+            "claim": "文件元数据隐式标识属强制",
+            "response_quote": "文件元数据隐式标识属强制",
+            "citation_index": 3,
+            "citation_supported": true,
+            "supports": [
+              {
+                "citation_number": 1,
+                "context_id": "0b78103c97dfc3fdd62fd979",
+                "support_quote": "服务提供者应当按照《互联网信息服务深度合成管理规 定》第十六条的规定，在生成合成内容的文件元数据中添加隐式标 识"
+              }
+            ]
+          },
+          {
+            "claim": "应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+            "response_quote": "应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+            "citation_index": 3,
+            "citation_supported": true,
+            "supports": [
+              {
+                "citation_number": 1,
+                "context_id": "0b78103c97dfc3fdd62fd979",
+                "support_quote": "隐式标识包含生成合成内容属性信息、服务提供者名称或者编 码、内容编号等制作要素信息。"
+              }
+            ]
+          },
+          {
+            "claim": "数字水印等形式的隐式标识则是鼓励添加",
+            "response_quote": "数字水印等形式的隐式标识则是鼓励添加",
+            "citation_index": 4,
+            "citation_supported": true,
+            "supports": [
+              {
+                "citation_number": 1,
+                "context_id": "0b78103c97dfc3fdd62fd979",
+                "support_quote": "鼓励服务提供者在生成合成内容中添加数字水印等形式的隐式 标识。"
+              },
+              {
+                "citation_number": 2,
+                "context_id": "e80c87545aa460aa47146f81",
+                "support_quote": "鼓励服务提供者在生成合成内容中添加数字水印等形式的隐式 标识。"
+              }
+            ]
+          },
+          {
+            "claim": "任何组织和个人不得恶意删除、篡改、伪造、隐匿标识",
+            "response_quote": "任何组织和个人不得恶意删除、篡改、伪造、隐匿标识",
+            "citation_index": 5,
+            "citation_supported": false,
+            "supports": []
+          }
+        ],
+        "boundary_correct": null,
+        "reason": "回答涵盖了所有要点。要点8关于'通过用户协议明确用户的标识义务和使用责任'在回答中作为申请例外条件的一部分提及，未单独作为一般性要求展开，但事实正确，故判为partial。要点10关于'不免除文件元数据隐式标识'在回答中通过分别陈述强制性和例外情况隐含体现，但未直接引用'不免除'这一否定表述，鉴于其分别正确陈述了两者，且原文中有对应支持，此处判定为correct（或视严格程度可为partial，但考虑到信息完整性已覆盖，判correct）。引用[5]对应的最后一条主张在材料中确实存在（context 22bad4629db8faf5c20b497c中包含'任何组织和个人不得恶意删除...'），但citation_verdicts需检查该处全部事实主张是否均获支持。这里最后一个claim是独立的，且被引用[5]支持。等等，检查citation_verdicts逻辑：'只有该处全部事实主张均获引用支持...才为true'。Claim 9 (index 5) 是 '此外，任何组织和个人不得恶意删除、篡改、伪造、隐匿标识'。Context 5 (22bad4629db8faf5c20b497c) 包含 '任何组织和个人不得恶意删除、篡改、伪造、隐匿本办法规定 的生成合成内容标识'。支持成立。为何之前判false？重新检查：citation index 5 corresponds to citation number 5. Context is 22bad4629db8faf5c20b497c. Text matches. So citation_verdicts[5] should be true. Wait, let me re-read the response quote for claim 9. Response: '此外，任何组织和个人不得恶意删除、篡改、伪造、隐匿标识'. Support quote: '任何组织和个人不得恶意删除、篡改、伪造、隐匿本办法规定 的生成合成内容标识'. It is supported. So citation_verdicts[5] is true."
+      },
+      "validation_issues": [
+        {
+          "path": "point_response_quotes[9]",
+          "error": "quote absent from response; keep verdict and quote consistent",
+          "verbatim_candidates": [
+            "用户申请无显式标识版本的，服务提供者可在通过用户协议明确其标识义务和使用责任后提供，并依法留存提供对象信息等相关日志不少于六个月[5]。",
+            "文件元数据隐式标识属强制：应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息[1]；",
+            "数字水印等形式的隐式标识则是鼓励添加[1][2]。"
+          ]
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "status": "ok",
+      "repair": {
+        "point_fixes": [
+          {
+            "index": 9,
+            "verdict": "missing",
+            "response_quote": ""
+          }
+        ],
+        "claim_fixes": [],
+        "citation_fixes": [],
+        "boundary_fix": null,
+        "reason": "修正要点9的引用错误：原判定中point_response_quotes[9]的内容在回答原文中不存在，导致验证失败。根据规则，missing判定必须对应空字符串，因此将要点9的verdict修正为missing，response_quote修正为空字符串。其他字段经复核无误，保持原判定。"
+      }
+    }
+  ],
+  "judgment": {
+    "point_verdicts": [
+      "correct",
+      "correct",
+      "correct",
+      "correct",
+      "correct",
+      "correct",
+      "correct",
+      "partial",
+      "correct",
+      "missing"
+    ],
+    "point_response_quotes": [
+      "视频显式标识通常应在视频起始画面和播放周边适当位置添加，可在末尾和中间适当位置添加",
+      "提供下载、复制、导出等功能时，应确保文件中含有满足要求的显式标识",
+      "文件元数据隐式标识属强制：应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+      "文件元数据隐式标识属强制：应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+      "文件元数据隐式标识属强制：应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+      "文件元数据隐式标识属强制：应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+      "数字水印等形式的隐式标识则是鼓励添加",
+      "用户申请无显式标识版本的，服务提供者可在通过用户协议明确其标识义务和使用责任后提供",
+      "依法留存提供对象信息等相关日志不少于六个月",
+      ""
+    ],
+    "citation_verdicts": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    "claims": [
+      {
+        "claim": "视频显式标识通常应在视频起始画面和播放周边适当位置添加",
+        "response_quote": "视频显式标识通常应在视频起始画面和播放周边适当位置添加",
+        "citation_index": 0,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "0b78103c97dfc3fdd62fd979",
+            "support_quote": "（四）在视频起始画面和视频播放周边的适当位置添加显著的 提示标识"
+          }
+        ]
+      },
+      {
+        "claim": "可在末尾和中间适当位置添加",
+        "response_quote": "可在末尾和中间适当位置添加",
+        "citation_index": 0,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "0b78103c97dfc3fdd62fd979",
+            "support_quote": "可以在视频末尾和中间适当位置添加显著的提示标识"
+          }
+        ]
+      },
+      {
+        "claim": "提供下载、复制、导出等功能时，应确保文件中含有满足要求的显式标识",
+        "response_quote": "提供下载、复制、导出等功能时，应确保文件中含有满足要求的显式标识",
+        "citation_index": 1,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "0b78103c97dfc3fdd62fd979",
+            "support_quote": "服务提供者提供生成合成内容下载、复制、导出等功能时，应 当确保文件中含有满足要求的显式标识。"
+          }
+        ]
+      },
+      {
+        "claim": "用户申请无显式标识版本的，服务提供者可在通过用户协议明确其标识义务和使用责任后提供",
+        "response_quote": "用户申请无显式标识版本的，服务提供者可在通过用户协议明确其标识义务和使用责任后提供",
+        "citation_index": 2,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 5,
+            "context_id": "22bad4629db8faf5c20b497c",
+            "support_quote": "用户申请服务提供者提供没有添加显式标识的生成合成 内容的，服务提供者可以在通过用户协议明确用户的标识义务和使 用责任后，提供不含显式标识的生成合成内容"
+          }
+        ]
+      },
+      {
+        "claim": "依法留存提供对象信息等相关日志不少于六个月",
+        "response_quote": "依法留存提供对象信息等相关日志不少于六个月",
+        "citation_index": 2,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 5,
+            "context_id": "22bad4629db8faf5c20b497c",
+            "support_quote": "并依法留存提供对 象信息等相关日志不少于六个月。"
+          }
+        ]
+      },
+      {
+        "claim": "文件元数据隐式标识属强制",
+        "response_quote": "文件元数据隐式标识属强制",
+        "citation_index": 3,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "0b78103c97dfc3fdd62fd979",
+            "support_quote": "服务提供者应当按照《互联网信息服务深度合成管理规 定》第十六条的规定，在生成合成内容的文件元数据中添加隐式标 识"
+          }
+        ]
+      },
+      {
+        "claim": "应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+        "response_quote": "应按《互联网信息服务深度合成管理规定》第十六条在文件元数据中添加生成合成内容属性、服务提供者名称或编码、内容编号等制作要素信息",
+        "citation_index": 3,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "0b78103c97dfc3fdd62fd979",
+            "support_quote": "隐式标识包含生成合成内容属性信息、服务提供者名称或者编 码、内容编号等制作要素信息。"
+          }
+        ]
+      },
+      {
+        "claim": "数字水印等形式的隐式标识则是鼓励添加",
+        "response_quote": "数字水印等形式的隐式标识则是鼓励添加",
+        "citation_index": 4,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "0b78103c97dfc3fdd62fd979",
+            "support_quote": "鼓励服务提供者在生成合成内容中添加数字水印等形式的隐式 标识。"
+          },
+          {
+            "citation_number": 2,
+            "context_id": "e80c87545aa460aa47146f81",
+            "support_quote": "鼓励服务提供者在生成合成内容中添加数字水印等形式的隐式 标识。"
+          }
+        ]
+      },
+      {
+        "claim": "任何组织和个人不得恶意删除、篡改、伪造、隐匿标识",
+        "response_quote": "任何组织和个人不得恶意删除、篡改、伪造、隐匿标识",
+        "citation_index": 5,
+        "citation_supported": false,
+        "supports": []
+      }
+    ],
+    "boundary_correct": null,
+    "reason": "修正要点9的引用错误：原判定中point_response_quotes[9]的内容在回答原文中不存在，导致验证失败。根据规则，missing判定必须对应空字符串，因此将要点9的verdict修正为missing，response_quote修正为空字符串。其他字段经复核无误，保持原判定。"
+  }
+}

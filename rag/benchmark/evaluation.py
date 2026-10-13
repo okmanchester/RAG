@@ -205,14 +205,14 @@ def load_faithfulness_cache(source, identity, items, runs):
 
 
 async def evaluate_release(release, runs_path, output, split="dev", retrieval_only=False, retry_failed=False, ids_path=None, concurrency=1,
-                           metric_version=2, reuse_faithfulness_from=None):
+                           metric_version=2, reuse_faithfulness_from=None, allow_evolving=False):
     if type(metric_version) is not int or metric_version not in (1, 2):
         raise ValueError("metric_version must be 1 or 2")
     if retrieval_only and reuse_faithfulness_from is not None:
         raise ValueError("Faithfulness reuse is not applicable to retrieval-only evaluation")
     if not isinstance(concurrency, int) or concurrency < 1:
         raise ValueError("Evaluation concurrency must be a positive integer")
-    items, release_manifest = load_release(release)
+    items, release_manifest = (load_release(release, allow_evolving=True) if allow_evolving else load_release(release))
     all_ids = {i["id"] for i in items}
     items = [i for i in items if i["split"] == split]
     if ids_path is not None:
@@ -238,6 +238,8 @@ async def evaluate_release(release, runs_path, output, split="dev", retrieval_on
                 "metric_version": metric_version, "judge_schema_version": metric_version, "dependencies": dependency_versions(),
                 "implementation_sha256": {name: file_hash(Path(__file__).with_name(name))
                                            for name in ("core.py", "generation.py", "evaluation.py", "quality.py")}}
+    if release_manifest.get('version_sha256'):
+        identity['dataset_version_sha256'] = release_manifest['version_sha256']
     if metric_version == 2:
         identity["judge_schema_sha256"] = digest({"judgment": JudgmentV2.model_json_schema(), "repair": JudgmentRepair.model_json_schema()})
         identity["repair_rubric_sha256"] = digest(REPAIR_INSTRUCTION)

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "trial_v3-pilot_v2-0019",
+    "point_index": 6,
+    "judge_verdict": "partial",
+    "agent_note": "回答同时要求通知部门与个人，并仅对个人给出有效避免危害例外；语义上可能已保留部门通知义务，partial有争议。"
+  },
+  {
+    "id": "trial_v3-pilot_v2-0019",
+    "point_index": 8,
+    "judge_verdict": "missing",
+    "agent_note": "事前单独同意和事后部门通知均已出现，派生联合要点与前述基础要点有重合；不宜仅因未重复“不能免除”判missing。"
+  },
+  {
+    "id": "batch_002_64-0047",
+    "point_index": 7,
+    "judge_verdict": "partial",
+    "agent_note": "回答明确协议中的标识义务及使用责任，与要点一致；partial疑似偏严。"
+  },
+  {
+    "id": "batch_002_64-0047",
+    "point_index": 9,
+    "judge_verdict": "missing",
+    "agent_note": "回答在用户申请例外后仍陈述元数据强制和日志义务；是否充分表达例外不免除其他义务需核对，不直接把此missing当作已证实漏答。"
+  },
+  {
+    "id": "batch_001-0054",
+    "point_index": 1,
+    "judge_verdict": "correct",
+    "agent_note": "回答给出存储总量及公有云部分，但没有明确云与非云合计；correct是否接受整体概括需进一步校准。"
+  }
+]

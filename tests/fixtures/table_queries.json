@@ -1,0 +1,17 @@
+[
+  {"id":"monitoring_subscription","case":"monitoring","query":"杀手锏工业APP订阅数量的单位和更新频率是什么？","match":{"2":"杀手锏工业APP订阅数量"},"columns":[2,3,4]},
+  {"id":"monitoring_new_modes","case":"monitoring","query":"按新模式统计解决方案数量属于哪个一级指标，单位和更新频率是什么？","match":{"6":"按新模式统计解决方案数量"},"columns":[2,6,7,8]},
+  {"id":"monitoring_paid_enterprises","case":"monitoring","query":"付费企业总数属于哪个一级指标，单位和更新频率是什么？","match":{"6":"付费企业总数"},"columns":[2,6,7,8]},
+  {"id":"provider_revenue","case":"provider","query":"服务商评价中的上年度营业收入属于哪些一级、二级指标，是必选还是可选？","match":{"4":"上年度营业收入"},"columns":[2,3,4,6]},
+  {"id":"provider_new_technology","case":"provider","query":"新技术应用的种类属于哪个二级指标，是必选项吗？","match":{"4":"新技术应用的种类"},"columns":[3,4,6]},
+  {"id":"provider_mode_innovation","case":"provider","query":"促进模式创新情况属于服务商评价的哪些父指标，是必选还是可选？","match":{"4":"促进模式创新情况"},"columns":[2,3,4,6]},
+  {"id":"classification_workshop","case":"classification","query":"服务对象编码00代表哪个层级？","match":{"1":"服务对象","2":"00"},"columns":[1,2,3]},
+  {"id":"classification_general","case":"classification","query":"解决方案的服务行业编码00表示什么？","match":{"1":"服务行业","2":"00"},"columns":[1,2,3]},
+  {"id":"classification_electronics","case":"classification","query":"服务行业编码34对应什么行业？","match":{"1":"服务行业","2":"34"},"columns":[1,2,3]},
+  {"id":"chip_basic_firmware","case":"chip","query":"芯片安全基本级固件安全的5.3 d)对应哪个测评方法条款？","match":{"1":"基本级","3":"5.3d)"},"columns":[1,2,3,4]},
+  {"id":"chip_enhanced_firmware_d","case":"chip","query":"芯片安全增强级固件安全的5.3 d)应按哪条测评方法检查？","match":{"1":"增强级","3":"5.3d)"},"columns":[1,2,3,4]},
+  {"id":"chip_enhanced_firmware_e","case":"chip","query":"增强级固件安全5.3 e)对应的测评方法条款是什么？","match":{"1":"增强级","3":"5.3e)"},"columns":[1,2,3,4]},
+  {"id":"labels_timestamp","case":"labels","query":"动态标签B.2中时间戳的完整示例数据是什么，其传输开始时间和间隔如何解释？","table_index":1,"match":{"1":"时间戳"},"columns":[1,2,3,4]},
+  {"id":"labels_receiver","case":"labels","query":"动态标签B.2的数据接收方示例编码是什么，表示哪家公司？","table_index":1,"match":{"1":"数据接收方"},"columns":[1,3,4]},
+  {"id":"labels_dynamic_id","case":"labels","query":"动态标签B.2的动态标识长度是多少，示例是什么？","table_index":1,"match":{"1":"动态标识"},"columns":[1,2,3]}
+]

@@ -11,4 +11,7 @@ data/processed/
 tmp/
 
 # ===== 新评测产物：生成后独立审核与发布 =====
-/data/benchmark/
+/data/benchmark/*
+!/data/benchmark/gold150_hard_v2/
+/data/benchmark/gold150_hard_v2/review_provenance/
+/data/benchmark/gold150_hard_v2/revision_history/

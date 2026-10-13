@@ -88,13 +88,20 @@ def source_spans(ranges, start, end, overlap_end):
     return spans
 
 
-STRATEGY = "mineru_structure_v2"
+STRATEGY = "mineru_structure_v3"
 
 
 def chunk_document(document, sections, count, maximum=400, overlap=50):
     if maximum <= 0 or not 0 <= overlap < maximum:
         raise ValueError("require max-tokens > overlap-tokens >= 0")
     chunks = []
+    from .tables import build_table_views
+    from .table_splitter import chunk_table
+    views = document.get("table_views")
+    if views is None:
+        views = build_table_views(document, sections, document.get("table_decisions"))
+        document["table_views"] = views
+    table_by_block = {bid: view for view in views for fragment in view["fragments"] for bid in fragment["block_ids"]}
     for section in sections:
         title_prefix = "\n".join([document["title"], *section["heading_path"]]) + "\n\n"
         if count(title_prefix) >= maximum:
@@ -104,13 +111,21 @@ def chunk_document(document, sections, count, maximum=400, overlap=50):
         groups, section_position = [], 0
         for block in section["blocks"]:
             structure = block.get("structure_type", "body")
-            key = (structure, block.get("group_id", block["block_id"])) if structure != "body" else ("body",)
+            table = table_by_block.get(block["block_id"]) if structure == "table" else None
+            key = (structure, table["table_id"] if table else block.get("group_id", block["block_id"])) if structure != "body" else ("body",)
             if not groups or groups[-1]["key"] != key:
                 groups.append({"key": key, "blocks": [], "start": section_position})
             groups[-1]["blocks"].append(block)
             section_position += len(block["text"]) + 2
         for group_index, group in enumerate(groups, 1):
             structure, blocks = group["key"][0], group["blocks"]
+            if structure == "table" and blocks[0]["block_id"] in table_by_block:
+                generated = chunk_table(document, section, group, group_index, table_by_block[blocks[0]["block_id"]],
+                                        count, maximum, overlap, title_prefix, STRATEGY)
+                for chunk in generated:
+                    chunk["chunk_index"] = len(chunks) + 1
+                    chunks.append(chunk)
+                continue
             ranges, parts, position = [], [], 0
             for b in blocks:
                 if parts:
@@ -120,38 +135,13 @@ def chunk_document(document, sections, count, maximum=400, overlap=50):
                 parts.append(b["text"])
                 position += len(b["text"])
             text = "".join(parts)
-            headers = [b for b in blocks if b.get("is_table_header") or b.get("is_table_caption")]
-            table_context = "\n".join(b["text"] for b in headers) if structure == "table" else ""
             prefix = title_prefix
             context_sources = []
-            context_omitted = False
-            if table_context:
-                candidate = prefix + table_context + "\n\n"
-                # Leave at least one real body character. Oversized context is
-                # not truncated: its complete text remains in the body stream.
-                if count(candidate) <= maximum - 8:
-                    prefix = candidate
-                    offset = len(title_prefix)
-                    for b in headers:
-                        context_sources.append({"block_id": b["block_id"], **b["source"],
-                            "block_char_start": 0, "block_char_end": len(b["text"]),
-                            "text_char_start": offset, "text_char_end": offset + len(b["text"]),
-                            "is_repeated_context": True})
-                        offset += len(b["text"]) + 1
-                else:
-                    context_omitted = True
             fits = lambda body: count(prefix + body) <= maximum
             units = []
             for i, (a, b, block) in enumerate(ranges):
                 end = ranges[i + 1][0] if i + 1 < len(ranges) else b
-                # Large rows split first on cell boundaries; recursive text
-                # splitting handles a single cell that still exceeds budget.
-                if structure == "table" and not fits(text[a:end]) and block.get("cells"):
-                    boundaries = sorted({a, end, *(a + c["char_start"] for c in block["cells"])})
-                    for left, right in zip(boundaries, boundaries[1:]):
-                        units.extend(recursive_units(text[left:right], fits, offset=left))
-                else:
-                    units.extend(recursive_units(text[a:end], fits, offset=a))
+                units.extend(recursive_units(text[a:end], fits, offset=a))
             cursor, start, previous_end, group_chunks = 0, 0, 0, []
             while cursor < len(units):
                 end = units[cursor][1]
@@ -185,7 +175,7 @@ def chunk_document(document, sections, count, maximum=400, overlap=50):
                     "section_char_start": group["start"] + start, "section_char_end": group["start"] + end,
                     "sources": spans, "context_sources": context_sources,
                     "structure_split": bool(split_ids), "split_block_ids": split_ids,
-                    "warnings": ["table_context_omitted_budget"] if context_omitted else [],
+                    "warnings": [],
                     "asset_refs": [{"path": asset, "artifact_dir": document.get("artifacts")} for asset in assets]}
                 annotate_chunk(chunk, {b["block_id"] for b in blocks if b.get("role") == "toc"})
                 chunks.append(chunk)

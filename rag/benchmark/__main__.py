@@ -19,6 +19,7 @@ def main():
     p = sub.add_parser('verify-release', help='Verify the runtime core, optionally including all local history')
     p.add_argument('--release', type=Path, required=True)
     p.add_argument('--include-history', action='store_true')
+    p.add_argument('--allow-evolving', action='store_true')
     for name in ("validate", "export-review", "import-review", "precheck-boundary"):
         p = sub.add_parser(name)
         p.add_argument("--items", type=Path, required=True)
@@ -51,6 +52,7 @@ def main():
         p.add_argument("--output", type=Path, required=True)
         p.add_argument("--split", choices=["dev", "holdout"], default="dev")
         if name == "evaluate":
+            p.add_argument('--allow-evolving', action='store_true')
             p.add_argument("--retrieval-only", action="store_true")
             p.add_argument("--retry-failed", action="store_true")
             p.add_argument("--ids-file", type=Path, help="JSONL rows with id; score only these IDs in the selected split")
@@ -70,10 +72,11 @@ def main():
             p.add_argument("--labels", type=Path, required=True)
     args = parser.parse_args()
     if args.command == 'verify-release':
-        rows, manifest = load_release(args.release, verify_history=args.include_history)
+        rows, manifest = load_release(args.release, verify_history=args.include_history, allow_evolving=args.allow_evolving)
         core_only = manifest.get('dataset_kind') == 'gold150' and not args.include_history
         print(json.dumps({'release':args.release.as_posix(), 'item_count':len(rows),
-                          'verification':'core' if core_only else 'full_release',
+                          'verification':('evolving_core' if manifest.get('dataset_kind')=='gold150_evolving'
+                                          else 'core' if core_only else 'full_release'),
                           'verified_file_count':len(GOLD150_CORE_FILES) if core_only else
                               len(manifest.get('artifacts_sha256', {}))+1}, ensure_ascii=False, indent=2))
     elif args.command in ("validate", "export-review", "import-review", "precheck-boundary"):
@@ -155,7 +158,8 @@ def main():
             report = asyncio.run(evaluate_release(args.release, args.runs, args.output, args.split,
                                                   args.retrieval_only, args.retry_failed, args.ids_file,
                                                   concurrency=args.concurrency, metric_version=args.metric_version,
-                                                  reuse_faithfulness_from=args.reuse_faithfulness_from))
+                                                  reuse_faithfulness_from=args.reuse_faithfulness_from,
+                                                  allow_evolving=args.allow_evolving))
             print(json.dumps(report["overall"], ensure_ascii=False, indent=2))
             if any(k != "ok" for k in report["overall"]["statuses"]):
                 return 1

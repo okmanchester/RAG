@@ -1,0 +1,218 @@
+{
+  "family_by_doc": {
+    "112c597e072164fc3181fae9": "112c597e072164fc3181fae9",
+    "352318f9d7cdb23adfec2746": "352318f9d7cdb23adfec2746",
+    "800fcfca5ed63dabc32d49d0": "800fcfca5ed63dabc32d49d0",
+    "e5673f387ec49e725967a346": "e5673f387ec49e725967a346",
+    "de397c09e856a62c9297b30b": "de397c09e856a62c9297b30b",
+    "7a697654389a26adff938018": "7a697654389a26adff938018",
+    "469e77a5215c4227373fb9a7": "469e77a5215c4227373fb9a7",
+    "3b4f2b38e231d95d976467c1": "3b4f2b38e231d95d976467c1",
+    "d82ff79f1045971b765b0ba0": "d82ff79f1045971b765b0ba0",
+    "efe4251c2be278b76b5d3752": "efe4251c2be278b76b5d3752",
+    "e2946b7407219ac638161e32": "e2946b7407219ac638161e32",
+    "b28527e385bfcf01e9a89e49": "b28527e385bfcf01e9a89e49",
+    "298d2c46e6a4cf0c9172f415": "298d2c46e6a4cf0c9172f415",
+    "060a43d8b88ac3dc298e3e9c": "060a43d8b88ac3dc298e3e9c",
+    "7e7f3fe20251e5dda1f600bd": "7e7f3fe20251e5dda1f600bd",
+    "a275efcb526dc61cec4b21e4": "a275efcb526dc61cec4b21e4",
+    "60d246638c3e37487aea1031": "60d246638c3e37487aea1031",
+    "9c0089050b65b773f989e011": "9c0089050b65b773f989e011",
+    "c3dafe7da1c9573939cbd473": "7e7f3fe20251e5dda1f600bd",
+    "a69bac0ae858dfd9ee4a48cc": "a69bac0ae858dfd9ee4a48cc",
+    "060924e3760041dd570f2c16": "060924e3760041dd570f2c16",
+    "53a817a4b68ad512a412d74d": "53a817a4b68ad512a412d74d",
+    "88c842e02bb0a85176924844": "88c842e02bb0a85176924844",
+    "3a2b8f68ce071f2395747914": "3a2b8f68ce071f2395747914",
+    "7622d1094e899dc26dd88336": "7622d1094e899dc26dd88336",
+    "2b681078a70b6ab90af78dee": "2b681078a70b6ab90af78dee",
+    "2f4d87d9e15b6c18e6254cd8": "2f4d87d9e15b6c18e6254cd8",
+    "33ec7c4c069de85ef0a2fa08": "33ec7c4c069de85ef0a2fa08",
+    "951505085aafa85dc9064d5b": "951505085aafa85dc9064d5b",
+    "2b8dd34b6f0538f325553a2f": "2b8dd34b6f0538f325553a2f",
+    "24d5d25e428eda30db73d94c": "24d5d25e428eda30db73d94c",
+    "3d757e76072c2a8d5674f956": "3d757e76072c2a8d5674f956",
+    "8004bed5a137bd4cb7c29a25": "8004bed5a137bd4cb7c29a25"
+  },
+  "suspected_pairs": [
+    {
+      "a": "7e7f3fe20251e5dda1f600bd",
+      "b": "c3dafe7da1c9573939cbd473",
+      "containment": 0.9864617636297109,
+      "merged": true
+    }
+  ],
+  "documents": [
+    {
+      "doc_id": "112c597e072164fc3181fae9",
+      "source_path": "policy/“人工智能+信息通信”创新发展实施意见.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "352318f9d7cdb23adfec2746",
+      "source_path": "policy/中华人民共和国个人信息保护法_20210820.docx",
+      "category": "policy"
+    },
+    {
+      "doc_id": "800fcfca5ed63dabc32d49d0",
+      "source_path": "policy/中华人民共和国数据安全法_20210610.docx",
+      "category": "policy"
+    },
+    {
+      "doc_id": "e5673f387ec49e725967a346",
+      "source_path": "policy/中华人民共和国消费者权益保护法_20131025.docx",
+      "category": "policy"
+    },
+    {
+      "doc_id": "de397c09e856a62c9297b30b",
+      "source_path": "policy/中华人民共和国消费者权益保护法实施条例_20240315.docx",
+      "category": "policy"
+    },
+    {
+      "doc_id": "7a697654389a26adff938018",
+      "source_path": "policy/中华人民共和国科学技术进步法_20211224.docx",
+      "category": "policy"
+    },
+    {
+      "doc_id": "469e77a5215c4227373fb9a7",
+      "source_path": "policy/中华人民共和国网络安全法_20251028.docx",
+      "category": "policy"
+    },
+    {
+      "doc_id": "3b4f2b38e231d95d976467c1",
+      "source_path": "policy/中华人民共和国著作权法_20201111.docx",
+      "category": "policy"
+    },
+    {
+      "doc_id": "d82ff79f1045971b765b0ba0",
+      "source_path": "policy/互联网信息服务深度合成管理规定_国务院部门文件_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "efe4251c2be278b76b5d3752",
+      "source_path": "policy/互联网信息服务算法推荐管理规定_国务院部门文件_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "e2946b7407219ac638161e32",
+      "source_path": "policy/关于印发《人工智能生成合成内容标识办法》的通知_国务院部门文件_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "b28527e385bfcf01e9a89e49",
+      "source_path": "policy/国务院关于印发新一代人工智能发展规划的通知_国务院文件_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "298d2c46e6a4cf0c9172f415",
+      "source_path": "policy/国务院关于深入实施“人工智能+”行动的意见_国务院文件_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "060a43d8b88ac3dc298e3e9c",
+      "source_path": "policy/国家互联网信息办公室 中华人民共和国国家发展和改革委员会 中华人民共和国工业和　信息化部 中华人民共和国公安部 国家市场监督管理总局令（第21号）　　人工智能拟人化互动服务管理暂行办法__2026年第17号国务院公报_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "7e7f3fe20251e5dda1f600bd",
+      "source_path": "policy/国家互联网信息办公室 中华人民共和国国家发展和改革委员会 中华人民共和国教育部　中华人民共和国科学技术部 中华人民共和国工业和信息化部 中华人民共和国公安部　国家广播电视总局令（第15号）　　生成式人工智能服务管理暂行办法__2023年第24号国务院公报_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "a275efcb526dc61cec4b21e4",
+      "source_path": "policy/国家互联网信息办公室有关负责人就《生成式人工智能服务管理暂行办法》答记者问_政策解读_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "60d246638c3e37487aea1031",
+      "source_path": "policy/国家发展改革委有关负责同志就《关于深入实施“人工智能+”行动的意见》答记者问_政策解读_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "9c0089050b65b773f989e011",
+      "source_path": "policy/工业和信息化部关于印发《“人工智能+信息通信”创新发展实施意见（2026—2028年）》的通知_国务院部门文件_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "c3dafe7da1c9573939cbd473",
+      "source_path": "policy/生成式人工智能服务管理暂行办法_国务院部门文件_中国政府网.pdf",
+      "category": "policy"
+    },
+    {
+      "doc_id": "a69bac0ae858dfd9ee4a48cc",
+      "source_path": "technical/工业互联网企业网络安全分类分级管理指南（试行）.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "060924e3760041dd570f2c16",
+      "source_path": "technical/工业互联网体系架构（版本2.0）.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "53a817a4b68ad512a412d74d",
+      "source_path": "technical/工业互联网园区网络白皮书.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "88c842e02bb0a85176924844",
+      "source_path": "technical/工业互联网平台建设及推广指南.docx",
+      "category": "technical"
+    },
+    {
+      "doc_id": "3a2b8f68ce071f2395747914",
+      "source_path": "technical/工业互联网平台服务商评价方法.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "7622d1094e899dc26dd88336",
+      "source_path": "technical/工业互联网平台监测分析指南.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "2b681078a70b6ab90af78dee",
+      "source_path": "technical/工业互联网平台解决方案分类方法.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "2f4d87d9e15b6c18e6254cd8",
+      "source_path": "technical/工业互联网平台评价方法.docx",
+      "category": "technical"
+    },
+    {
+      "doc_id": "33ec7c4c069de85ef0a2fa08",
+      "source_path": "technical/工业和信息化部关于印发《工业控制系统信息安全防护指南》的通知.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "951505085aafa85dc9064d5b",
+      "source_path": "technical/工业数据分类分级指南（试行）.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "2b8dd34b6f0538f325553a2f",
+      "source_path": "technical/网络安全标准实践指南——人工智能加速芯片安全功能技术规范.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "24d5d25e428eda30db73d94c",
+      "source_path": "technical/网络安全标准实践指南——数据库联网安全要求.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "3d757e76072c2a8d5674f956",
+      "source_path": "technical/网络安全标准实践指南——网络数据标签标识技术要求.pdf",
+      "category": "technical"
+    },
+    {
+      "doc_id": "8004bed5a137bd4cb7c29a25",
+      "source_path": "technical/车联网网络安全和数据安全标准体系建设指南.pdf",
+      "category": "technical"
+    }
+  ],
+  "review_status": "approved",
+  "reviewer": "Codex（用户授权冻结，沿用已审核文档族并核验同一语料快照）",
+  "notes": "沿用旧30题的33篇文档身份和同族映射；本56题与旧版语料哈希相同，跨文档题的园区网络白皮书与体系架构属于不同族。本批全dev不要求覆盖全部文档族。",
+  "coverage_exclusions": {},
+  "review_method": "agent_delegated",
+  "freeze_authorization": "把这可用的56题冻结为金标准，和之前已冻结的30题一起纳入版本控制"
+}

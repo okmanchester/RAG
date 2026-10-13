@@ -1,0 +1,470 @@
+{
+  "id": "batch_001-0054",
+  "response": "",
+  "retrieved_contexts": [
+    {
+      "id": "beb4e6571525910d1ba405fa",
+      "text": "工业互联网平台 监测分析指南\n8 构建指标体系\n表 1 工业互联网平台监测分析指标体系\n\n力资源和存储<br>资源）|平台公有云实<br>际使用数量|台|日|平台公有云服务器实际<br>使用数量|\n\n||平台<br>数据<br>总量|TB|月|平台数据资源的存储量，包括平<br>台汇总的应用、用户、过程数据、<br>系统内部存储的实际数据等，是<br>支撑平台运行和平台上应用运<br>行的数据总量。包括平台上的<br>所有应用系统所使用的云存储<br>量或者非云存储量的总和|平台公有云<br>数据总量|TB|日|平台数据总量中在公有<br>云上存储的数据总量|\n\n||平台<br>工业|||基于平台连接的工业设备数量|分类统计工<br>业设备数量|台|月|参照工业设备二级分类<br>进行数量统计，工业设<br>备二级分类见附录A|\n\n",
+      "doc_id": "7622d1094e899dc26dd88336",
+      "document_sha256": "8aa2ab94f2d399802271defe755094c5ecc80fdfdd564ceb063dd921f3045c2e",
+      "sources": [
+        {
+          "block_id": 94,
+          "page": 9,
+          "block_char_start": 87,
+          "block_char_end": 140,
+          "body_char_start": 0,
+          "body_char_end": 53,
+          "is_overlap": true
+        },
+        {
+          "block_id": 95,
+          "page": 9,
+          "block_char_start": 0,
+          "block_char_end": 183,
+          "body_char_start": 55,
+          "body_char_end": 238,
+          "is_overlap": false
+        },
+        {
+          "block_id": 96,
+          "page": 9,
+          "block_char_start": 0,
+          "block_char_end": 84,
+          "body_char_start": 240,
+          "body_char_end": 324,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "8d13418cb3993a082b4ebea2",
+      "text": "工业互联网平台 监测分析指南\n9 制定技术方案\n9.1 确认实施步骤\n\n平台信息自动化采集的实现宜包含以下步骤：\n\n- a ） 平台企业采用自动化手段准备数据；\n\n- b ）平台企业将已采集的数据存储到中间缓存区；\n\n- c ） 第三方公共服务平台访问缓存区，实现自动化数据抓取；\n\n- d ）公共服务平台对数据进行验证审查，纠正缺漏项等基础性数据错误。",
+      "doc_id": "7622d1094e899dc26dd88336",
+      "document_sha256": "8aa2ab94f2d399802271defe755094c5ecc80fdfdd564ceb063dd921f3045c2e",
+      "sources": [
+        {
+          "block_id": 141,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 20,
+          "body_char_start": 0,
+          "body_char_end": 20,
+          "is_overlap": false
+        },
+        {
+          "block_id": 142,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 22,
+          "body_char_start": 22,
+          "body_char_end": 44,
+          "is_overlap": false
+        },
+        {
+          "block_id": 143,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 25,
+          "body_char_start": 46,
+          "body_char_end": 71,
+          "is_overlap": false
+        },
+        {
+          "block_id": 144,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 31,
+          "body_char_start": 73,
+          "body_char_end": 104,
+          "is_overlap": false
+        },
+        {
+          "block_id": 145,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 35,
+          "body_char_start": 106,
+          "body_char_end": 141,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "bf7cdab5e9bd995125352bdf",
+      "text": "工业互联网平台 监测分析指南\n10 开展数据对接\nGB/T 44280—2024\n\n数据对接工作包括但不限于以下内容。\n\n- a ） 监测指标确认：针对监测分析指标体系和技术实施规范开展工作培训，推动参与各方认识的 一致性。\n\n- b ）监测数据传输：采用自动化手段实现数据的自动传输，并在对接过程中针对出现的数据问题 及时采取措施进行更正，确保监测数据的完整性和准确性。\n\n- c ） 监测数据处理：考虑到各具体指标单位、意义、量级存在差异，组织宜对采集项数据进行异常 值剔除、空白数据填补以及校验、无量纲化等预处理工作。",
+      "doc_id": "7622d1094e899dc26dd88336",
+      "document_sha256": "8aa2ab94f2d399802271defe755094c5ecc80fdfdd564ceb063dd921f3045c2e",
+      "sources": [
+        {
+          "block_id": 155,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 17,
+          "body_char_start": 0,
+          "body_char_end": 17,
+          "is_overlap": false
+        },
+        {
+          "block_id": 156,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 51,
+          "body_char_start": 19,
+          "body_char_end": 70,
+          "is_overlap": false
+        },
+        {
+          "block_id": 157,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 72,
+          "body_char_start": 72,
+          "body_char_end": 144,
+          "is_overlap": false
+        },
+        {
+          "block_id": 158,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 74,
+          "body_char_start": 146,
+          "body_char_end": 220,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "411f4fe791662c0e7a436228",
+      "text": "工业互联网平台 监测分析指南\n8 构建指标体系\n表 1 工业互联网平台监测分析指标体系\n\n工业设<br>备二级分类见附录A|\n\n|资<br>源<br>汇|设备<br>连接<br>数量|台|月|（包括公有云、私有云、专有网连<br>接设备）|按区域统计工<br>业设备数量|台|月|按省级区域、计划单列<br>市及海外地区等分别统<br>计工业设备所属地连接<br>数量。设备所属地指设<br>备所属企业的注册地|\n\n|聚<br>情<br>况|公有<br>云工||||分类统计公<br>有云工业设<br>备数量|台|日|参照工业设备二级分类<br>统计公有云工业设备数<br>量，工业设备二级分类<br>见附录A|\n\n",
+      "doc_id": "7622d1094e899dc26dd88336",
+      "document_sha256": "8aa2ab94f2d399802271defe755094c5ecc80fdfdd564ceb063dd921f3045c2e",
+      "sources": [
+        {
+          "block_id": 96,
+          "page": 9,
+          "block_char_start": 67,
+          "block_char_end": 84,
+          "body_char_start": 0,
+          "body_char_end": 17,
+          "is_overlap": true
+        },
+        {
+          "block_id": 97,
+          "page": 9,
+          "block_char_start": 0,
+          "block_char_end": 142,
+          "body_char_start": 19,
+          "body_char_end": 161,
+          "is_overlap": false
+        },
+        {
+          "block_id": 98,
+          "page": 9,
+          "block_char_start": 0,
+          "block_char_end": 98,
+          "body_char_start": 163,
+          "body_char_end": 261,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "863e4a54c0786c0b7e60d161",
+      "text": "工业互联网平台 监测分析指南\n11 分析监测数据\n11.2 数据产品研制\n\n通过对时序数据的算法处理，形成平台发展指数、平台能力图谱等多样化数据产品，及时把握平台 运行动态变化，实现监测分析、趋势判断和提前预警。平台发展指数测算宜采用定基指数法。\n\n- a ） 确定基期指数：根据工业互联网平台发展实际情况，选取具体年份作为基期。\n\n- b ）分类指数测算：根据监测分析工作需求设置不同分类指数，采用均等权重法确定各采集项权 重，并加权计算分类指数，按公式（ 1 ）计算。\n\n_a A_ =􀰐 _b_<sup>/</sup><sup>_c_</sup> …………………………（ 1 ）\n\n式中：\n\n_A_ —— 分类指数；\n\n_a_ —— 采集项本期值； _b_ —— 采集项基期值； _c_ —— 采集项个数。\n\n权重设置：根据实际需求，组织宜通过专家打分法设置各分类指数权重。 c ） 总指数计算按公式（ 2 ）。\n\n_I_ = _A_ 1× _w_ 1+ _A_ 2× _w_ 2+ _A_ 3× _w_ 3 …………………………（ 2 ）\n\n",
+      "doc_id": "7622d1094e899dc26dd88336",
+      "document_sha256": "8aa2ab94f2d399802271defe755094c5ecc80fdfdd564ceb063dd921f3045c2e",
+      "sources": [
+        {
+          "block_id": 163,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 85,
+          "body_char_start": 0,
+          "body_char_end": 85,
+          "is_overlap": false
+        },
+        {
+          "block_id": 164,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 40,
+          "body_char_start": 87,
+          "body_char_end": 127,
+          "is_overlap": false
+        },
+        {
+          "block_id": 165,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 69,
+          "body_char_start": 129,
+          "body_char_end": 198,
+          "is_overlap": false
+        },
+        {
+          "block_id": 166,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 54,
+          "body_char_start": 200,
+          "body_char_end": 254,
+          "is_overlap": false
+        },
+        {
+          "block_id": 167,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 3,
+          "body_char_start": 256,
+          "body_char_end": 259,
+          "is_overlap": false
+        },
+        {
+          "block_id": 168,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 12,
+          "body_char_start": 261,
+          "body_char_end": 273,
+          "is_overlap": false
+        },
+        {
+          "block_id": 169,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 43,
+          "body_char_start": 275,
+          "body_char_end": 318,
+          "is_overlap": false
+        },
+        {
+          "block_id": 170,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 51,
+          "body_char_start": 320,
+          "body_char_end": 371,
+          "is_overlap": false
+        },
+        {
+          "block_id": 171,
+          "page": 14,
+          "block_char_start": 0,
+          "block_char_end": 62,
+          "body_char_start": 373,
+          "body_char_end": 435,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "7aede05711511665c09f3810",
+      "text": "工业互联网平台 监测分析指南\n8 构建指标体系\n表 1 工业互联网平台监测分析指标体系\n\n工业设备二级分类<br>见附录A|\n\n||业设<br>备连<br>接数<br>量|台|日|平台所连接设备中，基于公有云<br>连接的工业设备数量|按区域统计<br>公有云工业<br>设备数量|台|日|按省级区域、计划单列<br>市及海外地区等分别统<br>计公有云工业设备所属<br>地数量。工业设备所属<br>地指设备所属企业的注<br>册地|\n\n||公有<br>云工|||连接到平台公有云的所有工业|分类统计公有<br>云工业设备日<br>运行数量|台|日|参照工业设备二级分类<br>统计公有云工业设备日<br>运行数量。工业设备二<br>级分类见附录A|\n\n",
+      "doc_id": "7622d1094e899dc26dd88336",
+      "document_sha256": "8aa2ab94f2d399802271defe755094c5ecc80fdfdd564ceb063dd921f3045c2e",
+      "sources": [
+        {
+          "block_id": 98,
+          "page": 9,
+          "block_char_start": 81,
+          "block_char_end": 98,
+          "body_char_start": 0,
+          "body_char_end": 17,
+          "is_overlap": true
+        },
+        {
+          "block_id": 99,
+          "page": 9,
+          "block_char_start": 0,
+          "block_char_end": 154,
+          "body_char_start": 19,
+          "body_char_end": 173,
+          "is_overlap": false
+        },
+        {
+          "block_id": 100,
+          "page": 9,
+          "block_char_start": 0,
+          "block_char_end": 106,
+          "body_char_start": 175,
+          "body_char_end": 281,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "bac03955db9c59d59a954f6d",
+      "text": "工业互联网平台 监测分析指南\n10 开展数据对接\n\n组织宜选取具有代表性的平台，根据监测分析指标体系和技术实施规范将相关指标项数据接入，",
+      "doc_id": "7622d1094e899dc26dd88336",
+      "document_sha256": "8aa2ab94f2d399802271defe755094c5ecc80fdfdd564ceb063dd921f3045c2e",
+      "sources": [
+        {
+          "block_id": 153,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 42,
+          "body_char_start": 0,
+          "body_char_end": 42,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "40b097adc800a8fd454adf53",
+      "text": "工业互联网平台 监测分析指南\n8 构建指标体系\n表 1 工业互联网平台监测分析指标体系 ( 续 )\n\n同一<br>用户多次访问或调用记<br>作一个|\n\n|应<br>用<br>情<br>况|解决<br>方案<br>总数|个|月|面向工业需求，以促进企业降本<br>提质增效、增强制造业创新能力<br>为目标，通过融合新一代信息技<br>术，以平台为依托推动IT/OT<br>数据融合、流动、共享与深度分<br>析，实现数据闭环反馈、资源优<br>化配置、产业融合发展的一整套<br>软硬件结合的产品与服务集合。<br>该指标为累计到达值<br>注：OT指运营技术。|按新模式统<br>计解决方案<br>数量|个|月|按照数字化管理、平台<br>化设计、网络化协同、智<br>能化制造、个性化定制、<br>服务化延伸等6个新模<br>式统计解决方案数量|\n\n||注册<br>用户<br>数|个|月|在平台注册的企业数量|||||\n\n",
+      "doc_id": "7622d1094e899dc26dd88336",
+      "document_sha256": "8aa2ab94f2d399802271defe755094c5ecc80fdfdd564ceb063dd921f3045c2e",
+      "sources": [
+        {
+          "block_id": 127,
+          "page": 12,
+          "block_char_start": 169,
+          "block_char_end": 193,
+          "body_char_start": 0,
+          "body_char_end": 24,
+          "is_overlap": true
+        },
+        {
+          "block_id": 128,
+          "page": 12,
+          "block_char_start": 0,
+          "block_char_end": 299,
+          "body_char_start": 26,
+          "body_char_end": 325,
+          "is_overlap": false
+        },
+        {
+          "block_id": 129,
+          "page": 12,
+          "block_char_start": 0,
+          "block_char_end": 35,
+          "body_char_start": 327,
+          "body_char_end": 362,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "3787ecab4e4331239e02e76c",
+      "text": "工业互联网平台 监测分析指南\n8 构建指标体系\n表 1 工业互联网平台监测分析指标体系\n\n工业设备二<br>级分类见附录A|\n\n||业设<br>备日<br>运行<br>数量|台|日|设备中，每日上传实时运行数据<br>的工业设备数量|按区域统计<br>公有云工业<br>设备日运行<br>数量|台|日|按省级区域、计划单列<br>市及海外地区等分别统<br>计公有云工业设备日运<br>行数量。工业设备所属<br>地指工业设备所属企业<br>的注册地|",
+      "doc_id": "7622d1094e899dc26dd88336",
+      "document_sha256": "8aa2ab94f2d399802271defe755094c5ecc80fdfdd564ceb063dd921f3045c2e",
+      "sources": [
+        {
+          "block_id": 100,
+          "page": 9,
+          "block_char_start": 89,
+          "block_char_end": 106,
+          "body_char_start": 0,
+          "body_char_end": 17,
+          "is_overlap": true
+        },
+        {
+          "block_id": 101,
+          "page": 9,
+          "block_char_start": 0,
+          "block_char_end": 162,
+          "body_char_start": 19,
+          "body_char_end": 181,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "a239b63e54b117f9bebf8cc8",
+      "text": "工业互联网平台 监测分析指南\n9 制定技术方案\n9.2 制定接口规范\n\n组织宜根据监测分析系统现状设计统一、标准的接口规范，包含但不限于以下内容。\n\n- a ） 接口数据内容：包括数据字段定义、数据类型、计量单位、数据解释等。\n\n- b ）接口数据周期：包括接口数据更新的频次，一般包括日、周、月、年等。\n\n- c ） 接口数据字典：规定接口数据的分类编码、分类规范等。\n\n- d ）接口技术规范：规定数据接口实现的技术架构、访问格式、技术路线等。",
+      "doc_id": "7622d1094e899dc26dd88336",
+      "document_sha256": "8aa2ab94f2d399802271defe755094c5ecc80fdfdd564ceb063dd921f3045c2e",
+      "sources": [
+        {
+          "block_id": 147,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 37,
+          "body_char_start": 0,
+          "body_char_end": 37,
+          "is_overlap": false
+        },
+        {
+          "block_id": 148,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 38,
+          "body_char_start": 39,
+          "body_char_end": 77,
+          "is_overlap": false
+        },
+        {
+          "block_id": 149,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 37,
+          "body_char_start": 79,
+          "body_char_end": 116,
+          "is_overlap": false
+        },
+        {
+          "block_id": 150,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 31,
+          "body_char_start": 118,
+          "body_char_end": 149,
+          "is_overlap": false
+        },
+        {
+          "block_id": 151,
+          "page": 13,
+          "block_char_start": 0,
+          "block_char_end": 37,
+          "body_char_start": 151,
+          "body_char_end": 188,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    }
+  ],
+  "citations": [],
+  "run_config": {
+    "pipeline_version": "dense-bge-deepseek-v2",
+    "top_k": 10,
+    "embedding": "D:/WorkSpace/AIModels/BAAI/bge-large-zh-v1.5",
+    "answer_model": "deepseek-flash",
+    "prompt_sha256": "01aa8cca6232229bdcdb0700bd830f0a61e5fbd9318feec800bd0b05a7e288ab",
+    "index_sha256": "b35f7b47d7609b7e5af0d4d82c63739510afd5ef30ebd5b2d90e0427b099ad67"
+  },
+  "error": "APIConnectionError: Connection error.",
+  "usage": {},
+  "elapsed_seconds": 1.3889716999992743
+}

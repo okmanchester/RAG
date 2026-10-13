@@ -1,5 +1,6 @@
 import copy
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -85,7 +86,8 @@ class StructureTests(unittest.TestCase):
         tables = [c for c in chunks if c["structure_type"] == "table"]
         self.assertGreater(len(tables), 2)
         self.assertTrue(all(c["overlap_char_count"] == 0 for c in tables))
-        self.assertTrue(all("名称 | 说明" in c["text"] for c in tables))
+        data_chunks = [c for c in tables if "内容" in c["text"] or "后一行" in c["text"]]
+        self.assertTrue(all("说明：" in c["text"] and "名称：合并" in c["text"] for c in data_chunks))
         self.assertTrue(any(c["structure_split"] for c in tables))
         rows = [b for b in doc["blocks"] if b["kind"] == "table_row"]
         self.assertEqual(rows[1]["cells"][0]["rowspan"], 2)
@@ -211,6 +213,30 @@ class PipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(FileNotFoundError, "models missing"):
             configure(config)
 
+    def test_llm_switches_apply_after_mineru_import_and_require_env_key(self):
+        from mineru.config import config as native_config
+        import yaml
+        path = self.root / "mineru.yaml"
+        settings = {"model": {"base_dir": self.root.as_posix()}, "llm_aided": {
+            "base_url": "https://api.deepseek.com", "model": "deepseek-flash",
+            "features": {"cross_page_table_cell_merge": True}}}
+        path.write_text(yaml.safe_dump(settings), encoding="utf-8")
+        with patch.dict(os.environ, {"DEEPSEEK_API_KEY": ""}):
+            with self.assertRaisesRegex(ValueError, "DEEPSEEK_API_KEY"):
+                configure(path)
+        with patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test-only-key"}), \
+             patch.object(native_config, "model", native_config.model.model_copy(deep=True)), \
+             patch.object(native_config, "llm_aided", native_config.llm_aided.model_copy(deep=True)):
+            configure(path)
+            self.assertTrue(native_config.llm_aided.features.cross_page_table_cell_merge)
+            self.assertFalse(native_config.llm_aided.features.title_leveling)
+            self.assertEqual(native_config.llm_aided.api_key, "test-only-key")
+            self.assertEqual(native_config.llm_aided.model, "deepseek-flash")
+            settings["llm_aided"]["features"]["cross_page_table_cell_merge"] = False
+            path.write_text(yaml.safe_dump(settings), encoding="utf-8")
+            configure(path)
+            self.assertFalse(native_config.llm_aided.features.cross_page_table_cell_merge)
+
     def test_missing_cache_and_changed_input_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "identity mismatch"):
             parse(self.path, artifact_dir=self.output, reuse=True)
@@ -241,6 +267,20 @@ class PipelineTests(unittest.TestCase):
         (self.output / "middle_json.json").write_text("{}", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "checksum mismatch"):
             parse(path, artifact_dir=self.output, reuse=True)
+
+    def test_cache_rejects_changed_llm_model_without_requiring_key_for_reuse(self):
+        import yaml
+        from rag.parsers import DEFAULT_CONFIG
+        path = self.saved_docx()
+        settings = yaml.safe_load(DEFAULT_CONFIG.read_text(encoding="utf-8"))
+        changed = self.root / "different.yaml"
+        settings["llm_aided"]["model"] = "different-model"
+        changed.write_text(yaml.safe_dump(settings), encoding="utf-8")
+        with patch.dict(os.environ, {"DEEPSEEK_API_KEY": ""}):
+            blocks, _ = parse(path, artifact_dir=self.output, reuse=True)
+            self.assertEqual(blocks[0]["text"], "保存的正文")
+            with self.assertRaisesRegex(ValueError, "identity mismatch"):
+                parse(path, artifact_dir=self.output, reuse=True, config_path=changed)
 
     def test_interrupted_parser_invalidates_old_cache(self):
         path = self.saved_docx()

@@ -1,0 +1,29 @@
+{
+  "identity": {
+    "release_gold_sha256": "d801ca01220542cc6c773ea8c0c7a73874f103c778ee979ffa05700dded19bac",
+    "selected_ids": [
+      "trial_v3-pilot_v2-0019",
+      "batch_002_64-0047",
+      "batch_002_authored10-0003",
+      "trial_v3-pilot_v2-0010",
+      "batch_001-0054"
+    ],
+    "index": {
+      "chunks_sha256": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0",
+      "model_path": "D:/WorkSpace/AIModels/BAAI/bge-large-zh-v1.5",
+      "model_config_sha256": "2d4f53504b43a856f982dad647835c0ae98f91a73c8ff0db95ab89e3e4806fa9",
+      "model_weights_sha256": "bf84a56fb045c24e090495195584a3922c3e4204107f0bba8b79c11f67a207f2",
+      "query_instruction": "为这个句子生成表示以用于检索相关文章：",
+      "retrieval_policy": "retrieval_enabled_only",
+      "index_version": 1
+    },
+    "pipeline_version": "dense-bge-deepseek-v2",
+    "answer_model": "deepseek-flash",
+    "prompt_sha256": "01aa8cca6232229bdcdb0700bd830f0a61e5fbd9318feec800bd0b05a7e288ab",
+    "dataset_version_sha256": "3141dd956f21c47a3f6b63238adeaa3a7386aacd12f4109d67172121456e216d",
+    "telemetry": "local_only"
+  },
+  "status": "complete",
+  "completed_at": "2026-10-13T03:31:02.590533+00:00",
+  "run_error_count": 5
+}

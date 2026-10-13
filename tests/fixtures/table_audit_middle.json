@@ -1,0 +1,2168 @@
+{
+  "monitoring": {
+    "native_middle_sha256": "f5578b34a2d8b8e44fbadaa2ba4128594911da40ca90ca09e7bf01b128a97279",
+    "middle": {
+      "metadata": {
+        "file_suffix": "pdf",
+        "producer": {
+          "name": "mineru",
+          "version": "4.0.10"
+        },
+        "document": {
+          "authors": [
+            "Administrator"
+          ],
+          "created_at": "2024-09-03T10:13:16+08:00",
+          "modified_at": "2024-09-09T09:34:09+08:00",
+          "creator_application": "方正飞翔9.0 专业版 9.0.0.1780",
+          "producer_application": "Founder",
+          "page_count": 19,
+          "page_count_kind": "physical"
+        }
+      },
+      "extensions": {
+        "mineru": {
+          "tier": "standard",
+          "parse_mode": "txt"
+        },
+        "docvortex_layout": {
+          "version": 1,
+          "pages": [
+            {
+              "page_idx": 8,
+              "width_pt": 595.2755737304688,
+              "height_pt": 841.8897094726562
+            },
+            {
+              "page_idx": 9,
+              "width_pt": 595.2755737304688,
+              "height_pt": 841.8897094726562
+            },
+            {
+              "page_idx": 10,
+              "width_pt": 595.2755737304688,
+              "height_pt": 841.8897094726562
+            },
+            {
+              "page_idx": 11,
+              "width_pt": 595.2755737304688,
+              "height_pt": 841.8897094726562
+            },
+            {
+              "page_idx": 12,
+              "width_pt": 595.2755737304688,
+              "height_pt": 841.8897094726562
+            }
+          ]
+        }
+      },
+      "pages": [
+        {
+          "page_idx": 8,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.747,
+                0.084,
+                0.894,
+                0.097
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "GB/T 44280—2024"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 2,
+              "bbox": [
+                0.117,
+                0.154,
+                0.892,
+                0.906
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 1,
+                  "bbox": [
+                    0.344,
+                    0.126,
+                    0.663,
+                    0.141
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 1　工业互联网平台监测分析指标体系"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 2,
+                  "bbox": [
+                    0.117,
+                    0.154,
+                    0.892,
+                    0.906
+                  ],
+                  "image_path": "images/page_8_table_2.jpg",
+                  "content": "<table><tbody><tr><td>分类</td><td>一级指标</td><td>单位</td><td>更新频率</td><td>指标解释</td><td>二级指标</td><td>单位</td><td>更新频率</td><td>指标解释</td></tr><tr><td rowspan=\"8\">资源汇聚情况</td><td>平台实际用云量</td><td>台</td><td>月</td><td>平台服务器实际使用数量。体现平台基础资源能力，服务器来自公有云、私有云、混合云的硬件资源（主要是算力资源和存储资源）</td><td>平台公有云实际使用数量</td><td>台</td><td>日</td><td>平台公有云服务器实际使用数量</td></tr><tr><td>平台数据总量</td><td>TB</td><td>月</td><td>平台数据资源的存储量，包括平台汇总的应用、用户、过程数据、系统内部存储的实际数据等，是支撑平台运行和平台上应用运行的数据总量。包括平台上的所有应用系统所使用的云存储量或者非云存储量的总和</td><td>平台公有云数据总量</td><td>TB</td><td>日</td><td>平台数据总量中在公有云上存储的数据总量</td></tr><tr><td rowspan=\"2\">平台工业设备连接数量</td><td rowspan=\"2\">台</td><td rowspan=\"2\">月</td><td rowspan=\"2\">基于平台连接的工业设备数量（包括公有云、私有云、专有网连接设备）</td><td>分类统计工业设备数量</td><td>台</td><td>月</td><td>参照工业设备二级分类进行数量统计，工业设备二级分类见附录A</td></tr><tr><td>按区域统计工业设备数量</td><td>台</td><td>月</td><td>按省级区域、计划单列市及海外地区等分别统计工业设备所属地连接数量。设备所属地指设备所属企业的注册地</td></tr><tr><td rowspan=\"2\">公有云工业设备连接数量</td><td rowspan=\"2\">台</td><td rowspan=\"2\">日</td><td rowspan=\"2\">平台所连接设备中，基于公有云连接的工业设备数量</td><td>分类统计公有云工业设备数量</td><td>台</td><td>日</td><td>参照工业设备二级分类统计公有云工业设备数量，工业设备二级分类见附录A</td></tr><tr><td>按区域统计公有云工业设备数量</td><td>台</td><td>日</td><td>按省级区域、计划单列市及海外地区等分别统计公有云工业设备所属地数量。工业设备所属地指设备所属企业的注册地</td></tr><tr><td rowspan=\"2\">公有云工业设备日运行数量</td><td rowspan=\"2\">台</td><td rowspan=\"2\">日</td><td rowspan=\"2\">连接到平台公有云的所有工业设备中，每日上传实时运行数据的工业设备数量</td><td>分类统计公有云工业设备日运行数量</td><td>台</td><td>日</td><td>参照工业设备二级分类统计公有云工业设备日运行数量。工业设备二级分类见附录A</td></tr><tr><td>按区域统计公有云工业设备日运行数量</td><td>台</td><td>日</td><td>按省级区域、计划单列市及海外地区等分别统计公有云工业设备日运行数量。工业设备所属地指工业设备所属企业的注册地</td></tr></tbody></table>"
+                }
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 3,
+              "bbox": [
+                0.86,
+                0.922,
+                0.873,
+                0.932
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "page_idx": 9,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.106,
+                0.084,
+                0.253,
+                0.097
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "GB/T 44280—2024"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 2,
+              "bbox": [
+                0.106,
+                0.155,
+                0.881,
+                0.861
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 1,
+                  "bbox": [
+                    0.315,
+                    0.13,
+                    0.674,
+                    0.145
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 1 工业互联网平台监测分析指标体系 (续)"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 2,
+                  "bbox": [
+                    0.106,
+                    0.155,
+                    0.881,
+                    0.861
+                  ],
+                  "image_path": "images/page_9_table_2.jpg",
+                  "content": "<table><tbody><tr><td>分类</td><td>一级指标</td><td>单位</td><td>更新频率</td><td>指标解释</td><td>二级指标</td><td>单位</td><td>更新频率</td><td>指标解释</td></tr><tr><td rowspan=\"5\">开发情况</td><td rowspan=\"2\">工业模型数量</td><td rowspan=\"2\">个</td><td rowspan=\"2\">月</td><td rowspan=\"2\">工业模型是根据工业生产过程的内部机制或物理化学过程，运用行业知识、定理、定律和原理建立的数学模型，工业模型具有非常明确的物理意义，能够挖掘和反映主要因素相互作用的关系和规律</td><td>分类统计工业模型数量</td><td>个</td><td>月</td><td>分类统计工业模型数量，模型分类见附录B</td></tr><tr><td>平台核心工业模型月调用用户数量</td><td>个</td><td>月</td><td>调用平台核心工业模型的月用户数量，同一用户多次访问或调用记作一个。平台核心工业模型指平台上调用用户数最多的10个工业模型</td></tr><tr><td rowspan=\"3\">工业APP数量</td><td rowspan=\"3\">个</td><td rowspan=\"3\">月</td><td rowspan=\"3\">工业APP是基于工业互联网平台，承载工业知识和经验，满足特定需求的工业应用软件。包括基于平台开发的工业APP和传统软件云化的工业APP（包括公有云、私有云、专有网部署的工业APP）。该指标统计已落地应用的工业APP数量（至少有1个工业企业用户）</td><td>公有云工业APP数量</td><td>个</td><td>日</td><td>部署在公有云上的工业APP数量</td></tr><tr><td>基于平台开发的工业APP数量</td><td>个</td><td>月</td><td>在工业互联网平台上开发的原生工业APP，完全基于云的架构进行开发、部署和运维，需要微服务、容器、DevOps等技术以及平台即服务（PaaS）层提供的微服务等。该指标统计已落地应用的工业APP数量（至少有1个工业企业用户）</td></tr><tr><td>云化工业软件数量</td><td>个</td><td>月</td><td>已有工业软件经过云化改造，以软件即服务（SaaS)形式提供服务的APP数。工业软件指专用于或主要用于工业领域，为提高工业企业研发、制造、管理水平和工业装备性能等方面的软件。工业软件不包括通用的系统软件和应用软件，如计算机操作系统、通信软件、通用数据库系统、办公软件等。该指标统计已落地应用的云化工业软件数量（至少有1个工业企业用户）</td></tr></tbody></table>"
+                }
+              ],
+              "continues_prev": true,
+              "cell_merge": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 3,
+              "bbox": [
+                0.127,
+                0.921,
+                0.14,
+                0.933
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "page_idx": 10,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.747,
+                0.084,
+                0.894,
+                0.097
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "GB/T 44280—2024"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 2,
+              "bbox": [
+                0.116,
+                0.155,
+                0.892,
+                0.879
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 1,
+                  "bbox": [
+                    0.325,
+                    0.13,
+                    0.683,
+                    0.145
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 1 工业互联网平台监测分析指标体系 (续)"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 2,
+                  "bbox": [
+                    0.116,
+                    0.155,
+                    0.892,
+                    0.879
+                  ],
+                  "image_path": "images/page_10_table_2.jpg",
+                  "content": "<table><tbody><tr><td>分类</td><td>一级指标</td><td>单位</td><td>更新频率</td><td>指标解释</td><td>二级指标</td><td>单位</td><td>更新频率</td><td>指标解释</td></tr><tr><td rowspan=\"3\">开发情况</td><td rowspan=\"2\">工业APP数量</td><td rowspan=\"2\">个</td><td rowspan=\"2\">月</td><td rowspan=\"2\">工业APP是基于工业互联网平台，承载工业知识和经验，满足特定需求的工业应用软件。包括基于平台开发的工业APP和传统软件云化的工业APP（包括公有云、私有云、专有网部署的工业APP）。该指标统计已落地应用的工业APP数量（至少有1个工业企业用户）</td><td>按照不同分类统计工业APP数量</td><td>个</td><td>月</td><td>按照安全生产、节能减排、质量管控、供应链管理、研发设计、生产制造、运营管理、仓储物流、运维服务9类统计工业APP数量</td></tr><tr><td>按照不同行业分类统计工业APP数量</td><td>个</td><td>月</td><td>参照行业二级分类进行统计，可在不同行业重复统计，如同一工业APP在多个行业应用，可按行业重复统计，行业二级分类见附录C</td></tr><tr><td>开发者注册数量</td><td>人</td><td>月</td><td>在截至报告期，通过平台注册、基于平台提供的工具和环境进行开发的人员数量。平台每个注册账号为1个开发者。平台开发者包括个人开发者和企业开发者两种类型</td><td>开发者月活跃数量</td><td>人</td><td>月</td><td>每月至少登录1次平台且对平台的工具或者环境进行调用的开发者数量</td></tr><tr><td rowspan=\"6\">应用情况</td><td>平台订单数量</td><td>个</td><td>月</td><td>基于平台直接订阅的服务数量。仅提供信息撮合对接、不产生订单及费用的服务不计入订单数量</td><td></td><td></td><td></td><td></td></tr><tr><td>平台营收</td><td>万元</td><td>月</td><td>基于平台直接订阅的服务，通过平台服务获得的营收金额</td><td></td><td></td><td></td><td></td></tr><tr><td rowspan=\"4\">工业APP订阅总数量</td><td rowspan=\"4\">次</td><td rowspan=\"4\">月</td><td rowspan=\"4\">平台上用户订阅工业APP的总数量。该指标为累计到达值</td><td>工业APP订阅总金额</td><td>万元</td><td>月</td><td>平台自运营以来用户订阅工业APP累计总金额</td></tr><tr><td>工业APP月活跃数量</td><td>个</td><td>月</td><td>当月用户访问或者调用过的工业APP数量</td></tr><tr><td>公有云工业APP日活跃数量</td><td>个</td><td>日</td><td>每天用户访问或者调用过的部署在公有云上的工业APP数量</td></tr><tr><td>不同分类公有云工业APP日均调用次数</td><td>次</td><td>日</td><td>按照安全生产、节能减排、质量管控、供应链管理、研发设计、生产制造、运营管理、仓储物流、运维服务9类统计公有云工业APP日活</td></tr></tbody></table>"
+                }
+              ],
+              "continues_prev": true,
+              "cell_merge": [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 3,
+              "bbox": [
+                0.86,
+                0.922,
+                0.874,
+                0.933
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "5"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "page_idx": 11,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.106,
+                0.084,
+                0.253,
+                0.097
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "GB/T 44280—2024"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 2,
+              "bbox": [
+                0.106,
+                0.155,
+                0.881,
+                0.824
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 1,
+                  "bbox": [
+                    0.315,
+                    0.13,
+                    0.674,
+                    0.145
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 1 工业互联网平台监测分析指标体系 (续)"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 2,
+                  "bbox": [
+                    0.106,
+                    0.155,
+                    0.881,
+                    0.824
+                  ],
+                  "image_path": "images/page_11_table_2.jpg",
+                  "content": "<table><tbody><tr><td>分类</td><td>一级指标</td><td>单位</td><td>更新频率</td><td>指标解释</td><td>二级指标</td><td>单位</td><td>更新频率</td><td>指标解释</td></tr><tr><td rowspan=\"8\">应用情况</td><td rowspan=\"2\">工业APP订阅总数量</td><td>次</td><td>月</td><td>平台上用户订阅工业APP的总数量。该指标为累计到达值</td><td>不同行业分类公有云工业</td><td>个</td><td>日</td><td>参照行业二级分类进行统计，如同一工业APP在多个行业</td></tr><tr><td>次</td><td>月</td><td>平台上用户订阅工业APP的总数量。该指标为累计到达值</td><td>APP日均调用次数</td><td>次</td><td>日</td><td>应用，可按行业重复统计，行业二级分类见附录C</td></tr><tr><td>杀手锏工业APP订阅数量</td><td>个</td><td>月</td><td>订阅/部署/应用杀手锏工业APP的用户数量。杀手锏工业APP指平台上订阅用户数最多的5个工业APP</td><td>公有云杀手锏工业APP日在线用户数</td><td>个</td><td>日</td><td>每天访问或者调用部署在公有云上杀手锏工业APP的用户个数，同一用户多次访问或调用记作一个</td></tr><tr><td>解决方案总数</td><td>个</td><td>月</td><td>面向工业需求，以促进企业降本提质增效、增强制造业创新能力为目标，通过融合新一代信息技术，以平台为依托推动IT/OT数据融合、流动、共享与深度分析，实现数据闭环反馈、资源优化配置、产业融合发展的一整套软硬件结合的产品与服务集合。该指标为累计到达值注: OT指运营技术。</td><td>按新模式统计解决方案数量</td><td>个</td><td>月</td><td>按照数字化管理、平台化设计、网络化协同、智能化制造、个性化定制、服务化延伸等6个新模式统计解决方案数量</td></tr><tr><td>注册用户数</td><td>个</td><td>月</td><td>在平台注册的企业数量</td><td></td><td></td><td></td><td></td></tr><tr><td rowspan=\"3\">服务企业总数</td><td rowspan=\"3\">个</td><td rowspan=\"3\">月</td><td rowspan=\"3\">使用平台技术产品或解决方案等服务的企业总数。包括使用平台开放API、模型组件类免费应用和付费服务的企业。该指标为累计到达值</td><td>付费企业总数</td><td>个</td><td>月</td><td>使用平台技术产品或解决方案等付费服务的企业总数。不包括使用免费服务的企业</td></tr><tr><td>按行业统计服务企业数量</td><td>个</td><td>月</td><td>参照行业二级分类统计服务企业数量，行业二级分类见附录C</td></tr><tr><td>按区域统计服务企业数量</td><td>个</td><td>月</td><td>按省级区域、计划单列市及海外地区等统计服务企业数量</td></tr></tbody></table>"
+                }
+              ],
+              "continues_prev": true,
+              "cell_merge": [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 3,
+              "bbox": [
+                0.128,
+                0.922,
+                0.14,
+                0.932
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "6"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "page_idx": 12,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.747,
+                0.084,
+                0.894,
+                0.097
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "GB/T 44280—2024"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 2,
+              "bbox": [
+                0.117,
+                0.155,
+                0.891,
+                0.517
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 1,
+                  "bbox": [
+                    0.325,
+                    0.13,
+                    0.683,
+                    0.145
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 1 工业互联网平台监测分析指标体系 (续)"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 2,
+                  "bbox": [
+                    0.117,
+                    0.155,
+                    0.891,
+                    0.517
+                  ],
+                  "image_path": "images/page_12_table_2.jpg",
+                  "content": "<table><tbody><tr><td>分类</td><td>一级指标</td><td>单位</td><td>更新频率</td><td>指标解释</td><td>二级指标</td><td>单位</td><td>更新频率</td><td>指标解释</td></tr><tr><td rowspan=\"3\">应用情况</td><td>服务企业总数</td><td>个</td><td>月</td><td>使用平台技术产品或解决方案等服务的企业总数。包括使用平台开放API、模型组件类免费应用和付费服务的企业。该指标为累计到达值</td><td>服务中小企业数量</td><td>个</td><td>月</td><td>使用平台技术产品或解决方案等服务的中小企业总数。包括使用平台开放API、模型组件类免费应用和付费服务的中小企业。中小企业认定标准见《中小企业划型标准规定》</td></tr><tr><td>服务园区总数</td><td>个</td><td>月</td><td>地理范围清晰、产业相对集中、地市及以上级别管理的工业园区、产业园区数量</td><td></td><td></td><td></td><td></td></tr><tr><td>平台现有特色指数</td><td>个</td><td>月</td><td>平台自身现有的个性化指标数据，如自身测算的挖掘机指数、各类价格指数等</td><td></td><td></td><td></td><td></td></tr><tr><td colspan=\"9\">注:工业设备分类示例见附录A，工业模型分类示例见附录B，工业行业分类示例见附录C。省级区域划分见GB/T 2260。</td></tr></tbody></table>"
+                }
+              ],
+              "continues_prev": true,
+              "cell_merge": [
+                1,
+                1,
+                1,
+                1,
+                1,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "type": "paragraph_title",
+              "index": 3,
+              "bbox": [
+                0.115,
+                0.554,
+                0.254,
+                0.569
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "9　制定技术方案"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "paragraph_title",
+              "index": 4,
+              "bbox": [
+                0.115,
+                0.589,
+                0.268,
+                0.604
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "9.1　确认实施步骤"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "text",
+              "index": 5,
+              "bbox": [
+                0.151,
+                0.617,
+                0.501,
+                0.632
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "平台信息自动化采集的实现宜包含以下步骤:"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "index": 6,
+              "bbox": [
+                0.149,
+                0.636,
+                0.466,
+                0.65
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "a） 平台企业采用自动化手段准备数据；"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "index": 7,
+              "bbox": [
+                0.149,
+                0.655,
+                0.537,
+                0.67
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "b） 平台企业将已采集的数据存储到中间缓存区；"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "index": 8,
+              "bbox": [
+                0.149,
+                0.673,
+                0.616,
+                0.688
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "c） 第三方公共服务平台访问缓存区，实现自动化数据抓取；"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "index": 9,
+              "bbox": [
+                0.149,
+                0.691,
+                0.704,
+                0.707
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "d） 公共服务平台对数据进行验证审查，纠正缺漏项等基础性数据错误。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph_title",
+              "index": 10,
+              "bbox": [
+                0.115,
+                0.72,
+                0.268,
+                0.735
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "9.2　制定接口规范"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "text",
+              "index": 11,
+              "bbox": [
+                0.148,
+                0.748,
+                0.782,
+                0.763
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "组织宜根据监测分析系统现状设计统一、标准的接口规范，包含但不限于以下内容。"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "index": 12,
+              "bbox": [
+                0.149,
+                0.766,
+                0.713,
+                0.782
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "a） 接口数据内容:包括数据字段定义、数据类型、计量单位、数据解释等。"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "index": 13,
+              "bbox": [
+                0.149,
+                0.785,
+                0.704,
+                0.8
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "b） 接口数据周期:包括接口数据更新的频次，一般包括日、周、月、年等。"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "index": 14,
+              "bbox": [
+                0.149,
+                0.804,
+                0.608,
+                0.819
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "c） 接口数据字典:规定接口数据的分类编码、分类规范等。"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "index": 15,
+              "bbox": [
+                0.149,
+                0.823,
+                0.721,
+                0.838
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "d） 接口技术规范:规定数据接口实现的技术架构、访问格式、技术路线等。"
+                }
+              ]
+            },
+            {
+              "type": "paragraph_title",
+              "index": 16,
+              "bbox": [
+                0.116,
+                0.86,
+                0.264,
+                0.875
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "10　开展数据对接"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "text",
+              "index": 17,
+              "bbox": [
+                0.149,
+                0.895,
+                0.892,
+                0.91
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "组织宜选取具有代表性的平台，根据监测分析指标体系和技术实施规范将相关指标项数据接入，"
+                }
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 18,
+              "bbox": [
+                0.86,
+                0.922,
+                0.873,
+                0.933
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "7"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "is_full_document": false,
+      "schema": "docvortex.middle",
+      "schema_version": "2.0"
+    }
+  },
+  "provider": {
+    "native_middle_sha256": "cf8e5a91584b47e9e2d3cc23a9cbc04cd31aa4f50c1270b7d7dc2311c2f85f4f",
+    "middle": {
+      "metadata": {
+        "file_suffix": "pdf",
+        "producer": {
+          "name": "mineru",
+          "version": "4.0.10"
+        },
+        "document": {
+          "created_at": "2024-09-11T13:43:20+08:00",
+          "modified_at": "2024-09-13T14:29:43+08:00",
+          "producer_application": "Acrobat",
+          "page_count": 15,
+          "page_count_kind": "physical"
+        }
+      },
+      "extensions": {
+        "mineru": {
+          "tier": "standard",
+          "parse_mode": "txt"
+        },
+        "docvortex_layout": {
+          "version": 1,
+          "pages": [
+            {
+              "page_idx": 12,
+              "width_pt": 595.2999877929688,
+              "height_pt": 841.9000244140625
+            },
+            {
+              "page_idx": 13,
+              "width_pt": 595.2999877929688,
+              "height_pt": 841.9000244140625
+            }
+          ]
+        }
+      },
+      "pages": [
+        {
+          "page_idx": 12,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.753,
+                0.082,
+                0.907,
+                0.094
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "GB/T 44405—2024"
+                }
+              ]
+            },
+            {
+              "type": "paragraph_title",
+              "index": 1,
+              "bbox": [
+                0.47,
+                0.147,
+                0.562,
+                0.163
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "附　录　A"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "text",
+              "index": 2,
+              "bbox": [
+                0.473,
+                0.168,
+                0.557,
+                0.183
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "（资料性）"
+                }
+              ]
+            },
+            {
+              "type": "paragraph_title",
+              "index": 3,
+              "bbox": [
+                0.352,
+                0.189,
+                0.677,
+                0.204
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "工业互联网平台　服务商评价示例指标表"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "text",
+              "index": 4,
+              "bbox": [
+                0.156,
+                0.215,
+                0.562,
+                0.23
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "工业互联网平台 服务商评价示例指标表，见表 A.1。"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 6,
+              "bbox": [
+                0.125,
+                0.271,
+                0.905,
+                0.893
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 5,
+                  "bbox": [
+                    0.325,
+                    0.242,
+                    0.704,
+                    0.257
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 A.1　工业互联网平台　服务商评价示例指标表"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 6,
+                  "bbox": [
+                    0.125,
+                    0.271,
+                    0.905,
+                    0.893
+                  ],
+                  "image_path": "images/page_12_table_6.jpg",
+                  "content": "<table><tbody><tr><td>序号</td><td>一级指标</td><td>二级指标</td><td>重点采集项</td><td>评价要求</td><td>必选/可选</td><td>权重</td></tr><tr><td rowspan=\"8\">1</td><td rowspan=\"8\">经营能力</td><td rowspan=\"2\">运营能力</td><td>上年度营业收入</td><td></td><td rowspan=\"2\">必选</td><td rowspan=\"8\">X%</td></tr><tr><td>员工总数</td><td></td></tr><tr><td rowspan=\"2\">盈利能力</td><td>上年度利润总额</td><td></td><td rowspan=\"2\">必选</td></tr><tr><td>产品平均投资回报率</td><td></td></tr><tr><td rowspan=\"2\">商业模式</td><td>融资阶段</td><td></td><td rowspan=\"2\">可选</td></tr><tr><td>融资总额</td><td></td></tr><tr><td rowspan=\"2\">发展空间</td><td>近三年营收/利润增长</td><td></td><td rowspan=\"2\">可选</td></tr><tr><td>产品应用推广空间</td><td></td></tr><tr><td rowspan=\"6\">2</td><td rowspan=\"6\">创新能力</td><td rowspan=\"2\">创新投入水平</td><td>上年度研发资金投入</td><td></td><td rowspan=\"2\">必选</td><td rowspan=\"6\">X%</td></tr><tr><td>研发人员数量</td><td></td></tr><tr><td rowspan=\"3\">创新产出水平</td><td>软件著作权数量</td><td></td><td rowspan=\"3\">必选</td></tr><tr><td>专利数量</td><td></td></tr><tr><td>新产品平均开发周期</td><td></td></tr><tr><td>持续改进能力</td><td>产品平均迭代周期</td><td></td><td>可选</td></tr><tr><td rowspan=\"10\">3</td><td rowspan=\"10\">技术能力</td><td rowspan=\"2\">应用开发水平</td><td>自研工业模型数量</td><td></td><td rowspan=\"2\">必选</td><td rowspan=\"10\">X%</td></tr><tr><td>自研APP数量</td><td></td></tr><tr><td rowspan=\"2\">数据服务水平</td><td>数据服务的场景</td><td></td><td rowspan=\"2\">必选</td></tr><tr><td>数据产品的数量</td><td></td></tr><tr><td rowspan=\"2\">资源汇聚水平</td><td>连接的设备数量</td><td></td><td rowspan=\"2\">可选</td></tr><tr><td>汇聚第三方应用的数量</td><td></td></tr><tr><td rowspan=\"2\">新技术融合水平</td><td>新技术应用的种类</td><td></td><td rowspan=\"2\">必选</td></tr><tr><td>新技术应用场景范围</td><td></td></tr><tr><td rowspan=\"2\">安全防护水平</td><td>安全防护范围</td><td></td><td rowspan=\"2\">可选</td></tr><tr><td>安全防护级别</td><td></td></tr><tr><td rowspan=\"4\">4</td><td rowspan=\"4\">服务成效</td><td rowspan=\"2\">经济效益</td><td>用户降本提质增效情况</td><td></td><td rowspan=\"2\">必选</td><td rowspan=\"4\">X%</td></tr><tr><td>促进模式创新情况</td><td></td></tr><tr><td rowspan=\"2\">社会效益</td><td>降低碳排放情况</td><td></td><td rowspan=\"2\">可选</td></tr><tr><td>减少安全事故情况</td><td></td></tr></tbody></table>"
+                }
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 7,
+              "bbox": [
+                0.876,
+                0.922,
+                0.888,
+                0.933
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "7"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "page_idx": 13,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.091,
+                0.083,
+                0.245,
+                0.094
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "GB/T 44405—2024"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 2,
+              "bbox": [
+                0.093,
+                0.146,
+                0.874,
+                0.363
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 1,
+                  "bbox": [
+                    0.27,
+                    0.119,
+                    0.689,
+                    0.134
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 A.1　工业互联网平台　服务商评价示例指标表（续）"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 2,
+                  "bbox": [
+                    0.093,
+                    0.146,
+                    0.874,
+                    0.363
+                  ],
+                  "image_path": "images/page_13_table_2.jpg",
+                  "content": "<table><tbody><tr><td>序号</td><td>一级指标</td><td>二级指标</td><td>重点采集项</td><td>评价要求</td><td>必选/可选</td><td>权重</td></tr><tr><td rowspan=\"2\">4</td><td rowspan=\"2\">服务成效</td><td rowspan=\"2\">行业影响力</td><td>服务的企业数量</td><td></td><td rowspan=\"2\">必选</td><td rowspan=\"2\">X%</td></tr><tr><td>覆盖的行业种类</td><td></td></tr><tr><td rowspan=\"7\">5</td><td rowspan=\"7\">生态能力</td><td rowspan=\"2\">开放兼容水平</td><td>开放平台建设情况</td><td></td><td rowspan=\"2\">可选</td><td rowspan=\"7\">X%</td></tr><tr><td>产品是否可跨平台调用</td><td></td></tr><tr><td rowspan=\"2\">生态合作范围</td><td>合作伙伴数量</td><td></td><td rowspan=\"2\">必选</td></tr><tr><td>标准参编情况</td><td></td></tr><tr><td rowspan=\"2\">融合服务水平</td><td>产融合作水平</td><td></td><td rowspan=\"2\">可选</td></tr><tr><td>产教合作水平</td><td></td></tr><tr><td>生态价值转化</td><td>品牌价值</td><td></td><td>可选</td></tr></tbody></table>"
+                }
+              ],
+              "continues_prev": true,
+              "cell_merge": [
+                1,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 3,
+              "bbox": [
+                0.112,
+                0.922,
+                0.124,
+                0.932
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "8"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "is_full_document": false,
+      "schema": "docvortex.middle",
+      "schema_version": "2.0"
+    }
+  },
+  "classification": {
+    "native_middle_sha256": "e3afc9fc1fb6a9da800e7300b852f5a6fd532dcc0f7f5d837c3260f76aa7c099",
+    "middle": {
+      "metadata": {
+        "file_suffix": "pdf",
+        "producer": {
+          "name": "mineru",
+          "version": "4.0.10"
+        },
+        "document": {
+          "authors": [
+            "Administrator"
+          ],
+          "created_at": "2024-09-11T14:43:20+08:00",
+          "modified_at": "2024-09-13T14:31:13+08:00",
+          "creator_application": "方正飞翔9.0 专业版 9.0.0.1780",
+          "producer_application": "Founder",
+          "page_count": 15,
+          "page_count_kind": "physical"
+        }
+      },
+      "extensions": {
+        "mineru": {
+          "tier": "standard",
+          "parse_mode": "txt"
+        },
+        "docvortex_layout": {
+          "version": 1,
+          "pages": [
+            {
+              "page_idx": 10,
+              "width_pt": 595.2755737304688,
+              "height_pt": 841.8897094726562
+            },
+            {
+              "page_idx": 11,
+              "width_pt": 595.2755737304688,
+              "height_pt": 841.8897094726562
+            },
+            {
+              "page_idx": 12,
+              "width_pt": 595.2755737304688,
+              "height_pt": 841.8897094726562
+            }
+          ]
+        }
+      },
+      "pages": [
+        {
+          "page_idx": 10,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.742,
+                0.084,
+                0.894,
+                0.097
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "GB/T 44281—2024"
+                }
+              ]
+            },
+            {
+              "type": "image",
+              "index": 1,
+              "bbox": [
+                0.21,
+                0.115,
+                0.8,
+                0.322
+              ],
+              "content": [
+                {
+                  "type": "image_body",
+                  "index": 1,
+                  "bbox": [
+                    0.21,
+                    0.115,
+                    0.8,
+                    0.322
+                  ],
+                  "image_path": "images/page_10_image_1.jpg",
+                  "content": ""
+                },
+                {
+                  "type": "image_caption",
+                  "index": 2,
+                  "bbox": [
+                    0.343,
+                    0.337,
+                    0.664,
+                    0.352
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "图 3　工业互联网平台解决方案编码规则"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph_title",
+              "index": 3,
+              "bbox": [
+                0.115,
+                0.365,
+                0.233,
+                0.38
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "6.2　标签编码"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "text",
+              "index": 4,
+              "bbox": [
+                0.114,
+                0.393,
+                0.894,
+                0.428
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "工业互联网平台解决方案基础标签编码见表 1，工业互联网平台解决方案场景标签编码见表 2，工业互联网平台解决方案部署标签编码见表 3。"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 6,
+              "bbox": [
+                0.117,
+                0.466,
+                0.892,
+                0.91
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 5,
+                  "bbox": [
+                    0.326,
+                    0.439,
+                    0.682,
+                    0.455
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 1　工业互联网平台解决方案基础标签编码"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 6,
+                  "bbox": [
+                    0.117,
+                    0.466,
+                    0.892,
+                    0.91
+                  ],
+                  "image_path": "images/page_10_table_6.jpg",
+                  "content": "<table><tbody><tr><td>编码名称</td><td>编码</td><td>编码意义</td></tr><tr><td rowspan=\"7\">服务对象</td><td>00</td><td>车间级</td></tr><tr><td>01</td><td>工厂级</td></tr><tr><td>02</td><td>企业级</td></tr><tr><td>03</td><td>园区级</td></tr><tr><td>04</td><td>产业链</td></tr><tr><td>05</td><td>区域级</td></tr><tr><td>99</td><td>其他服务对象解决方案</td></tr><tr><td rowspan=\"11\">服务行业</td><td>00</td><td>通用型</td></tr><tr><td>01</td><td>煤炭开采和洗选业</td></tr><tr><td>02</td><td>石油和天然气开采业</td></tr><tr><td>03</td><td>黑色金属矿采选业</td></tr><tr><td>04</td><td>有色金属矿采选业</td></tr><tr><td>05</td><td>非金属矿采选业</td></tr><tr><td>06</td><td>开采专业及辅助性活动</td></tr><tr><td>07</td><td>其他采矿业</td></tr><tr><td>08</td><td>农副食品加工业</td></tr><tr><td>09</td><td>食品制造业</td></tr><tr><td>10</td><td>酒、饮料和精制茶制造业</td></tr></tbody></table>"
+                }
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 7,
+              "bbox": [
+                0.86,
+                0.921,
+                0.874,
+                0.933
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "5"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "page_idx": 11,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.106,
+                0.084,
+                0.258,
+                0.097
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "GB/T 44281—2024"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 2,
+              "bbox": [
+                0.108,
+                0.163,
+                0.882,
+                0.854
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 1,
+                  "bbox": [
+                    0.3,
+                    0.134,
+                    0.689,
+                    0.149
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 1 工业互联网平台解决方案基础标签编码 (续)"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 2,
+                  "bbox": [
+                    0.108,
+                    0.163,
+                    0.882,
+                    0.854
+                  ],
+                  "image_path": "images/page_11_table_2.jpg",
+                  "content": "<table><tbody><tr><td>编码名称</td><td>编码</td><td>编码意义</td></tr><tr><td rowspan=\"32\">服务行业</td><td>11</td><td>烟草制品业</td></tr><tr><td>12</td><td>纺织业</td></tr><tr><td>13</td><td>纺织服装、服饰业</td></tr><tr><td>14</td><td>皮革、毛皮、羽毛及其制品和制鞋业</td></tr><tr><td>15</td><td>木材加工和木、竹、藤、棕、草制品业</td></tr><tr><td>16</td><td>家具制造业</td></tr><tr><td>17</td><td>造纸和纸制品业</td></tr><tr><td>18</td><td>印刷和记录媒介复制业</td></tr><tr><td>19</td><td>文教、工美、体育和娱乐用品制造业</td></tr><tr><td>20</td><td>石油、煤炭及其他燃料加工业</td></tr><tr><td>21</td><td>化学原料和化学制品制造业</td></tr><tr><td>22</td><td>医药制造业</td></tr><tr><td>23</td><td>化学纤维制造业</td></tr><tr><td>24</td><td>橡胶和塑料制品业</td></tr><tr><td>25</td><td>非金属矿物制品业</td></tr><tr><td>26</td><td>黑色金属冶炼和压延加工业</td></tr><tr><td>27</td><td>有色金属冶炼和压延加工业</td></tr><tr><td>28</td><td>金属制品业</td></tr><tr><td>29</td><td>通用设备制造业</td></tr><tr><td>30</td><td>专用设备制造业</td></tr><tr><td>31</td><td>汽车制造业</td></tr><tr><td>32</td><td>铁路、船舶、航空航天和其他运输设备制造业</td></tr><tr><td>33</td><td>电气机械和器材制造业</td></tr><tr><td>34</td><td>计算机、通信和其他电子设备制造业</td></tr><tr><td>35</td><td>仪器仪表制造业</td></tr><tr><td>36</td><td>其他制造业</td></tr><tr><td>37</td><td>废弃资源综合利用业</td></tr><tr><td>38</td><td>金属制品、机械和设备修理业</td></tr><tr><td>39</td><td>电力、热力生产和供应业</td></tr><tr><td>40</td><td>燃气生产和供应业</td></tr><tr><td>41</td><td>水的生产和供应业</td></tr><tr><td>99</td><td>其他行业型解决方案</td></tr></tbody></table>"
+                }
+              ],
+              "continues_prev": true,
+              "cell_merge": [
+                1,
+                0,
+                0
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 3,
+              "bbox": [
+                0.128,
+                0.921,
+                0.14,
+                0.932
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "6"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "page_idx": 12,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.742,
+                0.084,
+                0.894,
+                0.097
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "GB/T 44281—2024"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 2,
+              "bbox": [
+                0.117,
+                0.153,
+                0.892,
+                0.594
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 1,
+                  "bbox": [
+                    0.326,
+                    0.126,
+                    0.682,
+                    0.141
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 2　工业互联网平台解决方案场景标签编码"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 2,
+                  "bbox": [
+                    0.117,
+                    0.153,
+                    0.892,
+                    0.594
+                  ],
+                  "image_path": "images/page_12_table_2.jpg",
+                  "content": "<table><tbody><tr><td>编码名称</td><td>编码</td><td>编码意义</td></tr><tr><td rowspan=\"13\">应用环节</td><td>00</td><td>研发设计</td></tr><tr><td>01</td><td>生产制造</td></tr><tr><td>02</td><td>质量管控</td></tr><tr><td>03</td><td>运营管理</td></tr><tr><td>04</td><td>设备管理</td></tr><tr><td>05</td><td>采购销售</td></tr><tr><td>06</td><td>仓储物流</td></tr><tr><td>07</td><td>安全生产</td></tr><tr><td>08</td><td>节能减排</td></tr><tr><td>09</td><td>产融合作</td></tr><tr><td>10</td><td>产教合作</td></tr><tr><td>11</td><td>公共服务</td></tr><tr><td>99</td><td>其他应用环节解决方案</td></tr><tr><td rowspan=\"7\">创新模式</td><td>00</td><td>平台化设计</td></tr><tr><td>01</td><td>数字化管理</td></tr><tr><td>02</td><td>智能化制造</td></tr><tr><td>03</td><td>网络化协同</td></tr><tr><td>04</td><td>个性化定制</td></tr><tr><td>05</td><td>服务化延伸</td></tr><tr><td>99</td><td>其他创新模式解决方案</td></tr></tbody></table>"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 4,
+              "bbox": [
+                0.117,
+                0.636,
+                0.892,
+                0.893
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 3,
+                  "bbox": [
+                    0.326,
+                    0.609,
+                    0.681,
+                    0.624
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 3　工业互联网平台解决方案部署标签编码"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 4,
+                  "bbox": [
+                    0.117,
+                    0.636,
+                    0.892,
+                    0.893
+                  ],
+                  "image_path": "images/page_12_table_4.jpg",
+                  "content": "<table><tbody><tr><td>编码名称</td><td>编码</td><td>编码意义</td></tr><tr><td rowspan=\"4\">运营模式</td><td>00</td><td>自运营</td></tr><tr><td>01</td><td>联合运营</td></tr><tr><td>02</td><td>委托运营</td></tr><tr><td>99</td><td>其他运营模式解决方案</td></tr><tr><td rowspan=\"6\">部署方式</td><td>00</td><td>边缘侧部署</td></tr><tr><td>01</td><td>本地部署</td></tr><tr><td>02</td><td>私有云部署</td></tr><tr><td>03</td><td>公有云部署</td></tr><tr><td>04</td><td>混合云部署</td></tr><tr><td>99</td><td>其他部署方式解决方案</td></tr></tbody></table>"
+                }
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 5,
+              "bbox": [
+                0.86,
+                0.922,
+                0.873,
+                0.933
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "7"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "is_full_document": false,
+      "schema": "docvortex.middle",
+      "schema_version": "2.0"
+    }
+  },
+  "chip": {
+    "native_middle_sha256": "6fb5e87131ec9e4c27aeced48f705c1fab9b49297b456e76d2d331990695fa2d",
+    "middle": {
+      "metadata": {
+        "file_suffix": "pdf",
+        "producer": {
+          "name": "mineru",
+          "version": "4.0.10"
+        },
+        "document": {
+          "authors": [
+            "CYM"
+          ],
+          "created_at": "2026-01-12T16:28:35+08:00",
+          "modified_at": "2026-01-12T16:28:35+08:00",
+          "creator_application": "WPS 文字",
+          "page_count": 25,
+          "page_count_kind": "physical"
+        }
+      },
+      "extensions": {
+        "mineru": {
+          "tier": "standard",
+          "parse_mode": "txt"
+        },
+        "docvortex_layout": {
+          "version": 1,
+          "pages": [
+            {
+              "page_idx": 22,
+              "width_pt": 595.2999877929688,
+              "height_pt": 841.9000244140625
+            },
+            {
+              "page_idx": 23,
+              "width_pt": 595.2999877929688,
+              "height_pt": 841.9000244140625
+            }
+          ]
+        }
+      },
+      "pages": [
+        {
+          "page_idx": 22,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.161,
+                0.059,
+                0.216,
+                0.098
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "水TC260"
+                }
+              ]
+            },
+            {
+              "type": "header",
+              "index": 1,
+              "bbox": [
+                0.218,
+                0.067,
+                0.447,
+                0.09
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "全国网络安全标准化技术委员会National Technical Committee 260 on Cybersecurity of SAC"
+                }
+              ]
+            },
+            {
+              "type": "doc_title",
+              "index": 2,
+              "bbox": [
+                0.435,
+                0.12,
+                0.566,
+                0.143
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "附 录 A"
+                }
+              ],
+              "level": 1
+            },
+            {
+              "type": "text",
+              "index": 3,
+              "bbox": [
+                0.443,
+                0.156,
+                0.556,
+                0.18
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "（规范性）"
+                }
+              ]
+            },
+            {
+              "type": "paragraph_title",
+              "index": 4,
+              "bbox": [
+                0.348,
+                0.194,
+                0.651,
+                0.216
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "安全要求与测评方法映射"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "text",
+              "index": 5,
+              "bbox": [
+                0.148,
+                0.248,
+                0.85,
+                0.306
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "本文件对人工智能加速芯片提出的安全要求和相应的测评方法总结见表 A.1。"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 7,
+              "bbox": [
+                0.224,
+                0.349,
+                0.774,
+                0.886
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 6,
+                  "bbox": [
+                    0.336,
+                    0.324,
+                    0.662,
+                    0.342
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 A.1 安全要求与测评方法映射表"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 7,
+                  "bbox": [
+                    0.224,
+                    0.349,
+                    0.774,
+                    0.886
+                  ],
+                  "image_path": "images/page_22_table_7.jpg",
+                  "content": "<table><tbody><tr><td colspan=\"2\">安全要求</td><td>条款</td><td>测评方法</td></tr><tr><td rowspan=\"14\">基本级</td><td rowspan=\"2\">硬件安全</td><td>5.1a)</td><td>6.1.1</td></tr><tr><td>5.1b)</td><td>6.1.2</td></tr><tr><td rowspan=\"4\">接口安全</td><td>5.2a)</td><td>6.2.1</td></tr><tr><td>5.2b)</td><td>6.2.2</td></tr><tr><td>5.2c)</td><td>6.2.3</td></tr><tr><td>5.2d)</td><td>6.2.4</td></tr><tr><td rowspan=\"4\">固件安全</td><td>5.3a)</td><td>6.3.1</td></tr><tr><td>5.3b)</td><td>6.3.2</td></tr><tr><td>5.3c)</td><td>6.3.3</td></tr><tr><td>5.3d)</td><td>6.3.4</td></tr><tr><td>安全存储单元</td><td>5.4</td><td>6.4</td></tr><tr><td>密码技术机制</td><td>无</td><td>无</td></tr><tr><td>故障检测与诊断</td><td>5.6</td><td>6.6</td></tr><tr><td>数据保护</td><td>无</td><td>无</td></tr><tr><td rowspan=\"13\">增强级</td><td rowspan=\"5\">硬件安全</td><td>5.1a)</td><td>6.1.1</td></tr><tr><td>5.1b)</td><td>6.1.2</td></tr><tr><td>5.1c)</td><td>6.1.3</td></tr><tr><td>5.1d)</td><td>6.1.4</td></tr><tr><td>5.1e)</td><td>6.1.5</td></tr><tr><td rowspan=\"4\">接口安全</td><td>5.2a)</td><td>6.2.1</td></tr><tr><td>5.2b)</td><td>6.2.2</td></tr><tr><td>5.2c)</td><td>6.2.3</td></tr><tr><td>5.2d)</td><td>6.2.4</td></tr><tr><td rowspan=\"4\">固件安全</td><td>5.3a)</td><td>6.3.1</td></tr><tr><td>5.3b)</td><td>6.3.2</td></tr><tr><td>5.3c)</td><td>6.3.3</td></tr><tr><td>5.3d)</td><td>6.3.4</td></tr></tbody></table>"
+                }
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 8,
+              "bbox": [
+                0.49,
+                0.916,
+                0.51,
+                0.927
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "18"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "page_idx": 23,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.16,
+                0.059,
+                0.447,
+                0.098
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "2 全国网络安全标准化技术委员会60 National Technical Committee 260 on Cybersecurity of SAC"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 2,
+              "bbox": [
+                0.224,
+                0.139,
+                0.775,
+                0.312
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 1,
+                  "bbox": [
+                    0.307,
+                    0.113,
+                    0.682,
+                    0.13
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 A.1 安全要求与测评方法映射表（续）"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 2,
+                  "bbox": [
+                    0.224,
+                    0.139,
+                    0.775,
+                    0.312
+                  ],
+                  "image_path": "images/page_23_table_2.jpg",
+                  "content": "<table><tbody><tr><td colspan=\"2\">安全要求</td><td>条款</td><td>测评方法</td></tr><tr><td rowspan=\"8\">增强级</td><td rowspan=\"2\">固件安全</td><td>5.3e)</td><td>6.3.5</td></tr><tr><td>5.3f)</td><td>6.3.6</td></tr><tr><td>安全存储单元</td><td>5.4</td><td>6.4</td></tr><tr><td>密码技术机制</td><td>5.5</td><td>6.5</td></tr><tr><td>故障检测与诊断</td><td>5.6</td><td>6.6</td></tr><tr><td rowspan=\"3\">数据保护</td><td>5.7a)</td><td>6.7.1</td></tr><tr><td>5.7b)</td><td>6.7.2</td></tr><tr><td>5.7c)</td><td>6.7.3</td></tr></tbody></table>"
+                }
+              ],
+              "continues_prev": true,
+              "cell_merge": [
+                1,
+                1,
+                0,
+                0
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 3,
+              "bbox": [
+                0.49,
+                0.916,
+                0.51,
+                0.927
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "19"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "is_full_document": false,
+      "schema": "docvortex.middle",
+      "schema_version": "2.0"
+    }
+  },
+  "labels": {
+    "native_middle_sha256": "4093fdef109ffcae620e1fb173e9352201480942810eced0fc02284dfcbed0b4",
+    "middle": {
+      "metadata": {
+        "file_suffix": "pdf",
+        "producer": {
+          "name": "mineru",
+          "version": "4.0.10"
+        },
+        "document": {
+          "authors": [
+            "CYM"
+          ],
+          "created_at": "2026-02-04T15:45:52+08:00",
+          "modified_at": "2026-02-04T15:45:52+08:00",
+          "creator_application": "WPS 文字",
+          "page_count": 38,
+          "page_count_kind": "physical"
+        }
+      },
+      "extensions": {
+        "mineru": {
+          "tier": "standard",
+          "parse_mode": "txt"
+        },
+        "docvortex_layout": {
+          "version": 1,
+          "pages": [
+            {
+              "page_idx": 27,
+              "width_pt": 595.2999877929688,
+              "height_pt": 841.9000244140625
+            },
+            {
+              "page_idx": 28,
+              "width_pt": 595.2999877929688,
+              "height_pt": 841.9000244140625
+            },
+            {
+              "page_idx": 29,
+              "width_pt": 595.2999877929688,
+              "height_pt": 841.9000244140625
+            }
+          ]
+        }
+      },
+      "pages": [
+        {
+          "page_idx": 27,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.161,
+                0.059,
+                0.216,
+                0.098
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "水TC260"
+                }
+              ]
+            },
+            {
+              "type": "header",
+              "index": 1,
+              "bbox": [
+                0.218,
+                0.067,
+                0.447,
+                0.09
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "全国网络安全标准化技术委员会National Technical Committee 260 on Cybersecurity of SAC"
+                }
+              ]
+            },
+            {
+              "type": "paragraph_title",
+              "index": 2,
+              "bbox": [
+                0.433,
+                0.119,
+                0.558,
+                0.142
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "附 录 B"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "text",
+              "index": 3,
+              "bbox": [
+                0.442,
+                0.156,
+                0.556,
+                0.179
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "（资料性）"
+                }
+              ]
+            },
+            {
+              "type": "paragraph_title",
+              "index": 4,
+              "bbox": [
+                0.334,
+                0.193,
+                0.664,
+                0.216
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "网络数据标签标识格式示例"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "paragraph_title",
+              "index": 5,
+              "bbox": [
+                0.146,
+                0.241,
+                0.577,
+                0.261
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "B.1 网络数据标签标识属性格式模板示例"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "paragraph_title",
+              "index": 6,
+              "bbox": [
+                0.147,
+                0.277,
+                0.548,
+                0.298
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "B.1.1 静态标签标识属性格式模板示例"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "text",
+              "index": 7,
+              "bbox": [
+                0.145,
+                0.315,
+                0.852,
+                0.596
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "静态标签标识属性格式模板示例见表 B.1 所示，丙公司存储的数据是从乙公司（统一社会信用代码为 914405123456358117）处获得的 ， 并 且 数 据 源 主 体 是 甲 公 司 （ 统 一 社 会 信 用 代 码 为12165432117800056Q ） ， 则 编 码 后 的 静 态 标 签 标 识 是“12165432117800056Q91440512345635811700011100”。若乙公司存储的数据是自有数据，即数据发送方和数据源主体均是乙公司，则编码 的 静 心 标 签 标 识 是“91440512345635811791440512345635811700011100”。"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 9,
+              "bbox": [
+                0.135,
+                0.619,
+                0.917,
+                0.902
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 8,
+                  "bbox": [
+                    0.343,
+                    0.604,
+                    0.655,
+                    0.619
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 B.1 静态标签标识属性格式模板示例"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 9,
+                  "bbox": [
+                    0.135,
+                    0.619,
+                    0.917,
+                    0.902
+                  ],
+                  "image_path": "images/page_27_table_9.jpg",
+                  "content": "<table><tbody><tr><td>字段</td><td>长度（B）</td><td>示例数据</td><td>说明</td></tr><tr><td>数据源主体</td><td>18</td><td>12165432117800056Q</td><td>丙公司所存储数据对象的源头是甲公司。</td></tr><tr><td>数据提供方</td><td>18</td><td>914405123456358117</td><td>该数据对象由乙公司直接提供给丙公司。</td></tr><tr><td>数据分级</td><td>1</td><td>00011100</td><td>该数据对象既是个人信息、又是敏感个人信息、且未来可能出境、但不属于重要数据</td></tr><tr><td>扩展字段</td><td>64</td><td>--</td><td>可由企业根据需要自定义。</td></tr></tbody></table>"
+                }
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 10,
+              "bbox": [
+                0.504,
+                0.916,
+                0.525,
+                0.929
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "23"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "page_idx": 28,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.16,
+                0.059,
+                0.447,
+                0.098
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "2 全国网络安全标准化技术委员会60 National Technical Committee 260 on Cybersecurity of SAC"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 1,
+              "bbox": [
+                0.134,
+                0.11,
+                0.917,
+                0.168
+              ],
+              "content": [
+                {
+                  "type": "table_body",
+                  "index": 1,
+                  "bbox": [
+                    0.134,
+                    0.11,
+                    0.917,
+                    0.168
+                  ],
+                  "image_path": "images/page_28_table_1.jpg",
+                  "content": "<table><tbody><tr><td>静态标识</td><td>16</td><td>550e8400e29b41d4a716446655440000</td><td>UUID通常表示为32个十六进制字符。</td></tr></tbody></table>"
+                }
+              ],
+              "continues_prev": true,
+              "cell_merge": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "type": "paragraph_title",
+              "index": 2,
+              "bbox": [
+                0.147,
+                0.214,
+                0.547,
+                0.235
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "B.1.2 动态标签标识属性格式模板示例"
+                }
+              ],
+              "level": 2
+            },
+            {
+              "type": "text",
+              "index": 3,
+              "bbox": [
+                0.146,
+                0.251,
+                0.851,
+                0.531
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "动态场景下网络数据标签标识模板示例见表 B.2 所示，甲公司将内部存储的自有数据传输给乙公司，则编码后的动态标签标识是“ 550e8400e29b41d4a71644665544000012165432117800056Q1216543 2117800056Q914405123456358117000111000000000000000128202510 15083015000000864001ab21d8355cfa17f8e61194831e81a8f22bec8c728 fefb747ed035eb5082aa2bf596d18be77035b0bb9ef6abf23ae9e81f2df317 8bedd56d64220dc72c6883a61b92ddc4c167e22956e5af32ce65bf4c05f9d 6d96aa82c41ace0aa28acba9234”"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 5,
+              "bbox": [
+                0.135,
+                0.556,
+                0.917,
+                0.894
+              ],
+              "content": [
+                {
+                  "type": "table_caption",
+                  "index": 4,
+                  "bbox": [
+                    0.343,
+                    0.54,
+                    0.655,
+                    0.556
+                  ],
+                  "content": [
+                    {
+                      "type": "text",
+                      "content": "表 B.2 动态标签标识属性格式模板示例"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_body",
+                  "index": 5,
+                  "bbox": [
+                    0.135,
+                    0.556,
+                    0.917,
+                    0.894
+                  ],
+                  "image_path": "images/page_28_table_5.jpg",
+                  "content": "<table><tbody><tr><td>字段</td><td>长度(B)</td><td>示例数据</td><td>说明</td></tr><tr><td>数据源主体</td><td>18</td><td>12165432117800056Q</td><td>本甲。次数据流转过程中的数据源主体是</td></tr><tr><td>数据发送方</td><td>18</td><td>12165432117800056Q</td><td>本甲。次数据流转过程中的数据发送方是</td></tr><tr><td>数据接收方</td><td>18</td><td>914405123456358117</td><td>本乙。次数据流转过程中的数据接收方是</td></tr><tr><td>数据分级</td><td>1</td><td>00011100</td><td>与静态标签标识中的分级属性一致。</td></tr><tr><td>数据规模</td><td>16</td><td>0000000000000128</td><td>数据规模是128条。</td></tr><tr><td>时间戳</td><td>24</td><td>20251015083015000000</td><td>表示2025年10月15日上午8点30分</td></tr></tbody></table>"
+                }
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 6,
+              "bbox": [
+                0.505,
+                0.917,
+                0.525,
+                0.928
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "24"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "page_idx": 29,
+          "blocks": [
+            {
+              "type": "header",
+              "index": 0,
+              "bbox": [
+                0.16,
+                0.059,
+                0.446,
+                0.098
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "米 员 全国网络安全标准化技术委员会National Technical Committee 260 on Cybersecurity of SAC"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "index": 1,
+              "bbox": [
+                0.135,
+                0.11,
+                0.917,
+                0.438
+              ],
+              "content": [
+                {
+                  "type": "table_body",
+                  "index": 1,
+                  "bbox": [
+                    0.135,
+                    0.11,
+                    0.917,
+                    0.438
+                  ],
+                  "image_path": "images/page_29_table_1.jpg",
+                  "content": "<table><tbody><tr><td></td><td></td><td>86400</td><td>15秒开始传输，时间间隔为1天。</td></tr><tr><td>数据传输校验码</td><td>32</td><td>1ab21d8355cfa17f8e61194831e81a8f22bec8c728fefb747ed035eb5082aa2b</td><td>密码杂凑算法应按照国家密码管理的相关规定进行选择和使用。</td></tr><tr><td>扩展字段</td><td>64</td><td>--</td><td>可由企业根据需要自定义。</td></tr><tr><td>动态标识</td><td>16</td><td>550e8400e29b41d4a716446655440000</td><td>UUID通常表示为32个十六进制字符。</td></tr><tr><td>数字签名</td><td>64</td><td>f596d18be77035b0bb9ef6abf23ae9e81f2df3178bedd56d64220dc72c6883a61b92ddc4c167e22956e5af32ce65bf4c05f9d6d96aa82c41ace0aa28acba9234</td><td>对字签动名态标签标识的全部属性字段进行数</td></tr></tbody></table>"
+                }
+              ],
+              "continues_prev": true,
+              "cell_merge": [
+                1,
+                1,
+                0,
+                0
+              ]
+            },
+            {
+              "type": "page_number",
+              "index": 2,
+              "bbox": [
+                0.505,
+                0.916,
+                0.525,
+                0.928
+              ],
+              "content": [
+                {
+                  "type": "text",
+                  "content": "25"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "is_full_document": false,
+      "schema": "docvortex.middle",
+      "schema_version": "2.0"
+    }
+  }
+}

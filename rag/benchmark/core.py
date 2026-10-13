@@ -504,10 +504,23 @@ def freeze(items, corpus, families, output, manifest):
         raise
 
 
-def load_release(directory, *, verify_history=False):
+def load_release(directory, *, verify_history=False, allow_evolving=False):
     directory = Path(directory)
     manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("status") != "frozen" or file_hash(directory / "gold.jsonl") != manifest["gold_sha256"]:
+    evolving = manifest.get('dataset_kind') == 'gold150_evolving' and manifest.get('status') == 'evolving'
+    if evolving:
+        if not allow_evolving:
+            raise ValueError('Evolving dataset requires explicit --allow-evolving')
+        required = {'gold.jsonl', 'documents.jsonl', 'chunks.jsonl', 'families.json',
+                    'dev/queries.jsonl', 'dev/run_template.jsonl', 'changes.jsonl',
+                    'review/audit.jsonl', 'distribution.json', 'pilot_ids.jsonl'}
+        if required - set(manifest.get('artifacts_sha256', {})):
+            raise ValueError('Missing evolving dataset artifact hashes')
+        if manifest.get('version_sha256') != digest({
+                'gold_sha256': manifest['gold_sha256'], 'corpus': manifest['corpus'],
+                'artifacts_sha256': manifest['artifacts_sha256']}):
+            raise ValueError('Evolving dataset version fingerprint mismatch')
+    if (manifest.get("status") != "frozen" and not evolving) or file_hash(directory / "gold.jsonl") != manifest["gold_sha256"]:
         raise ValueError("Release is not frozen or gold was modified")
     for name, expected in manifest["corpus"].items():
         if file_hash(directory / name) != expected:
@@ -530,7 +543,15 @@ def load_release(directory, *, verify_history=False):
             raise ValueError(f'Missing frozen artifact: {name}')
         if file_hash(directory / artifact) != expected:
             raise ValueError(f"Frozen artifact was modified: {name}")
-    return read_jsonl(directory / "gold.jsonl"), manifest
+    rows = read_jsonl(directory / "gold.jsonl")
+    if evolving:
+        queries = read_jsonl(directory / 'dev/queries.jsonl')
+        expected = [{'id': r['id'], 'user_input': r['user_input']} for r in rows]
+        if len(rows) != 150 or len({r['id'] for r in rows}) != 150 or any(r['split'] != 'dev' for r in rows):
+            raise ValueError('Evolving Gold150 requires 150 distinct dev questions')
+        if queries != expected:
+            raise ValueError('Evolving queries differ from gold questions')
+    return rows, manifest
 
 
 def freeze_trial(items, corpus, families, output, manifest):

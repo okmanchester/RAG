@@ -1,0 +1,37 @@
+{
+  "dataset_kind": "gold150_evolving",
+  "status": "evolving",
+  "schema_version": 2,
+  "item_count": 150,
+  "split_policy": "all_dev_no_holdout",
+  "freeze_revoked": true,
+  "refrozen": false,
+  "authorization": "用户撤销150题冻结决定，授权沿用原始语料演进全部150题；政策技术各75题，全部dev，仅试跑5道困难题，不重新冻结。",
+  "created_at": "2026-10-13T03:48:08.544349+00:00",
+  "gold_sha256": "3bd942966a5d563d41b8b5dd274015eeb980652fb5ce04edff91090864769011",
+  "corpus": {
+    "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+    "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0"
+  },
+  "families_sha256": "2edb8213da06b10ffcd1918955b13b9ecaf7a605ff9ccc4862bd05953855823b",
+  "artifacts_sha256": {
+    "gold.jsonl": "3bd942966a5d563d41b8b5dd274015eeb980652fb5ce04edff91090864769011",
+    "documents.jsonl": "fa43d1e95d69538bd1e1e7f2c8c618300a79f3dad0727886397eb490f3b029e8",
+    "chunks.jsonl": "da0ff2d91e3958baa0c4f9710b6c32cdd4c61317522cdd9abc6f232b7710f7f0",
+    "families.json": "2edb8213da06b10ffcd1918955b13b9ecaf7a605ff9ccc4862bd05953855823b",
+    "dev/queries.jsonl": "4ad0e21ffc5731e979d6e5c43ba2d5e5beba895fa922ca5edb5284dcdf17ff36",
+    "dev/run_template.jsonl": "aaeb5b1851116a4b33e0747cfe6058453f0dd9054ceed285e185407fd44634bc",
+    "changes.jsonl": "b11103f729d4ef69158ddfd39827322f7e6aa66712ffc2dc6457980d98c9d1f8",
+    "review/audit.jsonl": "a3d6c3bf114d5ab798484181596708fc2ae38bf6e9bbdae63e44cb0f3681b777",
+    "review/reading.md": "409079e8aed7f76e721c45ec0a2ede299e6d191aa6ed695acf66d85cdb7c6edf",
+    "review/duplicate_links.json": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+    "distribution.json": "447a2ec51290c754d6bb494408dfec6a55fceeaf6019897790f9dcd624fb95d4",
+    "pilot_ids.jsonl": "4b72a9a2b23690e557c7dbf3b6e439c10b84714ee49feacc17e1d5e0c78b87e1",
+    "pilot_selection.json": "92cdac86274a18d729cfcd568dc187c6644e50fabc30204ba955381b5e46df6e",
+    "README.md": "54f34182a6f01f9ba11ec8f4bbe58b1bab501e81380d10d5548716e888cbc179"
+  },
+  "source_release": "D:\\WorkSpace\\Projects\\rag-benchmark-backup\\gold150_final_v1",
+  "source_gold_sha256": "b0352c9a881e6a67f73bbff0a0d1e6e6ca14fd9090de7f97025d4ffc009c9775",
+  "source_manifest_sha256": "543dc96687468eb07f48e7c3ee43c98209a928e01db06209f779272f93be4b98",
+  "version_sha256": "f81054e42c7dc2fbc94ec85f9955c6a93277c2caca3876ee7b24a88e5396a480"
+}

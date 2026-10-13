@@ -1,0 +1,236 @@
+{
+  "id": "trial_v3-pilot_v2-0019",
+  "status": "ok",
+  "metrics": {
+    "evidence_recall@5": 0.75,
+    "all_evidence@5": 0.0,
+    "evidence_recall@10": 0.75,
+    "all_evidence@10": 0.0,
+    "answer_point_accuracy": 0.875,
+    "answer_point_completeness": 0.3888888888888889,
+    "answer_point_missing_rate": 0.5555555555555556,
+    "answer_all_points_correct": 0.0,
+    "citation_support": 0.75,
+    "citation_coverage": 0.8571428571428571,
+    "faithfulness": 0.9166666666666666
+  },
+  "metric_errors": {},
+  "at": "2026-10-13T03:40:18.321053+00:00",
+  "evaluated_citations": [
+    {
+      "claim": "金融账户信息属敏感个人信息，处理前须取得个人单独同意；法律、行政法规要求书面同意的从其规定",
+      "context_ids": [
+        "8484105851a8cb9fdb0484a5"
+      ],
+      "citation_numbers": [
+        1
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        0,
+        45
+      ],
+      "citation_span": [
+        45,
+        48
+      ]
+    },
+    {
+      "claim": "除一般告知事项外，还须告知处理必要性及对个人权益的影响，法律规定可不告知的除外",
+      "context_ids": [
+        "8484105851a8cb9fdb0484a5"
+      ],
+      "citation_numbers": [
+        1
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        49,
+        88
+      ],
+      "citation_span": [
+        88,
+        91
+      ]
+    },
+    {
+      "claim": "处理目的、方式或信息种类变更的，应重新取得同意",
+      "context_ids": [
+        "80184fab2dcb88ec40d50c2b"
+      ],
+      "citation_numbers": [
+        3
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        92,
+        115
+      ],
+      "citation_span": [
+        115,
+        118
+      ]
+    },
+    {
+      "claim": "关于事件发生后的个人通知例外及监管部门要求通知权，提供的材料未包含个人信息泄露后的通知义务、例外情形或监管部门要求通知的条款，无法据此回答",
+      "context_ids": [
+        "8484105851a8cb9fdb0484a5",
+        "8334aa64598d196913e2ac18",
+        "80184fab2dcb88ec40d50c2b",
+        "101901a500ba5a9abad19796",
+        "d3f668563b0602b57cb879ea",
+        "703b652edb85dc257b2040fc",
+        "c889269be53c7977f8e0a615",
+        "7263144c042c45e25bfcc7ec",
+        "75ddf03dbc0a60cdc81e5122",
+        "e9c81da90abdbc8ac4257f12"
+      ],
+      "citation_numbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "invalid_numbers": [],
+      "response_span": [
+        121,
+        190
+      ],
+      "citation_span": [
+        190,
+        221
+      ]
+    }
+  ],
+  "judge_attempts": [
+    {
+      "attempt": 1,
+      "status": "ok"
+    }
+  ],
+  "judgment": {
+    "point_verdicts": [
+      "correct",
+      "missing",
+      "correct",
+      "correct",
+      "partial",
+      "missing",
+      "missing",
+      "missing",
+      "missing"
+    ],
+    "point_response_quotes": [
+      "金融账户信息属敏感个人信息",
+      "",
+      "处理前须取得个人单独同意；法律、行政法规要求书面同意的从其规定",
+      "除一般告知事项外，还须告知处理必要性及对个人权益的影响，法律规定可不告知的除外",
+      "提供的材料未包含个人信息泄露后的通知义务、例外情形或监管部门要求通知的条款",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "citation_verdicts": [
+      true,
+      true,
+      true,
+      false
+    ],
+    "claims": [
+      {
+        "claim": "金融账户信息属于敏感个人信息",
+        "response_quote": "金融账户信息属敏感个人信息",
+        "citation_index": 0,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "8484105851a8cb9fdb0484a5",
+            "support_quote": "金融账户"
+          }
+        ]
+      },
+      {
+        "claim": "处理敏感个人信息应当取得个人的单独同意",
+        "response_quote": "处理前须取得个人单独同意",
+        "citation_index": 0,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "8484105851a8cb9fdb0484a5",
+            "support_quote": "处理敏感个人信息应当取得个人的单独同意"
+          }
+        ]
+      },
+      {
+        "claim": "法律、行政法规规定处理敏感个人信息应当取得书面同意的，从其规定",
+        "response_quote": "法律、行政法规要求书面同意的从其规定",
+        "citation_index": 0,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "8484105851a8cb9fdb0484a5",
+            "support_quote": "法律、行政法规规定处理敏感个人信息应当取得书面同意的，从其规定"
+          }
+        ]
+      },
+      {
+        "claim": "处理敏感个人信息除一般告知事项外，还须告知处理必要性及对个人权益的影响",
+        "response_quote": "除一般告知事项外，还须告知处理必要性及对个人权益的影响",
+        "citation_index": 1,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "8484105851a8cb9fdb0484a5",
+            "support_quote": "除本法第十七条第一款规定的事项外，还应当向个人告知处理敏感个人信息的必要性以及对个人权益的影响"
+          }
+        ]
+      },
+      {
+        "claim": "依照法律规定可以不向个人告知的除外",
+        "response_quote": "法律规定可不告知的除外",
+        "citation_index": 1,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 1,
+            "context_id": "8484105851a8cb9fdb0484a5",
+            "support_quote": "依照本法规定可以不向个人告知的除外"
+          }
+        ]
+      },
+      {
+        "claim": "个人信息的处理目的、处理方式和处理的个人信息种类发生变更的，应当重新取得个人同意",
+        "response_quote": "处理目的、方式或信息种类变更的，应重新取得同意",
+        "citation_index": 2,
+        "citation_supported": true,
+        "supports": [
+          {
+            "citation_number": 3,
+            "context_id": "80184fab2dcb88ec40d50c2b",
+            "support_quote": "个人信息的处理目的、处理方式和处理的个人信息种类发生变更的，应当重新取得个人同意"
+          }
+        ]
+      },
+      {
+        "claim": "提供的材料未包含个人信息泄露后的通知义务、例外情形或监管部门要求通知的条款",
+        "response_quote": "提供的材料未包含个人信息泄露后的通知义务、例外情形或监管部门要求通知的条款",
+        "citation_index": 3,
+        "citation_supported": false,
+        "supports": []
+      }
+    ],
+    "boundary_correct": null,
+    "reason": "回答正确识别了敏感个人信息的定义、单独同意要求及额外告知义务。但遗漏了处理敏感个人信息的前提条件（特定目的、充分必要性、严格保护措施）。对于泄露后的通知例外及监管部门职权，回答声称材料缺失，但实际上检索到的上下文（虽未在引用中明确展示具体条文内容，但根据gold evidence_groups，相关条文存在于文档中，只是模型可能未正确检索或解读）或模型判断失误。然而，根据指令“仅按固定语料快照判断”，检查run.retrieved_contexts，确实没有包含《个人信息保护法》第五十七条关于泄露通知的具体条文（contexts主要包含第二十八条至第三十二条等）。因此，模型关于“材料未包含”的事实陈述在给定上下文中是正确的，但该要点本身属于missing，因为模型未能提供该知识点。由于模型明确指出无法回答且理由是基于当前材料的局限性，而非编造，故对该部分要点判为missing。边界情况：模型试图澄清材料不足，但未完全符合clarify的定义（询问缺失条件），而是直接陈述无法回答，且遗漏了部分前置知识点。"
+  }
+}

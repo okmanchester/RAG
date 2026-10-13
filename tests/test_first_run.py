@@ -60,7 +60,8 @@ class FirstRunTests(unittest.TestCase):
             release = base / "release"
             write_jsonl(release / "documents.jsonl", [{"doc_id": "doc", "sha256": "sha", "blocks": []}])
             write_jsonl(release / "chunks.jsonl", [
-                {"chunk_id": "body", "doc_id": "doc", "text": "body", "sources": [], "retrieval_enabled": True},
+                {"chunk_id": "body", "doc_id": "doc", "text": "body", "sources": [], "retrieval_enabled": True,
+                 "derived_sources": [{"source_refs": [{"block_id": 1, "block_char_start": 0, "block_char_end": 4}]}]},
                 {"chunk_id": "toc", "doc_id": "doc", "text": "toc", "sources": [], "retrieval_enabled": False},
             ])
             encoder = Mock()
@@ -69,7 +70,10 @@ class FirstRunTests(unittest.TestCase):
                  patch("sentence_transformers.SentenceTransformer", return_value=encoder):
                 index = DenseIndex(release, base / "cache")
                 self.assertEqual(len(index.chunks), 1)
-                self.assertEqual(index.search("question")[0]["id"], "body")
+                context = index.search("question")[0]
+                self.assertEqual(context["id"], "body")
+                self.assertEqual(context["sources"], [{"block_id": 1, "block_char_start": 0, "block_char_end": 4}])
+                self.assertEqual(context["derived_sources"], index.chunks[0]["derived_sources"])
 
     def test_concurrent_score_resume_reuses_fixed_ids(self):
         with tempfile.TemporaryDirectory() as root:

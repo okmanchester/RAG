@@ -1,0 +1,652 @@
+{
+  "id": "trial_v3-pilot_v2-0019",
+  "response": "金融账户信息属敏感个人信息，处理前须取得个人单独同意；法律、行政法规要求书面同意的从其规定[1]。除一般告知事项外，还须告知处理必要性及对个人权益的影响，法律规定可不告知的除外[1]。处理目的、方式或信息种类变更的，应重新取得同意[3]。\n\n关于事件发生后的个人通知例外及监管部门要求通知权，提供的材料未包含个人信息泄露后的通知义务、例外情形或监管部门要求通知的条款，无法据此回答[1][2][3][4][5][6][7][8][9][10]。材料仅涉及处理前规则，未涉及泄露后补救与通知机制。",
+  "retrieved_contexts": [
+    {
+      "id": "8484105851a8cb9fdb0484a5",
+      "text": "中华人民共和国个人信息保护法\n第二章 个人信息处理规则\n第二节 敏感个人信息的处理规则\n\n第二十八条 敏感个人信息是一旦泄露或者非法使用，容易导致自然人的人格尊严受到侵害或者人身、财产安全受到危害的个人信息，包括生物识别、宗教信仰、特定身份、医疗健康、金融账户、行踪轨迹等信息，以及不满十四周岁未成年人的个人信息。\n\n只有在具有特定的目的和充分的必要性，并采取严格保护措施的情形下，个人信息处理者方可处理敏感个人信息。\n\n第二十九条 处理敏感个人信息应当取得个人的单独同意；法律、行政法规规定处理敏感个人信息应当取得书面同意的，从其规定。\n\n第三十条 个人信息处理者处理敏感个人信息的，除本法第十七条第一款规定的事项外，还应当向个人告知处理敏感个人信息的必要性以及对个人权益的影响；依照本法规定可以不向个人告知的除外。\n\n第三十一条 个人信息处理者处理不满十四周岁未成年人个人信息的，应当取得未成年人的父母或者其他监护人的同意。\n\n",
+      "doc_id": "352318f9d7cdb23adfec2746",
+      "document_sha256": "1815f84f43dd5011442c817a197d745c9aef631f5db3b6c7a75be1acc2b5cd8b",
+      "sources": [
+        {
+          "block_id": 74,
+          "content_index": 85,
+          "block_char_start": 0,
+          "block_char_end": 112,
+          "body_char_start": 0,
+          "body_char_end": 112,
+          "is_overlap": false
+        },
+        {
+          "block_id": 75,
+          "content_index": 86,
+          "block_char_start": 0,
+          "block_char_end": 50,
+          "body_char_start": 114,
+          "body_char_end": 164,
+          "is_overlap": false
+        },
+        {
+          "block_id": 76,
+          "content_index": 87,
+          "block_char_start": 0,
+          "block_char_end": 58,
+          "body_char_start": 166,
+          "body_char_end": 224,
+          "is_overlap": false
+        },
+        {
+          "block_id": 77,
+          "content_index": 88,
+          "block_char_start": 0,
+          "block_char_end": 88,
+          "body_char_start": 226,
+          "body_char_end": 314,
+          "is_overlap": false
+        },
+        {
+          "block_id": 78,
+          "content_index": 89,
+          "block_char_start": 0,
+          "block_char_end": 53,
+          "body_char_start": 316,
+          "body_char_end": 369,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "8334aa64598d196913e2ac18",
+      "text": "中华人民共和国消费者权益保护法实施条例\n第二章 消费者的权利和经营者的义务\n\n默认授权等方式，强制或者变相强制消费者同意收集、使用与经营活动无直接关系的个人信息。\n\n经营者处理包含消费者的生物识别、宗教信仰、特定身份、医疗健康、金融账户、行踪轨迹等信息以及不满十四周岁未成年人的个人信息等敏感个人信息的，应当符合有关法律、行政法规的规定。\n\n第二十四条 未经消费者同意，经营者不得向消费者发送商业性信息或者拨打商业性电话。消费者同意接收商业性信息或者商业性电话的，经营者应当提供明确、便捷的取消方式。消费者选择取消的，经营者应当立即停止发送商业性信息或者拨打商业性电话。",
+      "doc_id": "de397c09e856a62c9297b30b",
+      "document_sha256": "f65749e84c18d735ed1e5b9009d4cfa070a226043fd2a5f8df1ec6975affeb4d",
+      "sources": [
+        {
+          "block_id": 42,
+          "content_index": 48,
+          "block_char_start": 63,
+          "block_char_end": 105,
+          "body_char_start": 0,
+          "body_char_end": 42,
+          "is_overlap": true
+        },
+        {
+          "block_id": 43,
+          "content_index": 49,
+          "block_char_start": 0,
+          "block_char_end": 86,
+          "body_char_start": 44,
+          "body_char_end": 130,
+          "is_overlap": false
+        },
+        {
+          "block_id": 44,
+          "content_index": 50,
+          "block_char_start": 0,
+          "block_char_end": 114,
+          "body_char_start": 132,
+          "body_char_end": 246,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "80184fab2dcb88ec40d50c2b",
+      "text": "中华人民共和国个人信息保护法\n第二章 个人信息处理规则\n第一节 一般规定\n\n处理个人信息应当取得个人同意，但是有前款第二项至第七项规定情形的，不需取得个人同意。\n\n第十四条 基于个人同意处理个人信息的，该同意应当由个人在充分知情的前提下自愿、明确作出。法律、行政法规规定处理个人信息应当取得个人单独同意或者书面同意的，从其规定。\n\n个人信息的处理目的、处理方式和处理的个人信息种类发生变更的，应当重新取得个人同意。\n\n第十五条 基于个人同意处理个人信息的，个人有权撤回其同意。个人信息处理者应当提供便捷的撤回同意的方式。\n\n个人撤回同意，不影响撤回前基于个人同意已进行的个人信息处理活动的效力。\n\n第十六条 个人信息处理者不得以个人不同意处理其个人信息或者撤回同意为由，拒绝提供产品或者服务；处理个人信息属于提供产品或者服务所必需的除外。\n\n",
+      "doc_id": "352318f9d7cdb23adfec2746",
+      "document_sha256": "1815f84f43dd5011442c817a197d745c9aef631f5db3b6c7a75be1acc2b5cd8b",
+      "sources": [
+        {
+          "block_id": 44,
+          "content_index": 53,
+          "block_char_start": 11,
+          "block_char_end": 53,
+          "body_char_start": 0,
+          "body_char_end": 42,
+          "is_overlap": true
+        },
+        {
+          "block_id": 45,
+          "content_index": 54,
+          "block_char_start": 0,
+          "block_char_end": 82,
+          "body_char_start": 44,
+          "body_char_end": 126,
+          "is_overlap": false
+        },
+        {
+          "block_id": 46,
+          "content_index": 55,
+          "block_char_start": 0,
+          "block_char_end": 41,
+          "body_char_start": 128,
+          "body_char_end": 169,
+          "is_overlap": false
+        },
+        {
+          "block_id": 47,
+          "content_index": 56,
+          "block_char_start": 0,
+          "block_char_end": 51,
+          "body_char_start": 171,
+          "body_char_end": 222,
+          "is_overlap": false
+        },
+        {
+          "block_id": 48,
+          "content_index": 57,
+          "block_char_start": 0,
+          "block_char_end": 35,
+          "body_char_start": 224,
+          "body_char_end": 259,
+          "is_overlap": false
+        },
+        {
+          "block_id": 49,
+          "content_index": 58,
+          "block_char_start": 0,
+          "block_char_end": 70,
+          "body_char_start": 261,
+          "body_char_end": 331,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "101901a500ba5a9abad19796",
+      "text": "中华人民共和国个人信息保护法\n第二章 个人信息处理规则\n第二节 敏感个人信息的处理规则\n\n个人信息处理者处理不满十四周岁未成年人个人信息的，应当取得未成年人的父母或者其他监护人的同意。\n\n个人信息处理者处理不满十四周岁未成年人个人信息的，应当制定专门的个人信息处理规则。\n\n第三十二条 法律、行政法规对处理敏感个人信息规定应当取得相关行政许可或者作出其他限制的，从其规定。",
+      "doc_id": "352318f9d7cdb23adfec2746",
+      "document_sha256": "1815f84f43dd5011442c817a197d745c9aef631f5db3b6c7a75be1acc2b5cd8b",
+      "sources": [
+        {
+          "block_id": 78,
+          "content_index": 89,
+          "block_char_start": 6,
+          "block_char_end": 53,
+          "body_char_start": 0,
+          "body_char_end": 47,
+          "is_overlap": true
+        },
+        {
+          "block_id": 79,
+          "content_index": 90,
+          "block_char_start": 0,
+          "block_char_end": 41,
+          "body_char_start": 49,
+          "body_char_end": 90,
+          "is_overlap": false
+        },
+        {
+          "block_id": 80,
+          "content_index": 91,
+          "block_char_start": 0,
+          "block_char_end": 49,
+          "body_char_start": 92,
+          "body_char_end": 141,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "d3f668563b0602b57cb879ea",
+      "text": "中华人民共和国个人信息保护法\n第二章 个人信息处理规则\n第一节 一般规定\n\n接收方变更原先的处理目的、处理方式的，应当依照本法规定重新取得个人同意。\n\n第二十三条 个人信息处理者向其他个人信息处理者提供其处理的个人信息的，应当向个人告知接收方的名称或者姓名、联系方式、处理目的、处理方式和个人信息的种类，并取得个人的单独同意。接收方应当在上述处理目的、处理方式和个人信息的种类等范围内处理个人信息。接收方变更原先的处理目的、处理方式的，应当依照本法规定重新取得个人同意。\n\n第二十四条 个人信息处理者利用个人信息进行自动化决策，应当保证决策的透明度和结果公平、公正，不得对个人在交易价格等交易条件上实行不合理的差别待遇。\n\n通过自动化决策方式向个人进行信息推送、商业营销，应当同时提供不针对其个人特征的选项，或者向个人提供便捷的拒绝方式。\n\n",
+      "doc_id": "352318f9d7cdb23adfec2746",
+      "document_sha256": "1815f84f43dd5011442c817a197d745c9aef631f5db3b6c7a75be1acc2b5cd8b",
+      "sources": [
+        {
+          "block_id": 65,
+          "content_index": 74,
+          "block_char_start": 84,
+          "block_char_end": 120,
+          "body_char_start": 0,
+          "body_char_end": 36,
+          "is_overlap": true
+        },
+        {
+          "block_id": 66,
+          "content_index": 75,
+          "block_char_start": 0,
+          "block_char_end": 159,
+          "body_char_start": 38,
+          "body_char_end": 197,
+          "is_overlap": false
+        },
+        {
+          "block_id": 67,
+          "content_index": 76,
+          "block_char_start": 0,
+          "block_char_end": 73,
+          "body_char_start": 199,
+          "body_char_end": 272,
+          "is_overlap": false
+        },
+        {
+          "block_id": 68,
+          "content_index": 77,
+          "block_char_start": 0,
+          "block_char_end": 57,
+          "body_char_start": 274,
+          "body_char_end": 331,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "703b652edb85dc257b2040fc",
+      "text": "中华人民共和国个人信息保护法\n第二章 个人信息处理规则\n第一节 一般规定\n\n有法律、行政法规规定应当保密或者不需要告知的情形的，可以不向个人告知前条第一款规定的事项。\n\n紧急情况下为保护自然人的生命健康和财产安全无法及时向个人告知的，个人信息处理者应当在紧急情况消除后及时告知。\n\n第十九条 除法律、行政法规另有规定外，个人信息的保存期限应当为实现处理目的所必要的最短时间。\n\n第二十条 两个以上的个人信息处理者共同决定个人信息的处理目的和处理方式的，应当约定各自的权利和义务。但是，该约定不影响个人向其中任何一个个人信息处理者要求行使本法规定的权利。\n\n个人信息处理者共同处理个人信息，侵害个人信息权益造成损害的，应当依法承担连带责任。\n\n第二十一条 个人信息处理者委托处理个人信息的，应当与受托人约定委托处理的目的、期限、处理方式、个人信息的种类、保护措施以及双方的权利和义务等，并对受托人的个人信息处理活动进行监督。\n\n",
+      "doc_id": "352318f9d7cdb23adfec2746",
+      "document_sha256": "1815f84f43dd5011442c817a197d745c9aef631f5db3b6c7a75be1acc2b5cd8b",
+      "sources": [
+        {
+          "block_id": 57,
+          "content_index": 66,
+          "block_char_start": 19,
+          "block_char_end": 64,
+          "body_char_start": 0,
+          "body_char_end": 45,
+          "is_overlap": true
+        },
+        {
+          "block_id": 58,
+          "content_index": 67,
+          "block_char_start": 0,
+          "block_char_end": 54,
+          "body_char_start": 47,
+          "body_char_end": 101,
+          "is_overlap": false
+        },
+        {
+          "block_id": 59,
+          "content_index": 68,
+          "block_char_start": 0,
+          "block_char_end": 46,
+          "body_char_start": 103,
+          "body_char_end": 149,
+          "is_overlap": false
+        },
+        {
+          "block_id": 60,
+          "content_index": 69,
+          "block_char_start": 0,
+          "block_char_end": 87,
+          "body_char_start": 151,
+          "body_char_end": 238,
+          "is_overlap": false
+        },
+        {
+          "block_id": 61,
+          "content_index": 70,
+          "block_char_start": 0,
+          "block_char_end": 41,
+          "body_char_start": 240,
+          "body_char_end": 281,
+          "is_overlap": false
+        },
+        {
+          "block_id": 62,
+          "content_index": 71,
+          "block_char_start": 0,
+          "block_char_end": 90,
+          "body_char_start": 283,
+          "body_char_end": 373,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "c889269be53c7977f8e0a615",
+      "text": "中华人民共和国个人信息保护法\n第二章 个人信息处理规则\n第一节 一般规定\n\n第十三条 符合下列情形之一的，个人信息处理者方可处理个人信息：\n\n（一）取得个人的同意；\n\n（二）为订立、履行个人作为一方当事人的合同所必需，或者按照依法制定的劳动规章制度和依法签订的集体合同实施人力资源管理所必需；\n\n（三）为履行法定职责或者法定义务所必需；\n\n（四）为应对突发公共卫生事件，或者紧急情况下为保护自然人的生命健康和财产安全所必需；\n\n（五）为公共利益实施新闻报道、舆论监督等行为，在合理的范围内处理个人信息；\n\n（六）依照本法规定在合理的范围内处理个人自行公开或者其他已经合法公开的个人信息；\n\n（七）法律、行政法规规定的其他情形。\n\n依照本法其他有关规定，处理个人信息应当取得个人同意，但是有前款第二项至第七项规定情形的，不需取得个人同意。\n\n",
+      "doc_id": "352318f9d7cdb23adfec2746",
+      "document_sha256": "1815f84f43dd5011442c817a197d745c9aef631f5db3b6c7a75be1acc2b5cd8b",
+      "sources": [
+        {
+          "block_id": 36,
+          "content_index": 45,
+          "block_char_start": 0,
+          "block_char_end": 31,
+          "body_char_start": 0,
+          "body_char_end": 31,
+          "is_overlap": false
+        },
+        {
+          "block_id": 37,
+          "content_index": 46,
+          "block_char_start": 0,
+          "block_char_end": 11,
+          "body_char_start": 33,
+          "body_char_end": 44,
+          "is_overlap": false
+        },
+        {
+          "block_id": 38,
+          "content_index": 47,
+          "block_char_start": 0,
+          "block_char_end": 62,
+          "body_char_start": 46,
+          "body_char_end": 108,
+          "is_overlap": false
+        },
+        {
+          "block_id": 39,
+          "content_index": 48,
+          "block_char_start": 0,
+          "block_char_end": 20,
+          "body_char_start": 110,
+          "body_char_end": 130,
+          "is_overlap": false
+        },
+        {
+          "block_id": 40,
+          "content_index": 49,
+          "block_char_start": 0,
+          "block_char_end": 42,
+          "body_char_start": 132,
+          "body_char_end": 174,
+          "is_overlap": false
+        },
+        {
+          "block_id": 41,
+          "content_index": 50,
+          "block_char_start": 0,
+          "block_char_end": 37,
+          "body_char_start": 176,
+          "body_char_end": 213,
+          "is_overlap": false
+        },
+        {
+          "block_id": 42,
+          "content_index": 51,
+          "block_char_start": 0,
+          "block_char_end": 40,
+          "body_char_start": 215,
+          "body_char_end": 255,
+          "is_overlap": false
+        },
+        {
+          "block_id": 43,
+          "content_index": 52,
+          "block_char_start": 0,
+          "block_char_end": 18,
+          "body_char_start": 257,
+          "body_char_end": 275,
+          "is_overlap": false
+        },
+        {
+          "block_id": 44,
+          "content_index": 53,
+          "block_char_start": 0,
+          "block_char_end": 53,
+          "body_char_start": 277,
+          "body_char_end": 330,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "7263144c042c45e25bfcc7ec",
+      "text": "中华人民共和国个人信息保护法\n第二章 个人信息处理规则\n第一节 一般规定\n\n拒绝提供产品或者服务；处理个人信息属于提供产品或者服务所必需的除外。\n\n第十七条 个人信息处理者在处理个人信息前，应当以显著方式、清晰易懂的语言真实、准确、完整地向个人告知下列事项：\n\n（一）个人信息处理者的名称或者姓名和联系方式；\n\n（二）个人信息的处理目的、处理方式，处理的个人信息种类、保存期限；\n\n（三）个人行使本法规定权利的方式和程序；\n\n（四）法律、行政法规规定应当告知的其他事项。\n\n前款规定事项发生变更的，应当将变更部分告知个人。\n\n个人信息处理者通过制定个人信息处理规则的方式告知第一款规定事项的，处理规则应当公开，并且便于查阅和保存。\n\n第十八条 个人信息处理者处理个人信息，有法律、行政法规规定应当保密或者不需要告知的情形的，可以不向个人告知前条第一款规定的事项。\n\n",
+      "doc_id": "352318f9d7cdb23adfec2746",
+      "document_sha256": "1815f84f43dd5011442c817a197d745c9aef631f5db3b6c7a75be1acc2b5cd8b",
+      "sources": [
+        {
+          "block_id": 49,
+          "content_index": 58,
+          "block_char_start": 36,
+          "block_char_end": 70,
+          "body_char_start": 0,
+          "body_char_end": 34,
+          "is_overlap": true
+        },
+        {
+          "block_id": 50,
+          "content_index": 59,
+          "block_char_start": 0,
+          "block_char_end": 55,
+          "body_char_start": 36,
+          "body_char_end": 91,
+          "is_overlap": false
+        },
+        {
+          "block_id": 51,
+          "content_index": 60,
+          "block_char_start": 0,
+          "block_char_end": 23,
+          "body_char_start": 93,
+          "body_char_end": 116,
+          "is_overlap": false
+        },
+        {
+          "block_id": 52,
+          "content_index": 61,
+          "block_char_start": 0,
+          "block_char_end": 33,
+          "body_char_start": 118,
+          "body_char_end": 151,
+          "is_overlap": false
+        },
+        {
+          "block_id": 53,
+          "content_index": 62,
+          "block_char_start": 0,
+          "block_char_end": 20,
+          "body_char_start": 153,
+          "body_char_end": 173,
+          "is_overlap": false
+        },
+        {
+          "block_id": 54,
+          "content_index": 63,
+          "block_char_start": 0,
+          "block_char_end": 22,
+          "body_char_start": 175,
+          "body_char_end": 197,
+          "is_overlap": false
+        },
+        {
+          "block_id": 55,
+          "content_index": 64,
+          "block_char_start": 0,
+          "block_char_end": 24,
+          "body_char_start": 199,
+          "body_char_end": 223,
+          "is_overlap": false
+        },
+        {
+          "block_id": 56,
+          "content_index": 65,
+          "block_char_start": 0,
+          "block_char_end": 52,
+          "body_char_start": 225,
+          "body_char_end": 277,
+          "is_overlap": false
+        },
+        {
+          "block_id": 57,
+          "content_index": 66,
+          "block_char_start": 0,
+          "block_char_end": 64,
+          "body_char_start": 279,
+          "body_char_end": 343,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "75ddf03dbc0a60cdc81e5122",
+      "text": "中华人民共和国个人信息保护法\n第二章 个人信息处理规则\n第一节 一般规定\n\n处理方式、个人信息的种类、保护措施以及双方的权利和义务等，并对受托人的个人信息处理活动进行监督。\n\n受托人应当按照约定处理个人信息，不得超出约定的处理目的、处理方式等处理个人信息；委托合同不生效、无效、被撤销或者终止的，受托人应当将个人信息返还个人信息处理者或者予以删除，不得保留。\n\n未经个人信息处理者同意，受托人不得转委托他人处理个人信息。\n\n第二十二条 个人信息处理者因合并、分立、解散、被宣告破产等原因需要转移个人信息的，应当向个人告知接收方的名称或者姓名和联系方式。接收方应当继续履行个人信息处理者的义务。接收方变更原先的处理目的、处理方式的，应当依照本法规定重新取得个人同意。\n\n",
+      "doc_id": "352318f9d7cdb23adfec2746",
+      "document_sha256": "1815f84f43dd5011442c817a197d745c9aef631f5db3b6c7a75be1acc2b5cd8b",
+      "sources": [
+        {
+          "block_id": 62,
+          "content_index": 71,
+          "block_char_start": 42,
+          "block_char_end": 90,
+          "body_char_start": 0,
+          "body_char_end": 48,
+          "is_overlap": true
+        },
+        {
+          "block_id": 63,
+          "content_index": 72,
+          "block_char_start": 0,
+          "block_char_end": 91,
+          "body_char_start": 50,
+          "body_char_end": 141,
+          "is_overlap": false
+        },
+        {
+          "block_id": 64,
+          "content_index": 73,
+          "block_char_start": 0,
+          "block_char_end": 29,
+          "body_char_start": 143,
+          "body_char_end": 172,
+          "is_overlap": false
+        },
+        {
+          "block_id": 65,
+          "content_index": 74,
+          "block_char_start": 0,
+          "block_char_end": 120,
+          "body_char_start": 174,
+          "body_char_end": 294,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    },
+    {
+      "id": "e9c81da90abdbc8ac4257f12",
+      "text": "中华人民共和国个人信息保护法\n第二章 个人信息处理规则\n第一节 一般规定\n\n商业营销，应当同时提供不针对其个人特征的选项，或者向个人提供便捷的拒绝方式。\n\n通过自动化决策方式作出对个人权益有重大影响的决定，个人有权要求个人信息处理者予以说明，并有权拒绝个人信息处理者仅通过自动化决策的方式作出决定。\n\n第二十五条 个人信息处理者不得公开其处理的个人信息，取得个人单独同意的除外。\n\n第二十六条 在公共场所安装图像采集、个人身份识别设备，应当为维护公共安全所必需，遵守国家有关规定，并设置显著的提示标识。所收集的个人图像、身份识别信息只能用于维护公共安全的目的，不得用于其他目的；取得个人单独同意的除外。\n\n第二十七条 个人信息处理者可以在合理的范围内处理个人自行公开或者其他已经合法公开的个人信息；个人明确拒绝的除外。个人信息处理者处理已公开的个人信息，对个人权益有重大影响的，应当依照本法规定取得个人同意。",
+      "doc_id": "352318f9d7cdb23adfec2746",
+      "document_sha256": "1815f84f43dd5011442c817a197d745c9aef631f5db3b6c7a75be1acc2b5cd8b",
+      "sources": [
+        {
+          "block_id": 68,
+          "content_index": 77,
+          "block_char_start": 19,
+          "block_char_end": 57,
+          "body_char_start": 0,
+          "body_char_end": 38,
+          "is_overlap": true
+        },
+        {
+          "block_id": 69,
+          "content_index": 78,
+          "block_char_start": 0,
+          "block_char_end": 71,
+          "body_char_start": 40,
+          "body_char_end": 111,
+          "is_overlap": false
+        },
+        {
+          "block_id": 70,
+          "content_index": 79,
+          "block_char_start": 0,
+          "block_char_end": 38,
+          "body_char_start": 113,
+          "body_char_end": 151,
+          "is_overlap": false
+        },
+        {
+          "block_id": 71,
+          "content_index": 80,
+          "block_char_start": 0,
+          "block_char_end": 110,
+          "body_char_start": 153,
+          "body_char_end": 263,
+          "is_overlap": false
+        },
+        {
+          "block_id": 72,
+          "content_index": 81,
+          "block_char_start": 0,
+          "block_char_end": 101,
+          "body_char_start": 265,
+          "body_char_end": 366,
+          "is_overlap": false
+        }
+      ],
+      "derived_sources": [],
+      "structure_type": "body",
+      "asset_refs": []
+    }
+  ],
+  "citations": [
+    {
+      "claim": "法律、行政法规要求书面同意的从其规定",
+      "context_ids": [
+        "8484105851a8cb9fdb0484a5"
+      ]
+    },
+    {
+      "claim": "除一般告知事项外，还须告知处理必要性及对个人权益的影响，法律规定可不告知的除外",
+      "context_ids": [
+        "8484105851a8cb9fdb0484a5"
+      ]
+    },
+    {
+      "claim": "处理目的、方式或信息种类变更的，应重新取得同意",
+      "context_ids": [
+        "80184fab2dcb88ec40d50c2b"
+      ]
+    },
+    {
+      "claim": "关于事件发生后的个人通知例外及监管部门要求通知权，提供的材料未包含个人信息泄露后的通知义务、例外情形或监管部门要求通知的条款，无法据此回答",
+      "context_ids": [
+        "8484105851a8cb9fdb0484a5",
+        "8334aa64598d196913e2ac18",
+        "80184fab2dcb88ec40d50c2b",
+        "101901a500ba5a9abad19796",
+        "d3f668563b0602b57cb879ea",
+        "703b652edb85dc257b2040fc",
+        "c889269be53c7977f8e0a615",
+        "7263144c042c45e25bfcc7ec",
+        "75ddf03dbc0a60cdc81e5122",
+        "e9c81da90abdbc8ac4257f12"
+      ]
+    }
+  ],
+  "run_config": {
+    "pipeline_version": "dense-bge-deepseek-v2",
+    "top_k": 10,
+    "embedding": "D:/WorkSpace/AIModels/BAAI/bge-large-zh-v1.5",
+    "answer_model": "deepseek-flash",
+    "prompt_sha256": "01aa8cca6232229bdcdb0700bd830f0a61e5fbd9318feec800bd0b05a7e288ab",
+    "index_sha256": "b35f7b47d7609b7e5af0d4d82c63739510afd5ef30ebd5b2d90e0427b099ad67"
+  },
+  "error": null,
+  "usage": {
+    "completion_tokens": 141,
+    "prompt_tokens": 1912,
+    "total_tokens": 2053
+  },
+  "elapsed_seconds": 2.583597499999996
+}

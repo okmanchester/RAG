@@ -9,6 +9,7 @@ import math
 import os
 import re
 import uuid
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -29,10 +30,10 @@ def load_local_env(root: Path = Path(".")) -> None:
     load_dotenv(root / ".env", override=False)
 
 
-def usable_release(release: Path) -> Path:
+def usable_release(release: Path, *, allow_evolving=False) -> Path:
     """Validate only the explicitly supplied release; never restore historical data."""
     release = Path(release)
-    load_release(release)
+    load_release(release, allow_evolving=allow_evolving)
     return release
 
 
@@ -94,9 +95,12 @@ class DenseIndex:
         contexts = []
         for pos in order:
             chunk = self.chunks[pos]
+            derived_refs = [dict(source) for mapping in chunk.get("derived_sources", [])
+                            for source in mapping["source_refs"]]
             contexts.append({"id": chunk["chunk_id"], "text": chunk["text"], "doc_id": chunk["doc_id"],
                              "document_sha256": self.corpus.documents[chunk["doc_id"]]["sha256"],
-                             "sources": [dict(s) for s in [*chunk["sources"], *chunk.get("context_sources", [])]],
+                             "sources": [dict(s) for s in [*chunk["sources"], *chunk.get("context_sources", []), *derived_refs]],
+                             "derived_sources": chunk.get("derived_sources", []),
                              "structure_type": chunk.get("structure_type", "body"),
                              "asset_refs": chunk.get("asset_refs", [])})
         return contexts
@@ -133,8 +137,8 @@ def answer_question(question: str, contexts: list[dict], client) -> tuple[str, d
     return response, {k: int(v) for k, v in usage.items() if k in ("prompt_tokens", "completion_tokens", "total_tokens") and isinstance(v, int)}
 
 
-def preflight(release: Path, require_langfuse: bool = True) -> None:
-    load_release(release)
+def preflight(release: Path, require_langfuse: bool = True, *, allow_evolving=False) -> None:
+    load_release(release, allow_evolving=allow_evolving)
     load_local_env()
     for name in ("DEEPSEEK_API_KEY", "DASHSCOPE_API_KEY"):
         if not os.getenv(name, "").strip():
@@ -148,7 +152,7 @@ def preflight(release: Path, require_langfuse: bool = True) -> None:
             raise ValueError("Langfuse authentication failed")
 
 
-def run_baseline(release: Path, ids: list[str], output: Path, index: DenseIndex, langfuse, split: str = "dev") -> None:
+def run_baseline(release: Path, ids: list[str], output: Path, index: DenseIndex, langfuse=None, split: str = "dev", *, allow_evolving=False) -> None:
     from openai import OpenAI
     if split not in ("dev", "holdout"):
         raise ValueError(f"Unsupported split: {split}")
@@ -158,6 +162,13 @@ def run_baseline(release: Path, ids: list[str], output: Path, index: DenseIndex,
     identity = {"release_gold_sha256": json.loads((release / "manifest.json").read_text(encoding="utf-8"))["gold_sha256"],
                 "selected_ids": ids, "index": index.identity, "pipeline_version": PIPELINE_VERSION,
                 "answer_model": GENERATOR_CONFIG["model"], "prompt_sha256": hashlib.sha256(ANSWER_PROMPT.encode()).hexdigest()}
+    dataset_manifest = json.loads((release / 'manifest.json').read_text(encoding='utf-8'))
+    if dataset_manifest.get('dataset_kind') == 'gold150_evolving':
+        load_release(release, allow_evolving=allow_evolving)
+    if dataset_manifest.get('version_sha256'):
+        identity['dataset_version_sha256'] = dataset_manifest['version_sha256']
+    if langfuse is None:
+        identity['telemetry'] = 'local_only'
     manifest = output / "run_manifest.json"
     if manifest.exists() and json.loads(manifest.read_text(encoding="utf-8"))["identity"] != identity:
         raise ValueError("Run inputs changed; use a new output directory")
@@ -169,7 +180,7 @@ def run_baseline(release: Path, ids: list[str], output: Path, index: DenseIndex,
     for identifier in ids:
         saved_path = output / "items" / f"{identifier}.json"
         saved = json.loads(saved_path.read_text(encoding="utf-8")) if saved_path.exists() else None
-        if saved is None or saved["error"] is not None or not traces.get(identifier):
+        if saved is None or saved["error"] is not None or (langfuse is not None and not traces.get(identifier)):
             pending_ids.append(identifier)
     client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"], base_url=GENERATOR_CONFIG["base_url"],
                     timeout=120, max_retries=2)
@@ -181,25 +192,31 @@ def run_baseline(release: Path, ids: list[str], output: Path, index: DenseIndex,
             saved = json.loads(saved_path.read_text(encoding="utf-8"))
             if saved["error"] is None:
                 return {"question_id": identifier, "status": "cached"}
+            write_json(output/'attempt_history'/identifier/f'{digest(saved)}.json', saved)
         contexts, response, citations, usage, error = [], "", [], {}, None
+        started = time.perf_counter()
         try:
-            with langfuse.start_as_current_observation(name="retrieve", as_type="retriever",
-                                                        metadata={"question_id": identifier, "top_k": 10}) as observation:
+            if langfuse is None:
                 contexts = index.search(queries[identifier])
-                observation.update(metadata={"question_id": identifier, "returned_count": len(contexts)})
-            with langfuse.start_as_current_observation(name="generate", as_type="generation",
+                response, usage = answer_question(queries[identifier], contexts, client)
+            else:
+                with langfuse.start_as_current_observation(name="retrieve", as_type="retriever",
+                                                        metadata={"question_id": identifier, "top_k": 10}) as observation:
+                    contexts = index.search(queries[identifier])
+                    observation.update(metadata={"question_id": identifier, "returned_count": len(contexts)})
+                with langfuse.start_as_current_observation(name="generate", as_type="generation",
                                                         model=GENERATOR_CONFIG["model"],
                                                         metadata={"question_id": identifier}) as observation:
-                response, usage = answer_question(queries[identifier], contexts, client)
-                observation.update(metadata={"question_id": identifier, "status": "ok"}, usage_details=usage)
+                    response, usage = answer_question(queries[identifier], contexts, client)
+                    observation.update(metadata={"question_id": identifier, "status": "ok"}, usage_details=usage)
             citations = extract_citations(response, contexts)
         except Exception as exc:
-            error = type(exc).__name__
+            error = f'{type(exc).__name__}: {str(exc)[:1000]}'
         row = {"id": identifier, "response": response, "retrieved_contexts": contexts,
                "citations": citations, "run_config": {"pipeline_version": PIPELINE_VERSION, "top_k": 10,
                    "embedding": MODEL_PATH, "answer_model": GENERATOR_CONFIG["model"],
                    "prompt_sha256": identity["prompt_sha256"], "index_sha256": digest(index.identity)},
-               "error": error}
+               "error": error, 'usage': usage, 'elapsed_seconds': time.perf_counter() - started}
         validate_run(row, index.corpus)
         write_json(saved_path, row)
         print(f"[RUN] {split} {identifier} {'ok' if error is None else error}", flush=True)
@@ -207,14 +224,19 @@ def run_baseline(release: Path, ids: list[str], output: Path, index: DenseIndex,
 
     try:
         if pending_ids:
-            result = langfuse.run_experiment(name=f"rag-benchmark-{split}", run_name=output.name,
+            if langfuse is None:
+                for identifier in pending_ids:
+                    task(item={'input': identifier})
+            else:
+                result = langfuse.run_experiment(name=f"rag-benchmark-{split}", run_name=output.name,
                                              data=[{"input": identifier} for identifier in pending_ids], task=task,
                                              max_concurrency=1, metadata={"pipeline_version": PIPELINE_VERSION,
                                                                            "split": split, "item_count": str(len(ids))})
-            traces.update({entry.item["input"]: entry.trace_id for entry in result.item_results})
+                traces.update({entry.item["input"]: entry.trace_id for entry in result.item_results})
     finally:
         client.close()
-        langfuse.flush()
+        if langfuse is not None:
+            langfuse.flush()
     write_json(trace_path, traces)
     rows = [json.loads((output / "items" / f"{identifier}.json").read_text(encoding="utf-8")) for identifier in ids]
     write_jsonl(output / "runs.jsonl", rows)
@@ -348,14 +370,22 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--full-dev", action="store_true", help="Run all dev questions; default is six-question smoke")
     parser.add_argument("--metric-version", type=int, choices=[1, 2], default=2)
+    parser.add_argument('--allow-evolving', action='store_true')
+    parser.add_argument('--local-only', action='store_true')
+    parser.add_argument('--ids-file', type=Path, help='Explicit preselected dev question IDs')
+    parser.add_argument('--retry-failed', action='store_true')
     parser.add_argument("--verify-only", action="store_true", help="Read back prior Langfuse traces and scores")
     parser.add_argument("--sync-scores", action="store_true", help="Sync saved local scores through the acknowledged Scores API")
     args = parser.parse_args()
     os.environ.setdefault("RAGAS_DO_NOT_TRACK", "true")
-    release = usable_release(args.release)
-    preflight(release)
-    from langfuse import get_client
-    langfuse = get_client()
+    if args.local_only and (args.verify_only or args.sync_scores):
+        parser.error('--local-only cannot verify or sync Langfuse')
+    release = usable_release(args.release, allow_evolving=args.allow_evolving)
+    preflight(release, require_langfuse=not args.local_only, allow_evolving=args.allow_evolving)
+    langfuse = None
+    if not args.local_only:
+        from langfuse import get_client
+        langfuse = get_client()
     if args.verify_only:
         print(json.dumps(verify_uploaded(args.output, release, langfuse), ensure_ascii=False, indent=2))
         return
@@ -365,19 +395,28 @@ def main() -> None:
                           "remote_verification": verify_uploaded(args.output, release, langfuse)},
                          ensure_ascii=False, indent=2))
         return
-    items, _ = load_release(release)
+    items, _ = load_release(release, allow_evolving=args.allow_evolving)
     ids = sorted(i["id"] for i in items if i["split"] == "dev") if args.full_dev else select_smoke_ids(items)
+    if args.ids_file:
+        ids = [row['id'] for row in read_jsonl(args.ids_file)]
     ids_file = args.output / "selected_ids.jsonl"
     if ids_file.exists() and [row["id"] for row in read_jsonl(ids_file)] != ids:
         raise ValueError("Selected IDs changed; use a new output directory")
     write_jsonl(ids_file, [{"id": identifier} for identifier in ids])
     index = DenseIndex(release)
-    run_baseline(release, ids, args.output, index, langfuse)
+    run_baseline(release, ids, args.output, index, langfuse, allow_evolving=args.allow_evolving)
     evaluation = args.output / "evaluation"
     report = asyncio.run(evaluate_release(release, args.output / "runs.jsonl", evaluation,
-                                          ids_path=ids_file, metric_version=args.metric_version))
+                                          ids_path=ids_file, metric_version=args.metric_version,
+                                          allow_evolving=args.allow_evolving, retry_failed=args.retry_failed))
     report["calibration_status"] = "uncalibrated_diagnostic"
     write_json(evaluation / "report.json", report)
+    if args.local_only:
+        print(json.dumps({'question_count':len(ids), 'statuses':report['overall']['statuses'],
+                          'telemetry':'local_only', 'output':args.output.as_posix()}, ensure_ascii=False, indent=2))
+        if any(status != 'ok' for status in report['overall']['statuses']):
+            raise SystemExit(1)
+        return
     synced = publish_scores(args.output, evaluation, langfuse)
     template = args.output / "calibration_template.jsonl"
     if not template.exists():

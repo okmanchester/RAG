@@ -8,6 +8,15 @@ model:
     server_url: ""
     max_concurrency: 1
 llm_aided:
+  api_key: "${DEEPSEEK_API_KEY:-}"
+  base_url: https://api.deepseek.com
+  model: deepseek-flash
+  enable_thinking: null
+  max_concurrency: 1
   features:
     title_leveling: false
-    cross_page_table_cell_merge: false
+    cross_page_table_cell_merge: true
+table_processing:
+  # Rules are the default; enable only for a controlled boundary-classifier A/B.
+  llm_enabled: false
+  timeout_seconds: 45

@@ -1,0 +1,21 @@
+{
+  "selected_at": "2026-10-13T03:48:08.495233+00:00",
+  "method": "predeclared_five_authored_scenarios",
+  "ids": [
+    "trial_v3-pilot_v2-0019",
+    "batch_002_64-0047",
+    "batch_002_authored10-0003",
+    "trial_v3-pilot_v2-0010",
+    "batch_001-0054"
+  ],
+  "policy": 3,
+  "technical": 2,
+  "coverage": [
+    "conditions_and_exceptions",
+    "within_document_reasoning",
+    "cross_document_synthesis",
+    "concept_discrimination",
+    "table_and_prose"
+  ],
+  "score_based_selection": false
+}

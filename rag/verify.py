@@ -7,17 +7,19 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-from .splitter import TokenCounter, chunk_document
+from .splitter import TokenCounter, chunk_document, STRATEGY
 from .structure import build_sections
 from .retrieval import iter_retrieval_chunks, summarize
 from .chunk import digest
 from .parsers import adapt_middle
+from .tables import build_table_views, validate_views, fingerprint, TABLE_VERSION
 
 
 def verify(output_dir):
     output_dir = Path(output_dir)
     report = json.loads((output_dir / "report.json").read_text(encoding="utf-8"))
     assert report["schema_version"] == 2, "expected MinerU corpus schema v2"
+    assert report.get("strategy") == STRATEGY, "saved derived strategy is outdated; rebuild from native parsing"
     for name, sha in report["artifacts_sha256"].items():
         assert digest(output_dir / name) == sha, f"incomplete or modified output: {name}"
     documents = [json.loads(line) for line in (output_dir / "documents.jsonl").read_text(encoding="utf-8").splitlines()]
@@ -52,6 +54,22 @@ def verify(output_dir):
         title, sections, _ = build_sections(copy.deepcopy(adapted), Path(document["source_path"]).stem)
         assert adapted == [{k: v for k, v in b.items() if k not in ("role", "resolved_heading_level")} for b in document["blocks"]], "normalized parsing differs from raw Middle JSON"
         assert title == document["title"]
+        if document.get("table_view_version"):
+            assert document["table_view_version"] == TABLE_VERSION, "unsupported table view version"
+            expected_views = build_table_views(document, sections, document.get("table_decisions"))
+            assert document["table_views"] == expected_views, "logical table replay mismatch"
+            validate_views(document, expected_views)
+            decision_path = (output_dir / document["table_decision_artifact"]).resolve()
+            assert output_dir.resolve() in decision_path.parents and decision_path.is_file(), "unsafe/missing table decisions"
+            assert digest(decision_path) == document["table_decision_sha256"], "table decision checksum mismatch"
+            stored = json.loads(decision_path.read_text(encoding="utf-8"))
+            assert stored["decisions"] == document["table_decisions"], "table decision artifact mismatch"
+            assert stored["identity"] == {"config": document["table_processing"],
+                "middle_sha256": digest(artifact_dir / "middle_json.json"),
+                "geometry_sha256": fingerprint(document.get("table_geometry", []))}, "table decision identity mismatch"
+            assert document["table_processing_identity"] == fingerprint({"version": TABLE_VERSION,
+                "config": document["table_processing"], "decisions": document["table_decisions"],
+                "geometry": document.get("table_geometry", [])}), "table processing identity mismatch"
         replayed = chunk_document(document, sections, count, params["max_tokens"], params["overlap_tokens"])
         assert saved == replayed, f"replay mismatch: {document['source_path']}"
         represented = {b["block_id"] for b in blocks.values() if b["role"] in ("document_title", "excluded")}
@@ -72,6 +90,19 @@ def verify(output_dir):
             for span in chunk["context_sources"]:
                 block = blocks[span["block_id"]]
                 assert chunk["text"][span["text_char_start"]:span["text_char_end"]] == block["text"][span["block_char_start"]:span["block_char_end"]]
+            for mapping in chunk.get("derived_sources", []):
+                start, end = mapping["text_char_start"], mapping["text_char_end"]
+                assert 0 <= start < end <= len(chunk["text"]), "invalid derived text range"
+                actual = chunk["text"][start:end]
+                assert actual == mapping["text"], "derived text differs from mapping"
+                copied = []
+                for source in mapping["source_refs"]:
+                    block = blocks[source["block_id"]]
+                    assert all(source[k] == v for k, v in block["source"].items()), "derived source location mismatch"
+                    lo, hi = source["block_char_start"], source["block_char_end"]
+                    assert 0 <= lo < hi <= len(block["text"]), "invalid derived source range"
+                    copied.append(block["text"][lo:hi])
+                assert "".join(copied) == actual, "derived value source reconstruction mismatch"
             for asset in chunk["asset_refs"]:
                 target = (output_dir / asset["artifact_dir"] / asset["path"]).resolve()
                 assert artifact_dir.resolve() in target.parents and target.is_file(), "missing chunk asset"
@@ -97,7 +128,8 @@ def verify(output_dir):
               "deterministic_replay": "identical chunk IDs and complete records from saved parsed blocks",
               "checks": ["token budgets", "nonempty bodies", "unique IDs", "document isolation",
                          "section isolation", "exact section reconstruction", "all parsed blocks represented",
-                         "source character ranges", "overlap provenance", "deterministic replay", "TOC retrieval exclusion"]}
+                         "source character ranges", "overlap provenance", "deterministic replay", "TOC retrieval exclusion",
+                         "logical table reconstruction", "derived text provenance", "saved boundary decisions"]}
     (output_dir / "verification.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return result

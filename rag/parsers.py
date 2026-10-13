@@ -9,7 +9,7 @@ import re
 from html.parser import HTMLParser
 from pathlib import Path
 
-PARSER_VERSION = "mineru_middle_v2"
+PARSER_VERSION = "mineru_middle_v3"
 DEFAULT_CONFIG = Path(__file__).resolve().parents[1] / "config/mineru.yaml"
 AUXILIARY = {"header", "footer", "page_number", "aside_text"}
 HEADER_LABELS = {"名称", "说明", "分类", "序号", "单位", "指标", "一级指标", "二级指标",
@@ -116,21 +116,27 @@ def adapt_middle(middle: dict, suffix: str) -> tuple[list[dict], dict]:
                        "structure_type": extra.pop("structure_type", "body"),
                        "exclusion_reason": reason, **extra})
 
-    def visit(node, source, pointer, group=None, toc=False):
+    def visit(node, source, pointer, group=None, toc=False, table_info=None):
         typ = node.get("type", "unknown")
         source = {**source, "mineru_type": typ, "pointer": pointer}
         if node.get("bbox") is not None:
             source["bbox"] = node["bbox"]
         assets = [node["image_path"]] if node.get("image_path") else []
         common = {"assets": assets, "is_toc": toc}
+        if table_info is not None:
+            common["table_info"] = table_info
         if group:
             common["group_id"] = group
         if typ in {"list", "index", "image", "chart", "table", "code"}:
+            if typ == "table":
+                table_info = {"fragment_id": pointer, "continues_prev": node.get("continues_prev", False),
+                              "cell_merge": node.get("cell_merge")}
             children = node.get("content", [])
             if not isinstance(children, list):
                 raise ValueError(f"invalid container at {pointer}")
             for i, child in enumerate(children):
-                visit(child, source, f"{pointer}/content/{i}", group or pointer, toc or typ == "index")
+                visit(child, source, f"{pointer}/content/{i}", pointer if typ == "table" else group or pointer,
+                      toc or typ == "index", table_info)
         elif typ == "table_body":
             html = node.get("content", "")
             parser = TableHTML()
@@ -183,6 +189,8 @@ def adapt_middle(middle: dict, suffix: str) -> tuple[list[dict], dict]:
     for block in blocks:
         if block.get("group_id"):
             block["assets"] = sorted(group_assets[block["group_id"]])
+    from .tables import annotate_headers
+    annotate_headers(blocks)
     return blocks, {"parser": "mineru", "parser_adapter": PARSER_VERSION,
                     "parser_version": middle.get("metadata", {}).get("producer", {}).get("version"),
                     "parse_tier": middle.get("extensions", {}).get("mineru", {}).get("tier"),
@@ -194,26 +202,55 @@ def adapt_middle(middle: dict, suffix: str) -> tuple[list[dict], dict]:
                     "parser_warnings": warnings}
 
 
-def configure(config_path=DEFAULT_CONFIG):
-    """Set process-local settings before import; never edit the user's configuration."""
+def load_settings(config_path=DEFAULT_CONFIG):
     import yaml
-    settings = yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
+    return yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
+
+
+def llm_options(settings):
+    """Non-secret effective options used for configuration and cache identity."""
+    raw = settings.get("llm_aided", {})
+    features = raw.get("features", {})
+    selected = {name: features.get(name, False) for name in
+                ("title_leveling", "cross_page_table_cell_merge")}
+    if any(type(value) is not bool for value in selected.values()):
+        raise ValueError("LLM feature switches must be YAML booleans")
+    return {"base_url": raw.get("base_url", "https://api.deepseek.com"),
+            "model": raw.get("model", "deepseek-flash"),
+            "enable_thinking": raw.get("enable_thinking"),
+            "max_concurrency": raw.get("max_concurrency", 1), "features": selected}
+
+
+def configure(config_path=DEFAULT_CONFIG):
+    """Set process-local settings before import; never persist credentials."""
+    settings = load_settings(config_path)
     model_root = Path(settings["model"]["base_dir"])
     if not model_root.is_dir():
         raise FileNotFoundError(f"MinerU models missing: {model_root}")
+    aided = llm_options(settings)
+    api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
+    if any(aided["features"].values()) and not api_key:
+        raise ValueError("DEEPSEEK_API_KEY is required for enabled LLM postprocessing")
     os.environ.update({"MINERU_CONFIG": str(Path(config_path).resolve()),
         "MINERU_MODEL_BASE_DIR": str(model_root), "MINERU_MODEL_SOURCE": "local",
         "MINERU_MODEL_SMALL_BACKEND": "torch", "MINERU_MODEL_VLM_ENGINE": "llama-cpp",
         "MINERU_MODEL_VLM_SERVER_URL": "", "MINERU_MODEL_VLM_MAX_CONCURRENCY": "1",
-        "MINERU_LLM_AIDED_FEATURES_TITLE_LEVELING": "false",
-        "MINERU_LLM_AIDED_FEATURES_CROSS_PAGE_TABLE_CELL_MERGE": "false"})
+        "MINERU_LLM_AIDED_API_KEY": api_key,
+        "MINERU_LLM_AIDED_BASE_URL": str(aided["base_url"]),
+        "MINERU_LLM_AIDED_MODEL": str(aided["model"]),
+        "MINERU_LLM_AIDED_MAX_CONCURRENCY": str(aided["max_concurrency"]),
+        **{"MINERU_LLM_AIDED_FEATURES_" + name.upper(): str(value).lower()
+           for name, value in aided["features"].items()}})
+    if aided["enable_thinking"] is None:
+        os.environ.pop("MINERU_LLM_AIDED_ENABLE_THINKING", None)
+    else:
+        os.environ["MINERU_LLM_AIDED_ENABLE_THINKING"] = str(aided["enable_thinking"]).lower()
     if importlib.metadata.version("mineru") != "4.0.10":
         raise RuntimeError("this adapter requires mineru==4.0.10")
-    from mineru.config import config
+    from mineru.config import config, LLMAidedConfig
     config.model.base_dir, config.model.source, config.model.small_backend = str(model_root), "local", "torch"
     config.model.vlm.engine, config.model.vlm.server_url, config.model.vlm.max_concurrency = "llama-cpp", "", 1
-    config.llm_aided.features.title_leveling = False
-    config.llm_aided.features.cross_page_table_cell_merge = False
+    config.llm_aided = LLMAidedConfig(api_key=api_key, **aided)
     return settings
 
 
@@ -244,14 +281,21 @@ def parse(path: Path, *, artifact_dir: Path, reuse=False, page_range="", config_
     if path.suffix.lower() not in {".pdf", ".docx"}:
         raise ValueError(f"unsupported input format: {path.suffix}")
     source_page_count, selected_pages = None, None
+    aided = llm_options(load_settings(config_path))
     identity = {"source_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
                 "source_format": path.suffix.lower(), "page_range": page_range,
-                "parser_adapter": PARSER_VERSION, "mineru_version": "4.0.10",
-                "image_analysis": False, "pdf_tier": "standard", "ocr_mode": "auto"}
+                "mineru_version": "4.0.10",
+                "image_analysis": False, "pdf_tier": "standard", "ocr_mode": "auto",
+                "llm_aided": aided}
     marker = artifact_dir / "parse_manifest.json"
     if reuse:
         saved = json.loads(marker.read_text(encoding="utf-8")) if marker.is_file() else {}
-        if saved.get("identity") != identity or not saved.get("files_sha256"):
+        # Adapter/chunker changes do not invalidate unchanged native extraction.
+        saved_identity = dict(saved.get("identity", {}))
+        legacy_adapter = saved_identity.pop("parser_adapter", None)
+        if legacy_adapter not in (None, "mineru_middle_v2", PARSER_VERSION):
+            raise ValueError("unsupported saved parser adapter; reparse required")
+        if saved_identity != identity or not saved.get("files_sha256"):
             raise ValueError("saved parsing identity mismatch or incomplete parsing; reparse required")
         for name, sha in saved["files_sha256"].items():
             target = (artifact_dir / name).resolve()
@@ -282,6 +326,7 @@ def parse(path: Path, *, artifact_dir: Path, reuse=False, page_range="", config_
     if selected_pages is not None and [p["page_idx"] for p in middle["pages"]] != selected_pages:
         raise ValueError("MinerU result does not cover all requested PDF pages")
     metadata["source_page_count"] = source_page_count
+    metadata["llm_aided"] = aided
     for block in blocks:
         for asset in block.get("assets", []):
             target = (artifact_dir / asset).resolve()

@@ -1,0 +1,37 @@
+{
+  "question_count": 150,
+  "category_counts": {
+    "policy": 75,
+    "technical": 75
+  },
+  "difficulty_counts": {
+    "easy": 15,
+    "hard": 60,
+    "medium": 45,
+    "boundary": 30
+  },
+  "unchanged_corpus": true,
+  "historical_gold_unchanged": true,
+  "all_source_coordinates_validated": true,
+  "all_normal_groups_linked_to_points": true,
+  "max_reference_chars": 319,
+  "duplicate_links": [],
+  "pilot_ids": [
+    "trial_v3-pilot_v2-0019",
+    "batch_002_64-0047",
+    "batch_002_authored10-0003",
+    "trial_v3-pilot_v2-0010",
+    "batch_001-0054"
+  ],
+  "pilot_count": 5,
+  "successful_responses": 5,
+  "successful_scores": 5,
+  "pilot_dataset_version_sha256": "f81054e42c7dc2fbc94ec85f9955c6a93277c2caca3876ee7b24a88e5396a480",
+  "version_sha256": "f81054e42c7dc2fbc94ec85f9955c6a93277c2caca3876ee7b24a88e5396a480",
+  "gold_sha256": "3bd942966a5d563d41b8b5dd274015eeb980652fb5ce04edff91090864769011",
+  "point_review_count": 42,
+  "semantic_judge_disagreements": 5,
+  "old_scoped_question_results_invalidated": true,
+  "refrozen": false,
+  "langfuse_used": false
+}
