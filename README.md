@@ -1,6 +1,6 @@
 # MinerU 结构化解析与切块
 
-已增加 MySQL 知识库管理层：Docker 部署、Alembic 迁移、管理 CLI、已有语料导入及显式版本切换。导入结果按文档持久化，支持分页查询和统一错误码。部署、命令、核心表结构和备份恢复见 [知识库管理说明](docs/knowledge_base_management.md)，可审阅 DDL 见 [MySQL 表结构](docs/schema/mysql.sql)。解析和评测命令仍可独立运行；当前检索继续读取 JSONL 和本地 NumPy 向量。
+已增加 MySQL 知识库管理层：Docker 部署、Alembic 迁移、管理 CLI、已有语料导入及显式版本切换。导入结果按文档持久化，支持分页查询和统一错误码。部署、命令、核心表结构和备份恢复见 [知识库管理说明](docs/knowledge_base_management.md)，可审阅 DDL 见 [MySQL 表结构](docs/schema/mysql.sql)。当前知识库可显式同步到 Elasticsearch，再通过 `python -m rag.manage search` 检索；启停和当前版本以 MySQL 为准。部署、同步、回滚及离线混合检索对照见 [管理检索说明](docs/managed_search.md)。原 JSONL/NumPy release 检索入口继续用于独立评测和迁移基线。
 
 在 `conda rag` 中使用 MinerU 4.0.10 本地解析 PDF/DOCX，再生成可直接 embedding 的结构切块。PDF 使用 Standard、自动 OCR；DOCX 使用 Flash 原生解析。Torch 小模型与 llama.cpp 模型位置由 [AGENTS.md](AGENTS.md) 指定，项目配置在 `config/mineru.yaml`。
 
@@ -13,6 +13,8 @@
 ```powershell
 conda activate rag
 python -m pip install -r requirements.txt
+# 完整回归还需管理与检索依赖；通用评测另装 requirements-benchmark.txt。
+python -m pip install -r requirements-search.txt
 
 # 本次验收：只运行代表性样本和自包含扫描页
 python -m rag.smoke

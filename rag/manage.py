@@ -15,6 +15,7 @@ from .management.errors import public_error
 def parser():
     root = argparse.ArgumentParser(description=__doc__)
     root.add_argument("--env-file", type=Path, default=ROOT / ".env.mysql")
+    root.add_argument("--es-env-file", type=Path, default=ROOT / ".env.elasticsearch")
     groups = root.add_subparsers(dest="group", required=True)
     for name, actions in {"db": ("check", "upgrade", "ddl"), "kb": ("create", "list", "show", "update", "status"),
                           "document": ("list", "show", "status", "versions", "builds", "activate"),
@@ -57,6 +58,21 @@ def parser():
                 command.add_argument("--offset", type=int, default=0)
                 if name in ("kb", "document") and action == "list":
                     command.add_argument("--status", choices=STATES)
+    index = groups.add_parser("index")
+    actions = index.add_subparsers(dest="action", required=True)
+    for action in ("sync", "status", "rollback"):
+        command = actions.add_parser(action)
+        command.add_argument("--kb-id", type=int, required=True)
+        if action == "rollback":
+            command.add_argument("--generation", required=True)
+    search = groups.add_parser("search")
+    search.set_defaults(action="query")
+    search.add_argument("--kb-id", type=int, required=True)
+    search.add_argument("--query", required=True)
+    search.add_argument("--top-k", type=int, default=10)
+    search.add_argument("--mode", choices=("dense", "bm25", "hybrid"), help="default: generation's validated mode (initially dense)")
+    search.add_argument("--category")
+    search.add_argument("--structure-type")
     return root
 
 
@@ -68,6 +84,21 @@ def json_default(value):
 
 def dispatch(service, args):
     group, action = args.group, args.action
+    if group in ("index", "search"):
+        from .search.config import SearchSettings
+        from .search.service import SearchService
+        from .search.shared import SearchFilters
+        config = SearchSettings.from_env(args.es_env_file)
+        with config.client() as client:
+            search = SearchService(service.engine, client, prefix=config.prefix)
+            if group == "search":
+                return search.query(args.query, args.top_k,
+                    SearchFilters(args.kb_id, args.category, args.structure_type), mode=args.mode)
+            if action == "sync":
+                return search.sync(args.kb_id)
+            if action == "rollback":
+                return search.rollback(args.kb_id, args.generation)
+            return search.status(args.kb_id)
     if group == "db":
         return service.db_upgrade() if action == "upgrade" else service.db_check()
     if group == "kb":

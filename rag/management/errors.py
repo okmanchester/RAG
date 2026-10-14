@@ -6,6 +6,23 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 MESSAGES = {
+    "ELASTIC_PASSWORD_REQUIRED": "ELASTIC_PASSWORD is required (environment or .env.elasticsearch)",
+    "INVALID_SEARCH_CONFIG": "invalid ES configuration; HTTP is limited to localhost and URLs must not contain credentials",
+    "INVALID_SEARCH": "require kb_id > 0, a nonempty query, 1 <= top_k <= 50 and valid filters/mode",
+    "INVALID_GENERATION": "generation must be a 32-character lowercase hexadecimal identifier",
+    "INVALID_EMBEDDING": "embedding dimensions, normalization or finite values are invalid",
+    "SEARCH_UNAVAILABLE": "Elasticsearch is unavailable; verify the local service",
+    "SEARCH_ERROR": "Elasticsearch request failed; verify authentication, mappings and cluster health",
+    "INDEX_BUSY": "another index sync or rollback is running for this knowledge base",
+    "INDEX_NOT_FOUND": "index is missing; run python -m rag.manage index sync --kb-id ID",
+    "INDEX_NOT_READY": "only a completely verified generation may be published",
+    "INDEX_CORRUPT": "index identity, count or content verification failed",
+    "INDEX_BULK_FAILED": "bulk indexing contained failed items; the existing alias was preserved",
+    "INDEX_PUBLISH_FAILED": "index publication could not be confirmed; inspect index status before retrying",
+    "INDEX_MODEL_MISMATCH": "query embedding model differs from the index; explicitly synchronize a new generation",
+    "INVALID_BENCHMARK_OUTPUT": "retrieval comparison output must be git-ignored under tmp or a benchmark full_runs directory",
+    "BENCHMARK_OUTPUT_EXISTS": "retrieval comparison output already exists; choose a new directory",
+    "BENCHMARK_CORPUS_MISMATCH": "comparison requires unchanged, identical release/current MySQL/index content and generation",
     "SCHEMA_OUTDATED": "database schema is not current; run python -m rag.manage db upgrade",
     "INVALID_KB_CODE": "kb code must be 1-128 ASCII letters, digits, '_' or '-'",
     "INVALID_KB_NAME": "kb name must be 1-255 characters",

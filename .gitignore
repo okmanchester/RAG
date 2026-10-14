@@ -5,6 +5,9 @@ __pycache__/
 .env.mysql
 .env.mysql.*
 !.env.mysql.example
+.env.elasticsearch
+.env.elasticsearch.*
+!.env.elasticsearch.example
 
 # ===== 数据：上游语料（只读，不入库）=====
 data/raw
