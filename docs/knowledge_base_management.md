@@ -29,7 +29,7 @@ python -m alembic upgrade head
 python -m rag.manage db ddl
 ```
 
-当前迁移版本为 `0002_import_run_items`。第二版新增明细表、`import_runs.error_code` 和 `result_storage`；旧版历史结果在线分批回填，并保留原 `results_json` 存档及汇总。离线 SQL 只描述表结构，历史数据回填必须通过在线 Alembic 升级，不能用离线 SQL 替代已有数据库升级。
+当前迁移版本为 `0003_processing_tasks`，新增原文件处理任务及尝试表，见 [处理任务说明](processing_tasks.md)。第二版 `0002_import_run_items` 新增明细表、`import_runs.error_code` 和 `result_storage`；旧版历史结果在线分批回填，并保留原 `results_json` 存档及汇总。离线 SQL 只描述表结构，历史数据回填必须通过在线 Alembic 升级，不能用离线 SQL 替代已有数据库升级。
 
 升级前暂停管理操作并备份数据库与文件。`result_storage=legacy` 标记历史 JSON 记录，`items` 标记新版记录；新版记录即使在处理前失败，也会阻止直接降级删除明细结构。此时使用升级前备份回滚。历史记录的回填可幂等重试；首版迁移保持不变。
 
@@ -148,7 +148,7 @@ Remove-Item Env:RAG_RUN_MYSQL_TESTS
 
 集成测试使用当前 Compose 的应用账号，测试库权限由容器内 root 初始化。覆盖完整语料与原始 JSON、重复/并发导入、文件和数据库失败、版本生成、切换回滚、跨文档拒绝、批量原子性、启停、CLI 和迁移升降级。不使用 SQLite，也不运行模型推理。
 
-MySQL 当前版本已接入可重建 Elasticsearch 索引，提供显式同步、alias 发布/回滚、当前状态过滤及检索对照，见 [管理检索说明](managed_search.md)。原 NumPy 入口保留为 release 评测基线。后续按顺序接入原文件注册与解析切块任务、持久化失败重试、自动索引同步、HTTP API/管理页面，再补 CI、监控及周期备份。policy/technical 拆库、对象存储和多租户根据实际需求另行选择。
+MySQL 当前版本已接入可重建 Elasticsearch 索引，提供显式同步、alias 发布/回滚、当前状态过滤及检索对照，见 [管理检索说明](managed_search.md)；原文件注册、解析切块及持久化失败重试见 [处理任务说明](processing_tasks.md)。原 NumPy 入口保留为 release 评测基线。后续接入自动索引同步、HTTP API/管理页面，再补 CI、监控及周期备份。policy/technical 拆库、对象存储和多租户根据实际需求另行选择。
 
 ## 首轮实施验收（2026-10-13）
 

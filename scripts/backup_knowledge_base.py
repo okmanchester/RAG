@@ -123,6 +123,15 @@ def restore(env_file, source: Path, database: str, storage_root: Path):
                         artifacts[key] = rebase(artifacts[key])
                 connection.execute(text("UPDATE document_builds SET artifact_manifest_json=:value WHERE id=:id"),
                                    {"id": row["id"], "value": json.dumps(artifacts, ensure_ascii=False)})
+            # Restored workers must not inherit ownership from the source database.
+            from sqlalchemy import inspect
+            if "processing_tasks" in inspect(connection).get_table_names():
+                connection.execute(text("UPDATE processing_attempts SET status='interrupted', "
+                    "error_code='TASK_INTERRUPTED', finished_at=UTC_TIMESTAMP(6) WHERE status='running'"))
+                connection.execute(text("UPDATE processing_tasks SET status='pending', stage='validation', "
+                    "error_code='TASK_INTERRUPTED', scheduled_at=UTC_TIMESTAMP(6), finished_at=NULL "
+                    "WHERE status='running'"))
+                connection.execute(text("UPDATE processing_tasks SET execution_token=NULL, lease_expires_at=NULL"))
     finally:
         engine.dispose()
     return {"database": database, "storage_root": storage_root.as_posix(), "status": "restored"}

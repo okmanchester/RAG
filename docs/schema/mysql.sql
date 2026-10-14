@@ -137,3 +137,53 @@ CREATE INDEX ix_import_item_run_status_ordinal ON import_run_items (import_run_i
 
 UPDATE alembic_version SET version_num='0002_import_run_items' WHERE alembic_version.version_num = '0001_kb_management';
 
+-- Running upgrade 0002_import_run_items -> 0003_processing_tasks
+
+CREATE TABLE processing_tasks (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    document_version_id BIGINT UNSIGNED NOT NULL,
+    config_sha256 CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    config_json JSON NOT NULL,
+    status VARCHAR(16) NOT NULL,
+    stage VARCHAR(16) NOT NULL,
+    build_id BIGINT UNSIGNED,
+    attempt_count INTEGER UNSIGNED NOT NULL,
+    cycle_attempts INTEGER UNSIGNED NOT NULL,
+    scheduled_at DATETIME(6) NOT NULL,
+    execution_token VARCHAR(32),
+    lease_expires_at DATETIME(6),
+    error_code VARCHAR(64),
+    finished_at DATETIME(6),
+    created_at DATETIME(6) NOT NULL,
+    updated_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY(document_version_id) REFERENCES document_versions (id) ON DELETE RESTRICT,
+    FOREIGN KEY(build_id) REFERENCES document_builds (id) ON DELETE RESTRICT,
+    CONSTRAINT uq_task_version_config UNIQUE (document_version_id, config_sha256),
+    CONSTRAINT ck_task_status CHECK (status IN ('pending','running','succeeded','failed')),
+    CONSTRAINT ck_task_stage CHECK (stage IN ('validation','parsing','chunking','publishing','persisting'))
+)CHARSET=utf8mb4 ENGINE=InnoDB COLLATE utf8mb4_0900_ai_ci;
+
+CREATE INDEX ix_task_schedule ON processing_tasks (status, scheduled_at, id);
+
+CREATE INDEX ix_task_lease ON processing_tasks (status, lease_expires_at);
+
+CREATE TABLE processing_attempts (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    task_id BIGINT UNSIGNED NOT NULL,
+    ordinal INTEGER UNSIGNED NOT NULL,
+    execution_token VARCHAR(32) NOT NULL,
+    status VARCHAR(16) NOT NULL,
+    stage VARCHAR(16) NOT NULL,
+    started_at DATETIME(6) NOT NULL,
+    finished_at DATETIME(6),
+    error_code VARCHAR(64),
+    PRIMARY KEY (id),
+    FOREIGN KEY(task_id) REFERENCES processing_tasks (id) ON DELETE RESTRICT,
+    CONSTRAINT uq_attempt_ordinal UNIQUE (task_id, ordinal),
+    CONSTRAINT ck_attempt_status CHECK (status IN ('running','succeeded','failed','interrupted')),
+    CONSTRAINT ck_attempt_stage CHECK (stage IN ('validation','parsing','chunking','publishing','persisting'))
+)CHARSET=utf8mb4 ENGINE=InnoDB COLLATE utf8mb4_0900_ai_ci;
+
+UPDATE alembic_version SET version_num='0003_processing_tasks' WHERE alembic_version.version_num = '0002_import_run_items';
+

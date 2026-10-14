@@ -370,7 +370,9 @@ class MySQLManagementTests(unittest.TestCase):
             with self.engine.begin() as connection:
                 command.downgrade(migration_config(connection), "0001_kb_management")
         self.assertEqual(self.service.show_import(run["id"])["results_page"]["total"], 1)
-        self.assertEqual(self.service.db_check()["migration_heads"], ["0002_import_run_items"])
+        # The new migration preflights the older guard before MySQL commits any DDL.
+        self.service.db_upgrade()
+        self.assertEqual(self.service.db_check()["migration_heads"], ["0003_processing_tasks"])
 
     def test_legacy_success_failure_running_migration_and_idempotent_backfill(self):
         import importlib.util
@@ -396,7 +398,7 @@ class MySQLManagementTests(unittest.TestCase):
                 result = connection.execute(statement, {"kb": self.kb, "status": status, "summary": json.dumps(summary),
                     "results": json.dumps(results), "error": secret if status == "failed" else None, "started": utcnow()})
                 identifiers.append(result.lastrowid)
-        self.assertEqual(self.service.db_upgrade()["business_tables"], 7)
+        self.assertEqual(self.service.db_upgrade()["business_tables"], 9)
         spec = importlib.util.spec_from_file_location("frozen_import_items", ROOT / "migrations/versions/0002_import_run_items.py")
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -454,7 +456,7 @@ class MySQLManagementTests(unittest.TestCase):
             command.downgrade(migration_config(connection), "base")
         with self.engine.connect() as connection:
             self.assertNotIn("knowledge_bases", inspect(connection).get_table_names())
-        self.assertEqual(self.service.db_upgrade()["business_tables"], 7)
+        self.assertEqual(self.service.db_upgrade()["business_tables"], 9)
 
 
 if __name__ == "__main__":

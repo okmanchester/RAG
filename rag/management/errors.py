@@ -6,6 +6,17 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 MESSAGES = {
+    "INVALID_PROCESSING_CONFIG": "invalid processing parameters or configuration",
+    "PROCESSING_IDENTITY_CHANGED": "processing environment differs from the submitted task; submit a new task",
+    "PROCESSING_MODELS_MISSING": "required local model files are missing",
+    "PROCESSING_KEY_REQUIRED": "DEEPSEEK_API_KEY is required for enabled processing features",
+    "PROCESSING_FAILED": "document processing failed; verify the input and processing environment",
+    "PROCESSING_TEMPORARY": "temporary processing service or database failure",
+    "TASK_RETRY_NOT_ALLOWED": "only failed processing tasks may be retried",
+    "TASK_LEASE_LOST": "processing execution lease is no longer valid",
+    "TASK_INTERRUPTED": "processing execution was interrupted",
+    "WORKER_BUSY": "another processing worker is running for this database",
+    "TASK_RESULT_MISMATCH": "processing output does not match its registered source version",
     "ELASTIC_PASSWORD_REQUIRED": "ELASTIC_PASSWORD is required (environment or .env.elasticsearch)",
     "INVALID_SEARCH_CONFIG": "invalid ES configuration; HTTP is limited to localhost and URLs must not contain credentials",
     "INVALID_SEARCH": "require kb_id > 0, a nonempty query, 1 <= top_k <= 50 and valid filters/mode",

@@ -130,3 +130,44 @@ class ImportRunItem(Base):
     build_id: Mapped[int | None] = mapped_column(BIGINT(unsigned=True), ForeignKey("document_builds.id", ondelete="RESTRICT"))
     payload_json: Mapped[dict] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=utcnow)
+
+
+class ProcessingTask(Timestamped, Base):
+    __tablename__ = "processing_tasks"
+    __table_args__ = (
+        UniqueConstraint("document_version_id", "config_sha256", name="uq_task_version_config"),
+        CheckConstraint("status IN ('pending','running','succeeded','failed')", name="ck_task_status"),
+        CheckConstraint("stage IN ('validation','parsing','chunking','publishing','persisting')", name="ck_task_stage"),
+        Index("ix_task_schedule", "status", "scheduled_at", "id"),
+        Index("ix_task_lease", "status", "lease_expires_at"), OPTIONS)
+    id: Mapped[int] = mapped_column(BIGINT(unsigned=True), primary_key=True, autoincrement=True)
+    document_version_id: Mapped[int] = mapped_column(BIGINT(unsigned=True), ForeignKey("document_versions.id", ondelete="RESTRICT"))
+    config_sha256: Mapped[str] = mapped_column(HASH)
+    config_json: Mapped[dict] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(String(16), default="pending")
+    stage: Mapped[str] = mapped_column(String(16), default="validation")
+    build_id: Mapped[int | None] = mapped_column(BIGINT(unsigned=True), ForeignKey("document_builds.id", ondelete="RESTRICT"))
+    attempt_count: Mapped[int] = mapped_column(INTEGER(unsigned=True), default=0)
+    cycle_attempts: Mapped[int] = mapped_column(INTEGER(unsigned=True), default=0)
+    scheduled_at: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=utcnow)
+    execution_token: Mapped[str | None] = mapped_column(String(32))
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DATETIME(fsp=6))
+    error_code: Mapped[str | None] = mapped_column(String(64))
+    finished_at: Mapped[datetime | None] = mapped_column(DATETIME(fsp=6))
+
+
+class ProcessingAttempt(Base):
+    __tablename__ = "processing_attempts"
+    __table_args__ = (
+        UniqueConstraint("task_id", "ordinal", name="uq_attempt_ordinal"),
+        CheckConstraint("status IN ('running','succeeded','failed','interrupted')", name="ck_attempt_status"),
+        CheckConstraint("stage IN ('validation','parsing','chunking','publishing','persisting')", name="ck_attempt_stage"), OPTIONS)
+    id: Mapped[int] = mapped_column(BIGINT(unsigned=True), primary_key=True, autoincrement=True)
+    task_id: Mapped[int] = mapped_column(BIGINT(unsigned=True), ForeignKey("processing_tasks.id", ondelete="RESTRICT"))
+    ordinal: Mapped[int] = mapped_column(INTEGER(unsigned=True))
+    execution_token: Mapped[str] = mapped_column(String(32))
+    status: Mapped[str] = mapped_column(String(16), default="running")
+    stage: Mapped[str] = mapped_column(String(16), default="validation")
+    started_at: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=utcnow)
+    finished_at: Mapped[datetime | None] = mapped_column(DATETIME(fsp=6))
+    error_code: Mapped[str | None] = mapped_column(String(64))

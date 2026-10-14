@@ -4,6 +4,8 @@
 
 在 `conda rag` 中使用 MinerU 4.0.10 本地解析 PDF/DOCX，再生成可直接 embedding 的结构切块。PDF 使用 Standard、自动 OCR；DOCX 使用 Flash 原生解析。Torch 小模型与 llama.cpp 模型位置由 [AGENTS.md](AGENTS.md) 指定，项目配置在 `config/mineru.yaml`。
 
+原文件可通过 `document register` 注册、`document process` 提交持久化任务，由 `worker run` 串行处理。支持任务查询、失败重试及中断恢复；生成 build 后仍需显式启用和同步索引。命令、租约、配置身份及恢复规则见 [处理任务说明](docs/processing_tasks.md)。
+
 模型已准备完成时，解析设为 `local`，缺失模型明确报错。关闭远程 VLM、LLM 标题分级和额外图像描述；启用 DeepSeek-flash 辅助跨页表格单元格判断，密钥从 `DEEPSEEK_API_KEY` 读取。文档、本地推理及 LLM 请求串行执行，不自动降低档位。模型运行需要在模型目录创建临时锁文件。
 
 `llm_aided.features.cross_page_table_cell_merge` 控制 MinerU 原生判断，设为 `false` 可关闭；此项维持原配置。项目适配层现在读取 `continues_prev`，在保留物理片段的同时建立逻辑表。原生 `cell_merge` 作为候选证据，不能直接决定文字拼接。项目后处理默认使用规则，`table_processing.llm_enabled: true` 才启用带表头、父锚点和前后记录的独立边界判断；请求串行、超时 45 秒，失败或冲突保留片段并告警。原生 `enable_thinking: null` 保持供应商默认；项目边界请求显式使用 `thinking: {type: disabled}`。

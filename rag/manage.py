@@ -18,7 +18,7 @@ def parser():
     root.add_argument("--es-env-file", type=Path, default=ROOT / ".env.elasticsearch")
     groups = root.add_subparsers(dest="group", required=True)
     for name, actions in {"db": ("check", "upgrade", "ddl"), "kb": ("create", "list", "show", "update", "status"),
-                          "document": ("list", "show", "status", "versions", "builds", "activate"),
+                          "document": ("list", "show", "status", "versions", "builds", "activate", "register", "process"),
                           "corpus": ("import",), "import": ("show", "items", "activate"), "chunk": ("list", "show")}.items():
         group = groups.add_parser(name)
         subs = group.add_subparsers(dest="action", required=True)
@@ -34,7 +34,16 @@ def parser():
                 command.add_argument("--name")
                 command.add_argument("--description")
             if name == "document":
-                command.add_argument("--kb-id" if action == "list" else "--document-id", type=int, required=True)
+                identifier = "--version-id" if action == "process" else "--kb-id" if action in ("list", "register") else "--document-id"
+                command.add_argument(identifier, type=int, required=True)
+                if action == "register":
+                    command.add_argument("--raw-root", type=Path, required=True)
+                    command.add_argument("--source-path", required=True)
+                if action == "process":
+                    command.add_argument("--model-path", type=Path)
+                    command.add_argument("--mineru-config", type=Path)
+                    command.add_argument("--max-tokens", type=int, default=400)
+                    command.add_argument("--overlap-tokens", type=int, default=50)
                 if action == "activate":
                     command.add_argument("--build-id", type=int, required=True)
             if action == "status":
@@ -58,6 +67,20 @@ def parser():
                 command.add_argument("--offset", type=int, default=0)
                 if name in ("kb", "document") and action == "list":
                     command.add_argument("--status", choices=STATES)
+    task = groups.add_parser("task")
+    actions = task.add_subparsers(dest="action", required=True)
+    for action in ("list", "show", "retry"):
+        command = actions.add_parser(action)
+        command.add_argument("--kb-id" if action == "list" else "--task-id", type=int, required=True)
+        if action != "retry":
+            command.add_argument("--limit", type=int, default=100)
+            command.add_argument("--offset", type=int, default=0)
+        if action == "list":
+            command.add_argument("--status", choices=("pending", "running", "succeeded", "failed"))
+    worker = groups.add_parser("worker")
+    actions = worker.add_subparsers(dest="action", required=True)
+    command = actions.add_parser("run")
+    command.add_argument("--once", action="store_true")
     index = groups.add_parser("index")
     actions = index.add_subparsers(dest="action", required=True)
     for action in ("sync", "status", "rollback"):
@@ -84,6 +107,21 @@ def json_default(value):
 
 def dispatch(service, args):
     group, action = args.group, args.action
+    if group in ("task", "worker") or group == "document" and action in ("register", "process"):
+        from .management.processing import ProcessingService
+        processing = ProcessingService(service)
+        if group == "worker":
+            return processing.run(once=args.once)
+        if group == "document":
+            if action == "register":
+                return processing.register(args.kb_id, args.raw_root, args.source_path)
+            return processing.submit(args.version_id, model_path=args.model_path, maximum=args.max_tokens,
+                                     overlap=args.overlap_tokens, config_path=args.mineru_config)
+        if action == "show":
+            return processing.show(args.task_id, args.limit, args.offset)
+        if action == "retry":
+            return processing.retry(args.task_id)
+        return processing.list(args.kb_id, args.status, args.limit, args.offset)
     if group in ("index", "search"):
         from .search.config import SearchSettings
         from .search.service import SearchService
@@ -154,7 +192,8 @@ def main(argv=None):
             service.db_check()
         result = dispatch(service, args)
         print(json.dumps(result, ensure_ascii=False, indent=2, default=json_default))
-        return 1 if args.group == "corpus" and result["status"] != "succeeded" else 0
+        return 1 if (args.group == "corpus" and result["status"] != "succeeded" or
+                     args.group == "worker" and result["status"] in ("failed", "pending", "running")) else 0
     except Exception as exc:
         print(json.dumps(public_error(exc), ensure_ascii=False), file=sys.stderr)
         return 1

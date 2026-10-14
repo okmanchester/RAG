@@ -252,7 +252,6 @@ class ManagementService:
     def _import_document(self, kb_id, payload, chunks, raw_file, snapshot, snapshot_dir, run_id, ordinal):
         path = relative_path(payload["source_path"])
         source_key = hashlib.sha256(path.encode()).hexdigest()
-        output = fingerprint({"document": payload, "chunks": chunks})
         with self.sessions.begin() as session:
             # Serialize one document's writes within this KB; concurrent imports may interleave between documents.
             required(session, KnowledgeBase, kb_id, lock=True)
@@ -271,36 +270,43 @@ class ManagementService:
                                           file_size=raw_file.stat().st_size, storage_uri=raw_file.as_posix())
                 session.add(version)
                 session.flush()
-            build = session.scalar(select(DocumentBuild).where(DocumentBuild.document_version_id == version.id,
-                                                                DocumentBuild.output_fingerprint == output))
-            reused = build is not None
-            if build is None:
-                config_keys = ("parser", "parser_adapter", "table_processing", "table_view_version", "schema_version")
-                known = {key: payload[key] for key in config_keys if key in payload}
-                build = DocumentBuild(document_version_id=version.id, legacy_doc_id=payload["doc_id"],
-                                      output_fingerprint=output,
-                                      pipeline_config_json={"origin": "existing_snapshot", "recorded": known,
-                                                            "unrecorded_parameters": "unknown"},
-                                      document_payload_json=payload,
-                                      artifact_manifest_json={"snapshot_uri": snapshot_dir.as_posix(),
-                                                              "snapshot_fingerprint": snapshot.fingerprint,
-                                                              "files_sha256": snapshot.hashes,
-                                                              "missing_asset_refs": snapshot.missing_assets[payload["doc_id"]],
-                                                              "raw_uri": raw_file.as_posix()},
-                                      status="failed" if payload["status"] == "failed" else "ready" if chunks else "empty")
-                session.add(build)
-                session.flush()
-                # Batch INSERT; original payload is kept in addition to indexed scalar columns.
-                if chunks:
-                    session.execute(Chunk.__table__.insert(), [{"build_id": build.id, "legacy_chunk_id": c["chunk_id"],
-                        "chunk_index": c["chunk_index"], "body": c["body"], "text": c["text"],
-                        "token_count": c["token_count"], "structure_type": c.get("structure_type", c.get("content_type", "body")),
-                        "retrieval_enabled": c["retrieval_enabled"], "payload_json": c} for c in chunks])
+            build, reused = self.persist_build(session, version, payload, chunks, raw_file, snapshot, snapshot_dir)
             result = {"legacy_doc_id": payload["doc_id"], "source_path": path, "document_id": document.id,
                     "version_id": version.id, "build_id": build.id, "status": "reused" if reused else "imported",
                     "chunks": len(chunks), "eligible_chunks": sum(c["retrieval_enabled"] for c in chunks),
                     "missing_asset_refs": snapshot.missing_assets[payload["doc_id"]]}
             self._append_item(session, run_id, ordinal, result)
+
+    @staticmethod
+    def persist_build(session, version, payload, chunks, raw_file, snapshot, snapshot_dir, *, pipeline_config=None):
+        """Shared build/chunk writer; caller owns the transaction and its success record."""
+        output = fingerprint({"document": payload, "chunks": chunks})
+        build = session.scalar(select(DocumentBuild).where(DocumentBuild.document_version_id == version.id,
+                                                            DocumentBuild.output_fingerprint == output))
+        reused = build is not None
+        if build is None:
+            config_keys = ("parser", "parser_adapter", "table_processing", "table_view_version", "schema_version")
+            known = {key: payload[key] for key in config_keys if key in payload}
+            build = DocumentBuild(document_version_id=version.id, legacy_doc_id=payload["doc_id"],
+                                  output_fingerprint=output,
+                                  pipeline_config_json=pipeline_config or {"origin": "existing_snapshot", "recorded": known,
+                                                "unrecorded_parameters": "unknown"},
+                                  document_payload_json=payload,
+                                  artifact_manifest_json={"snapshot_uri": snapshot_dir.as_posix(),
+                                                          "snapshot_fingerprint": snapshot.fingerprint,
+                                                          "files_sha256": snapshot.hashes,
+                                                          "missing_asset_refs": snapshot.missing_assets[payload["doc_id"]],
+                                                          "raw_uri": raw_file.as_posix()},
+                                  status="failed" if payload["status"] == "failed" else "ready" if chunks else "empty")
+            session.add(build)
+            session.flush()
+            # Batch INSERT; original payload is kept in addition to indexed scalar columns.
+            if chunks:
+                session.execute(Chunk.__table__.insert(), [{"build_id": build.id, "legacy_chunk_id": c["chunk_id"],
+                    "chunk_index": c["chunk_index"], "body": c["body"], "text": c["text"],
+                    "token_count": c["token_count"], "structure_type": c.get("structure_type", c.get("content_type", "body")),
+                    "retrieval_enabled": c["retrieval_enabled"], "payload_json": c} for c in chunks])
+        return build, reused
 
     @staticmethod
     def _validate_activation(session, document, build):

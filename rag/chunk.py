@@ -43,6 +43,84 @@ def distribution(values):
             "p50": values[(len(values) - 1) // 2], "p95": values[int((len(values) - 1) * .95)]}
 
 
+def process_document(path: Path, relative: str, output_dir: Path, counter, maximum=400, overlap=50,
+                     *, reuse_parsed=False, page_range="", config_path=DEFAULT_CONFIG,
+                     refresh_table_decisions=False, geometry_documents=None, stage=None, catch_errors=False):
+    """Shared single-document pipeline; managed tasks propagate failures to their safe boundary."""
+    path, output_dir = Path(path), Path(output_dir)
+    geometry_documents = geometry_documents or {}
+    table_config = table_options(load_settings(config_path))
+    document = {"schema_version": 2, "source_path": relative, "category": Path(relative).parts[0]
+                if len(Path(relative).parts) > 1 else "uncategorized",
+                "format": path.suffix.lower()[1:], "blocks": []}
+    chunks = []
+    try:
+        file_hash = digest(path)
+        document.update(sha256=file_hash, doc_id=hashlib.sha256(
+            f"{relative}:{file_hash}".encode()).hexdigest()[:24])
+        if relative in geometry_documents:
+            geometry = geometry_documents[relative]
+            if geometry["source_sha256"] != file_hash:
+                raise ValueError("table geometry source checksum mismatch")
+            document["table_geometry"] = geometry["cells"]
+        artifact_relative = Path("parsed") / document["doc_id"]
+        if stage: stage("parsing")
+        blocks, metadata = parse(path, artifact_dir=output_dir / artifact_relative,
+                                 reuse=reuse_parsed, page_range=page_range, config_path=config_path)
+        metadata["artifacts"] = artifact_relative.as_posix()
+        metadata["artifact_files_sha256"] = {p.relative_to(output_dir / artifact_relative).as_posix(): digest(p)
+            for p in sorted((output_dir / artifact_relative).rglob("*")) if p.is_file()}
+        document.update(metadata, blocks=blocks)
+        if stage: stage("chunking")
+        title, sections, warnings = build_sections(blocks, path.stem)
+        document.update(title=title, warnings=warnings + document.get("parser_warnings", []),
+                        sections=[{**s, "blocks": [b["block_id"] for b in s["blocks"]]} for s in sections])
+        rules = build_table_views(document, sections)
+        decision_path = output_dir / "tables" / document["doc_id"] / "table_decisions.json"
+        decision_identity = {"config": table_config, "middle_sha256": digest(output_dir / artifact_relative / "middle_json.json"),
+                             "geometry_sha256": table_fingerprint(document.get("table_geometry", []))}
+        if table_config["llm_enabled"] and reuse_parsed and not refresh_table_decisions:
+            if not decision_path.is_file():
+                raise ValueError("saved table decisions missing; use --refresh-table-decisions with --reuse-parsed")
+            saved_decisions = json.loads(decision_path.read_text(encoding="utf-8"))
+            if saved_decisions.get("identity") != decision_identity:
+                raise ValueError("saved table decision identity mismatch")
+            decisions = saved_decisions["decisions"]
+        else:
+            decisions = collect_decisions(rules, table_config)
+            # Derived artifacts stay outside the immutable native parse
+            # directory/checksum manifest.
+        if table_config["llm_enabled"]:
+            contexts = {o["context_id"] for view in rules for o in view["operations"]}
+            if set(decisions) != contexts:
+                raise ValueError("saved table decisions do not cover the actual boundaries; refresh required")
+        document.update(table_view_version=TABLE_VERSION, table_processing=table_config,
+                        table_decisions=decisions, table_views=build_table_views(document, sections, decisions))
+        document["table_processing_identity"] = table_fingerprint({"version": TABLE_VERSION, "config": table_config,
+                                                             "decisions": decisions, "geometry": document.get("table_geometry", [])})
+        derived_dir = output_dir / "tables" / document["doc_id"]
+        derived_dir.mkdir(parents=True, exist_ok=True)
+        saved_path = derived_dir / "table_decisions.json"
+        saved_path.write_text(json.dumps({"identity": decision_identity, "decisions": decisions},
+                                        ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        document["table_decision_artifact"] = saved_path.relative_to(output_dir).as_posix()
+        document["table_decision_sha256"] = digest(saved_path)
+        if not sections:
+            document.update(status="empty", warnings=warnings + ["no_extractable_text"])
+        else:
+            chunks = chunk_document(document, sections, counter, maximum, overlap)
+            document["status"] = "ok"
+    except Exception as exc:
+        if not catch_errors:
+            raise
+        document.update(status="failed", error=f"{type(exc).__name__}: {exc}")
+    document["excluded_block_count"] = sum(b.get("role") == "excluded" for b in document["blocks"])
+    document["exclusions"] = [{"block_id": b["block_id"], "reason": b.get("exclusion_reason"),
+                               "source": b["source"]} for b in document["blocks"] if b.get("role") == "excluded"]
+    document["chunk_count"] = len(chunks)
+    return document, chunks
+
+
 def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400, overlap=50,
         *, reuse_parsed=False, page_range="", config_path=DEFAULT_CONFIG, include=None, refresh_table_decisions=False,
         table_geometry_path=None):
@@ -99,70 +177,10 @@ def run(input_dir: Path, output_dir: Path, model_path=DEFAULT_MODEL, maximum=400
             (output_dir / "chunks.jsonl.tmp").open("w", encoding="utf-8", newline="\n") as chunks_stream:
         for number, path in enumerate(files, 1):
             relative = path.relative_to(input_dir).as_posix()
-            document = {"schema_version": 2, "source_path": relative, "category": path.relative_to(input_dir).parts[0]
-                        if len(path.relative_to(input_dir).parts) > 1 else "uncategorized",
-                        "format": path.suffix.lower()[1:], "blocks": []}
-            chunks = []
-            try:
-                file_hash = digest(path)
-                document.update(sha256=file_hash, doc_id=hashlib.sha256(
-                    f"{relative}:{file_hash}".encode()).hexdigest()[:24])
-                if relative in geometry_documents:
-                    geometry = geometry_documents[relative]
-                    if geometry["source_sha256"] != file_hash:
-                        raise ValueError("table geometry source checksum mismatch")
-                    document["table_geometry"] = geometry["cells"]
-                artifact_relative = Path("parsed") / document["doc_id"]
-                blocks, metadata = parse(path, artifact_dir=output_dir / artifact_relative,
-                                         reuse=reuse_parsed, page_range=page_range, config_path=config_path)
-                metadata["artifacts"] = artifact_relative.as_posix()
-                metadata["artifact_files_sha256"] = {p.relative_to(output_dir / artifact_relative).as_posix(): digest(p)
-                    for p in sorted((output_dir / artifact_relative).rglob("*")) if p.is_file()}
-                document.update(metadata, blocks=blocks)
-                title, sections, warnings = build_sections(blocks, path.stem)
-                document.update(title=title, warnings=warnings + document.get("parser_warnings", []),
-                                sections=[{**s, "blocks": [b["block_id"] for b in s["blocks"]]} for s in sections])
-                rules = build_table_views(document, sections)
-                decision_path = output_dir / "tables" / document["doc_id"] / "table_decisions.json"
-                decision_identity = {"config": table_config, "middle_sha256": digest(output_dir / artifact_relative / "middle_json.json"),
-                                     "geometry_sha256": table_fingerprint(document.get("table_geometry", []))}
-                if table_config["llm_enabled"] and reuse_parsed and not refresh_table_decisions:
-                    if not decision_path.is_file():
-                        raise ValueError("saved table decisions missing; use --refresh-table-decisions with --reuse-parsed")
-                    saved_decisions = json.loads(decision_path.read_text(encoding="utf-8"))
-                    if saved_decisions.get("identity") != decision_identity:
-                        raise ValueError("saved table decision identity mismatch")
-                    decisions = saved_decisions["decisions"]
-                else:
-                    decisions = collect_decisions(rules, table_config)
-                    # Derived artifacts stay outside the immutable native parse
-                    # directory/checksum manifest.
-                if table_config["llm_enabled"]:
-                    contexts = {o["context_id"] for view in rules for o in view["operations"]}
-                    if set(decisions) != contexts:
-                        raise ValueError("saved table decisions do not cover the actual boundaries; refresh required")
-                document.update(table_view_version=TABLE_VERSION, table_processing=table_config,
-                                table_decisions=decisions, table_views=build_table_views(document, sections, decisions))
-                document["table_processing_identity"] = table_fingerprint({"version": TABLE_VERSION, "config": table_config,
-                                                                     "decisions": decisions, "geometry": document.get("table_geometry", [])})
-                derived_dir = output_dir / "tables" / document["doc_id"]
-                derived_dir.mkdir(parents=True, exist_ok=True)
-                saved_path = derived_dir / "table_decisions.json"
-                saved_path.write_text(json.dumps({"identity": decision_identity, "decisions": decisions},
-                                                ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-                document["table_decision_artifact"] = saved_path.relative_to(output_dir).as_posix()
-                document["table_decision_sha256"] = digest(saved_path)
-                if not sections:
-                    document.update(status="empty", warnings=warnings + ["no_extractable_text"])
-                else:
-                    chunks = chunk_document(document, sections, counter, maximum, overlap)
-                    document["status"] = "ok"
-            except Exception as exc:
-                document.update(status="failed", error=f"{type(exc).__name__}: {exc}")
-            document["excluded_block_count"] = sum(b.get("role") == "excluded" for b in document["blocks"])
-            document["exclusions"] = [{"block_id": b["block_id"], "reason": b.get("exclusion_reason"),
-                                       "source": b["source"]} for b in document["blocks"] if b.get("role") == "excluded"]
-            document["chunk_count"] = len(chunks)
+            document, chunks = process_document(path, relative, output_dir, counter, maximum, overlap,
+                reuse_parsed=reuse_parsed, page_range=page_range, config_path=config_path,
+                refresh_table_decisions=refresh_table_decisions, geometry_documents=geometry_documents,
+                catch_errors=True)
             documents_stream.write(json.dumps(document, ensure_ascii=False) + "\n")
             for chunk in chunks:
                 chunks_stream.write(json.dumps(chunk, ensure_ascii=False) + "\n")
