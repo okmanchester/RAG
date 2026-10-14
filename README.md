@@ -1,5 +1,7 @@
 # MinerU 结构化解析与切块
 
+已增加 MySQL 知识库管理层：Docker 部署、Alembic 迁移、管理 CLI、已有语料导入及显式版本切换。导入结果按文档持久化，支持分页查询和统一错误码。部署、命令、核心表结构和备份恢复见 [知识库管理说明](docs/knowledge_base_management.md)，可审阅 DDL 见 [MySQL 表结构](docs/schema/mysql.sql)。解析和评测命令仍可独立运行；当前检索继续读取 JSONL 和本地 NumPy 向量。
+
 在 `conda rag` 中使用 MinerU 4.0.10 本地解析 PDF/DOCX，再生成可直接 embedding 的结构切块。PDF 使用 Standard、自动 OCR；DOCX 使用 Flash 原生解析。Torch 小模型与 llama.cpp 模型位置由 [AGENTS.md](AGENTS.md) 指定，项目配置在 `config/mineru.yaml`。
 
 模型已准备完成时，解析设为 `local`，缺失模型明确报错。关闭远程 VLM、LLM 标题分级和额外图像描述；启用 DeepSeek-flash 辅助跨页表格单元格判断，密钥从 `DEEPSEEK_API_KEY` 读取。文档、本地推理及 LLM 请求串行执行，不自动降低档位。模型运行需要在模型目录创建临时锁文件。
