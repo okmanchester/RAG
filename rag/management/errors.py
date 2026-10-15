@@ -6,6 +6,10 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 MESSAGES = {
+    "INDEX_SYNC_LEASE_LOST": "index synchronization lease or lock was lost",
+    "INDEX_SYNC_INTERRUPTED": "index synchronization was interrupted and requeued",
+    "INDEX_SYNC_SUPERSEDED": "index synchronization target changed or was paused",
+    "INDEX_SYNC_NOT_FAILED": "only failed index synchronization may be retried",
     "INVALID_PROCESSING_CONFIG": "invalid processing parameters or configuration",
     "PROCESSING_IDENTITY_CHANGED": "processing environment differs from the submitted task; submit a new task",
     "PROCESSING_MODELS_MISSING": "required local model files are missing",
@@ -113,8 +117,9 @@ MESSAGES = {
 
 
 class ManagementError(ValueError):
-    def __init__(self, code):
+    def __init__(self, code, *, retryable=False):
         self.code = code if code in MESSAGES else "INTERNAL_ERROR"
+        self.retryable = retryable
         super().__init__(MESSAGES[self.code])
 
 

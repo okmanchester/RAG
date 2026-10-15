@@ -171,3 +171,46 @@ class ProcessingAttempt(Base):
     started_at: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=utcnow)
     finished_at: Mapped[datetime | None] = mapped_column(DATETIME(fsp=6))
     error_code: Mapped[str | None] = mapped_column(String(64))
+
+
+class IndexSyncState(Timestamped, Base):
+    __tablename__ = "index_sync_states"
+    __table_args__ = (
+        CheckConstraint("status IN ('pending','running','succeeded','failed')", name="ck_index_sync_status"),
+        CheckConstraint("applied_revision <= desired_revision", name="ck_index_sync_revision"),
+        Index("ix_index_sync_schedule", "paused", "status", "scheduled_at", "knowledge_base_id"),
+        Index("ix_index_sync_lease", "status", "lease_expires_at"), OPTIONS)
+    knowledge_base_id: Mapped[int] = mapped_column(BIGINT(unsigned=True),
+        ForeignKey("knowledge_bases.id", ondelete="RESTRICT"), primary_key=True)
+    desired_revision: Mapped[int] = mapped_column(BIGINT(unsigned=True), default=1)
+    applied_revision: Mapped[int] = mapped_column(BIGINT(unsigned=True), default=0)
+    status: Mapped[str] = mapped_column(String(16), default="pending")
+    paused: Mapped[bool] = mapped_column(Boolean, default=False)
+    scheduled_at: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=utcnow)
+    attempt_count: Mapped[int] = mapped_column(INTEGER(unsigned=True), default=0)
+    cycle_attempts: Mapped[int] = mapped_column(INTEGER(unsigned=True), default=0)
+    execution_token: Mapped[str | None] = mapped_column(String(32))
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DATETIME(fsp=6))
+    generation: Mapped[str | None] = mapped_column(String(32))
+    error_code: Mapped[str | None] = mapped_column(String(64))
+    finished_at: Mapped[datetime | None] = mapped_column(DATETIME(fsp=6))
+
+
+class IndexSyncAttempt(Base):
+    __tablename__ = "index_sync_attempts"
+    __table_args__ = (
+        UniqueConstraint("knowledge_base_id", "ordinal", name="uq_index_sync_attempt"),
+        CheckConstraint("status IN ('running','succeeded','failed','interrupted','superseded','deferred')",
+                        name="ck_index_sync_attempt_status"), OPTIONS)
+    id: Mapped[int] = mapped_column(BIGINT(unsigned=True), primary_key=True, autoincrement=True)
+    knowledge_base_id: Mapped[int] = mapped_column(BIGINT(unsigned=True),
+        ForeignKey("index_sync_states.knowledge_base_id", ondelete="RESTRICT"))
+    ordinal: Mapped[int] = mapped_column(INTEGER(unsigned=True))
+    target_revision: Mapped[int] = mapped_column(BIGINT(unsigned=True))
+    execution_token: Mapped[str] = mapped_column(String(32))
+    status: Mapped[str] = mapped_column(String(16), default="running")
+    manual: Mapped[bool] = mapped_column(Boolean, default=False)
+    generation: Mapped[str | None] = mapped_column(String(32))
+    started_at: Mapped[datetime] = mapped_column(DATETIME(fsp=6), default=utcnow)
+    finished_at: Mapped[datetime | None] = mapped_column(DATETIME(fsp=6))
+    error_code: Mapped[str | None] = mapped_column(String(64))

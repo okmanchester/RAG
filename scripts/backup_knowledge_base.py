@@ -132,6 +132,13 @@ def restore(env_file, source: Path, database: str, storage_root: Path):
                     "error_code='TASK_INTERRUPTED', scheduled_at=UTC_TIMESTAMP(6), finished_at=NULL "
                     "WHERE status='running'"))
                 connection.execute(text("UPDATE processing_tasks SET execution_token=NULL, lease_expires_at=NULL"))
+            if "index_sync_states" in inspect(connection).get_table_names():
+                connection.execute(text("UPDATE index_sync_attempts SET status='interrupted', "
+                    "error_code='INDEX_SYNC_INTERRUPTED', finished_at=UTC_TIMESTAMP(6) WHERE status='running'"))
+                connection.execute(text("UPDATE index_sync_states SET status='pending', desired_revision=desired_revision+1, "
+                    "applied_revision=0, generation=NULL, execution_token=NULL, lease_expires_at=NULL, "
+                    "cycle_attempts=0, error_code=NULL, finished_at=NULL, scheduled_at=UTC_TIMESTAMP(6), "
+                    "updated_at=UTC_TIMESTAMP(6)"))
     finally:
         engine.dispose()
     return {"database": database, "storage_root": storage_root.as_posix(), "status": "restored"}

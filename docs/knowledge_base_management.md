@@ -29,7 +29,7 @@ python -m alembic upgrade head
 python -m rag.manage db ddl
 ```
 
-当前迁移版本为 `0003_processing_tasks`，新增原文件处理任务及尝试表，见 [处理任务说明](processing_tasks.md)。第二版 `0002_import_run_items` 新增明细表、`import_runs.error_code` 和 `result_storage`；旧版历史结果在线分批回填，并保留原 `results_json` 存档及汇总。离线 SQL 只描述表结构，历史数据回填必须通过在线 Alembic 升级，不能用离线 SQL 替代已有数据库升级。
+当前迁移版本为 `0004_index_sync`，新增自动索引同步状态及尝试表，共十一张业务表，见 [自动索引同步](auto_index_sync.md)。原文件处理任务及尝试表见 [处理任务说明](processing_tasks.md)。第二版 `0002_import_run_items` 新增明细表、`import_runs.error_code` 和 `result_storage`；旧版历史结果在线分批回填，并保留原 `results_json` 存档及汇总。离线 SQL 只描述表结构，历史数据回填必须通过在线 Alembic 升级，不能用离线 SQL 替代已有数据库升级。
 
 升级前暂停管理操作并备份数据库与文件。`result_storage=legacy` 标记历史 JSON 记录，`items` 标记新版记录；新版记录即使在处理前失败，也会阻止直接降级删除明细结构。此时使用升级前备份回滚。历史记录的回填可幂等重试；首版迁移保持不变。
 

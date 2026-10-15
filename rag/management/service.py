@@ -67,7 +67,8 @@ class ManagementService:
             item = KnowledgeBase(code=code, name=name, description=description)
             session.add(item)
             session.flush()
-            return record(item)
+            from .index_sync import initialize
+            return {**record(item), "sync_target": initialize(session, item.id)}
 
     def kb_update(self, kb_id, *, name=None, description=None):
         if name is None and description is None:
@@ -88,9 +89,13 @@ class ManagementService:
             raise ManagementError('INVALID_MANAGEMENT_STATUS')
         with self.sessions.begin() as session:
             item = required(session, MODELS[kind], identifier, lock=True)
+            changed = item.status != status
             item.status = status
             session.flush()
-            return record(item)
+            from .index_sync import mark_dirty, state_row, target
+            kb_id = item.id if kind == "kb" else item.knowledge_base_id
+            sync_target = mark_dirty(session, kb_id) if changed else target(state_row(session, kb_id))
+            return {**record(item), "sync_target": sync_target}
 
     def show(self, kind, identifier, *, limit=100, offset=0):
         if not isinstance(kind, str) or kind not in MODELS:
@@ -324,10 +329,16 @@ class ManagementService:
             build = required(session, DocumentBuild, build_id)
             self._validate_activation(session, document, build)
             previous = document.active_build_id
+            category = build.document_payload_json.get("category", document.category)
+            changed = previous != build.id or document.category != category
             document.active_build_id = build.id
             document.title = build.document_payload_json.get("title", document.title)
             document.category = build.document_payload_json.get("category", document.category)
-            return {"document_id": document.id, "previous_build_id": previous, "active_build_id": build.id}
+            from .index_sync import mark_dirty, state_row, target
+            sync_target = (mark_dirty(session, document.knowledge_base_id) if changed else
+                           target(state_row(session, document.knowledge_base_id)))
+            return {"document_id": document.id, "previous_build_id": previous, "active_build_id": build.id,
+                    "sync_target": sync_target}
 
     def activate_import(self, import_id):
         with self.sessions.begin() as session:
@@ -343,6 +354,7 @@ class ManagementService:
                     or len({entry.document_id for entry in entries}) != len(entries)):
                 raise ManagementError("IMPORT_ITEM_INCOMPLETE")
             results = []
+            changed = False
             for entry in entries:
                 document = required(session, Document, entry.document_id, lock=True)
                 if document.knowledge_base_id != run.knowledge_base_id:
@@ -351,7 +363,11 @@ class ManagementService:
                 self._validate_activation(session, document, build)
                 results.append({"document_id": document.id, "previous_build_id": document.active_build_id,
                                 "active_build_id": build.id})
+                changed = changed or document.active_build_id != build.id or document.category != build.document_payload_json.get("category", document.category)
                 document.active_build_id = build.id
                 document.title = build.document_payload_json.get("title", document.title)
                 document.category = build.document_payload_json.get("category", document.category)
-            return {"import_id": import_id, "activated": len(results), "results": results}
+            from .index_sync import mark_dirty, state_row, target
+            sync_target = (mark_dirty(session, run.knowledge_base_id) if changed else
+                           target(state_row(session, run.knowledge_base_id)))
+            return {"import_id": import_id, "activated": len(results), "results": results, "sync_target": sync_target}

@@ -81,13 +81,18 @@ def parser():
     actions = worker.add_subparsers(dest="action", required=True)
     command = actions.add_parser("run")
     command.add_argument("--once", action="store_true")
+    command.add_argument("--kind", choices=("all", "processing", "index"), default="all")
     index = groups.add_parser("index")
     actions = index.add_subparsers(dest="action", required=True)
-    for action in ("sync", "status", "rollback"):
+    for action in ("sync", "status", "rollback", "retry", "pause", "resume"):
         command = actions.add_parser(action)
         command.add_argument("--kb-id", type=int, required=True)
         if action == "rollback":
             command.add_argument("--generation", required=True)
+        if action == "status":
+            command.add_argument("--db-only", action="store_true")
+            command.add_argument("--limit", type=int, default=100)
+            command.add_argument("--offset", type=int, default=0)
     search = groups.add_parser("search")
     search.set_defaults(action="query")
     search.add_argument("--kb-id", type=int, required=True)
@@ -111,7 +116,8 @@ def dispatch(service, args):
         from .management.processing import ProcessingService
         processing = ProcessingService(service)
         if group == "worker":
-            return processing.run(once=args.once)
+            from .management.worker import run_worker
+            return run_worker(service, once=args.once, kind=args.kind, es_env_file=args.es_env_file)
         if group == "document":
             if action == "register":
                 return processing.register(args.kb_id, args.raw_root, args.source_path)
@@ -123,6 +129,13 @@ def dispatch(service, args):
             return processing.retry(args.task_id)
         return processing.list(args.kb_id, args.status, args.limit, args.offset)
     if group in ("index", "search"):
+        if group == "index":
+            from .management.index_sync import IndexSyncService
+            indexing = IndexSyncService(service.engine)
+            if action in ("pause", "resume", "retry"):
+                return indexing.control(args.kb_id, action)
+            if action == "status" and args.db_only:
+                return indexing.show(args.kb_id, limit=args.limit, offset=args.offset)
         from .search.config import SearchSettings
         from .search.service import SearchService
         from .search.shared import SearchFilters
@@ -136,7 +149,7 @@ def dispatch(service, args):
                 return search.sync(args.kb_id)
             if action == "rollback":
                 return search.rollback(args.kb_id, args.generation)
-            return search.status(args.kb_id)
+            return search.status(args.kb_id, limit=args.limit, offset=args.offset)
     if group == "db":
         return service.db_upgrade() if action == "upgrade" else service.db_check()
     if group == "kb":

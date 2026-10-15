@@ -18,60 +18,71 @@ class SearchService:
         self.encoder = encoder or BGEEncoder()
 
     def sync(self, kb_id):
-        with self.corpus.index_lock(kb_id):
-            selection = self.corpus.selection(kb_id)
-            generation = uuid.uuid4().hex
-            index = self.store.generation_name(kb_id, generation)
-            metadata = {"format_version": 1, "namespace": self.corpus.namespace, "kb_id": kb_id,
-                "generation": generation, "state": "building", "default_mode": "dense",
-                "created_at": datetime.now(timezone.utc).isoformat(), "selection_sha256": selection.fingerprint,
-                "builds": list(selection.builds), "model": self.encoder.identity,
-                "retrieval": RETRIEVAL_CONFIG, "model_sha256": digest(self.encoder.identity),
-                "retrieval_sha256": digest(RETRIEVAL_CONFIG), "chunk_count": 0}
-            self.store.create(index, metadata)
-            expected = {}
-            content_hash = hashlib.sha256()
-            batch = []
+        from rag.management.index_sync import IndexSyncService
+        result = IndexSyncService(self.corpus.engine).sync(self, kb_id)
+        return {**self.status(kb_id), "synced_generation": result["synced_generation"]}
 
-            def actions():
-                def encode(rows):
-                    vectors = self.encoder.documents([row["text"] for row in rows])
-                    if vectors.shape != (len(rows), metadata["model"]["dimensions"]):
-                        raise ManagementError("INVALID_EMBEDDING")
-                    import numpy as np
-                    if not np.isfinite(vectors).all() or not np.allclose(np.linalg.norm(vectors, axis=1), 1, atol=1e-4):
-                        raise ManagementError("INVALID_EMBEDDING")
-                    for row, vector in zip(rows, vectors):
-                        doc = self.corpus.projection(row, selection)
-                        expected[str(row["id"])] = digest(doc)
-                        content_hash.update(bytes.fromhex(digest(doc)))
-                        yield {**doc, "embedding": vector.tolist()}
-                for row in self.corpus.iter_chunks(selection):
-                    batch.append(row)
-                    if len(batch) == 128:
-                        yield from encode(batch)
-                        batch.clear()
-                if batch:
+    def build(self, selection, check=lambda: None, on_candidate=lambda meta: None):
+        kb_id = selection.kb_id
+        generation = uuid.uuid4().hex
+        index = self.store.generation_name(kb_id, generation)
+        metadata = {"format_version": 1, "namespace": self.corpus.namespace, "kb_id": kb_id,
+            "generation": generation, "state": "building", "default_mode": "dense",
+            "created_at": datetime.now(timezone.utc).isoformat(), "selection_sha256": selection.fingerprint,
+            "builds": list(selection.builds), "model": self.encoder.identity,
+            "retrieval": RETRIEVAL_CONFIG, "model_sha256": digest(self.encoder.identity),
+            "retrieval_sha256": digest(RETRIEVAL_CONFIG), "chunk_count": 0}
+        check()
+        on_candidate(metadata)
+        self.store.create(index, metadata)
+        expected = {}
+        content_hash = hashlib.sha256()
+        batch = []
+
+        def actions():
+            def encode(rows):
+                check()
+                vectors = self.encoder.documents([row["text"] for row in rows])
+                check()
+                if vectors.shape != (len(rows), metadata["model"]["dimensions"]):
+                    raise ManagementError("INVALID_EMBEDDING")
+                import numpy as np
+                if not np.isfinite(vectors).all() or not np.allclose(np.linalg.norm(vectors, axis=1), 1, atol=1e-4):
+                    raise ManagementError("INVALID_EMBEDDING")
+                for row, vector in zip(rows, vectors):
+                    doc = self.corpus.projection(row, selection)
+                    expected[str(row["id"])] = digest(doc)
+                    content_hash.update(bytes.fromhex(digest(doc)))
+                    yield {**doc, "embedding": vector.tolist()}
+            for row in self.corpus.iter_chunks(selection):
+                batch.append(row)
+                if len(batch) == 128:
                     yield from encode(batch)
+                    batch.clear()
+            if batch:
+                yield from encode(batch)
 
+        try:
+            check()
+            count = self.store.bulk(index, actions())
+            if count != len(expected) or count != sum(b["eligible_chunks"] for b in selection.builds):
+                raise ManagementError("INDEX_CORRUPT")
+            check()
+            self.store.verify(index, expected)
+            metadata.update(state="ready", chunk_count=count, content_sha256=content_hash.hexdigest(),
+                            records_sha256=digest(expected))
+            self.store.seal(index, metadata)
+        except Exception as exc:
             try:
-                count = self.store.bulk(index, actions())
-                if count != len(expected) or count != sum(b["eligible_chunks"] for b in selection.builds):
-                    raise ManagementError("INDEX_CORRUPT")
-                self.store.verify(index, expected)
-                metadata.update(state="ready", chunk_count=count, content_sha256=content_hash.hexdigest(),
-                                records_sha256=digest(expected))
-                self.store.seal(index, metadata)
-            except Exception as exc:
-                try:
-                    self.store.seal(index, {**metadata, "state": "failed", **public_error(exc)})
-                except Exception:
-                    pass  # Preserve the original failure, including unavailable ES.
-                raise
-            self.store.publish(kb_id, index)
-            return {**self.status(kb_id), "synced_generation": generation}
+                self.store.seal(index, {**metadata, "state": "failed", **public_error(exc)})
+            except Exception:
+                pass  # Preserve the original failure, including unavailable ES.
+            raise
+        return index, metadata
 
-    def status(self, kb_id):
+    def status(self, kb_id, *, limit=100, offset=0):
+        from rag.management.index_sync import IndexSyncService
+        queue = IndexSyncService(self.corpus.engine).show(kb_id, limit=limit, offset=offset)
         selection = self.corpus.selection(kb_id, allow_disabled=True)
         index = self.store.current(kb_id)
         meta = self.store.metadata(index) if index else None
@@ -80,16 +91,21 @@ class SearchService:
                 "state": meta["state"] if meta else "missing", "chunk_count": meta["chunk_count"] if meta else 0,
                 "sync_lag": meta is None or meta["selection_sha256"] != selection.fingerprint,
                 "selection_sha256": selection.fingerprint, "manifest": meta,
-                "generations": self.store.generations(kb_id)}
+                "generations": self.store.generations(kb_id), **queue}
 
     def rollback(self, kb_id, generation):
         with self.corpus.index_lock(kb_id):
+            # Disabled KBs have an empty effective corpus. This is not validation
+            # of the requested historical generation; store.validate below is.
             self.corpus.selection(kb_id, allow_disabled=True)
             index = self.store.generation_name(kb_id, generation)
             meta = self.store.metadata(index)
             if meta.get("state") != "ready":
                 raise ManagementError("INDEX_NOT_READY")
-            self.store.publish(kb_id, index)
+            self.store.validate(kb_id, index)
+            from rag.management.index_sync import IndexSyncService
+            IndexSyncService(self.corpus.engine).control(kb_id, "pause", invalidate=True)
+            self.store.publish(kb_id, index, validated=True)
             return self.status(kb_id)
 
     def query(self, question, top_k=10, filters=None, *, mode=None, vector=None):

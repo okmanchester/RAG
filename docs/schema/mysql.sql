@@ -187,3 +187,57 @@ CREATE TABLE processing_attempts (
 
 UPDATE alembic_version SET version_num='0003_processing_tasks' WHERE alembic_version.version_num = '0002_import_run_items';
 
+-- Running upgrade 0003_processing_tasks -> 0004_index_sync
+
+CREATE TABLE index_sync_states (
+    knowledge_base_id BIGINT UNSIGNED NOT NULL,
+    desired_revision BIGINT UNSIGNED NOT NULL,
+    applied_revision BIGINT UNSIGNED NOT NULL,
+    status VARCHAR(16) NOT NULL,
+    paused BOOL NOT NULL,
+    scheduled_at DATETIME(6) NOT NULL,
+    attempt_count INTEGER UNSIGNED NOT NULL,
+    cycle_attempts INTEGER UNSIGNED NOT NULL,
+    execution_token VARCHAR(32),
+    lease_expires_at DATETIME(6),
+    generation VARCHAR(32),
+    error_code VARCHAR(64),
+    finished_at DATETIME(6),
+    created_at DATETIME(6) NOT NULL,
+    updated_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (knowledge_base_id),
+    FOREIGN KEY(knowledge_base_id) REFERENCES knowledge_bases (id) ON DELETE RESTRICT,
+    CONSTRAINT ck_index_sync_status CHECK (status IN ('pending','running','succeeded','failed')),
+    CONSTRAINT ck_index_sync_revision CHECK (applied_revision <= desired_revision)
+)ENGINE=InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+
+CREATE INDEX ix_index_sync_schedule ON index_sync_states (paused, status, scheduled_at, knowledge_base_id);
+
+CREATE INDEX ix_index_sync_lease ON index_sync_states (status, lease_expires_at);
+
+CREATE TABLE index_sync_attempts (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    knowledge_base_id BIGINT UNSIGNED NOT NULL,
+    ordinal INTEGER UNSIGNED NOT NULL,
+    target_revision BIGINT UNSIGNED NOT NULL,
+    execution_token VARCHAR(32) NOT NULL,
+    status VARCHAR(16) NOT NULL,
+    manual BOOL NOT NULL,
+    generation VARCHAR(32),
+    started_at DATETIME(6) NOT NULL,
+    finished_at DATETIME(6),
+    error_code VARCHAR(64),
+    PRIMARY KEY (id),
+    FOREIGN KEY(knowledge_base_id) REFERENCES index_sync_states (knowledge_base_id) ON DELETE RESTRICT,
+    CONSTRAINT uq_index_sync_attempt UNIQUE (knowledge_base_id, ordinal),
+    CONSTRAINT ck_index_sync_attempt_status CHECK (status IN ('running','succeeded','failed','interrupted','superseded','deferred'))
+)ENGINE=InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+
+INSERT INTO index_sync_states
+        (knowledge_base_id, desired_revision, applied_revision, status, paused, scheduled_at,
+         attempt_count, cycle_attempts, created_at, updated_at)
+        SELECT id, 1, 0, 'pending', 0, UTC_TIMESTAMP(6), 0, 0, UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)
+        FROM knowledge_bases WHERE id NOT IN (SELECT knowledge_base_id FROM index_sync_states);
+
+UPDATE alembic_version SET version_num='0004_index_sync' WHERE alembic_version.version_num = '0003_processing_tasks';
+

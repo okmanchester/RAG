@@ -16,7 +16,7 @@ from sqlalchemy import delete, event, func, inspect, select, update
 from sqlalchemy.exc import DBAPIError
 
 from rag.management.config import ROOT, Settings, migration_config
-from rag.management.models import Base, Chunk, Document, DocumentBuild, DocumentVersion, ImportRun, ImportRunItem, KnowledgeBase
+from rag.management.models import Base, Chunk, Document, DocumentBuild, DocumentVersion, ImportRun, ImportRunItem, KnowledgeBase, IndexSyncState, IndexSyncAttempt
 from rag.management.service import ManagementService
 from rag.management.storage import file_hash, load_snapshot
 from scripts.backup_knowledge_base import container_sql, database_name
@@ -52,7 +52,7 @@ class MySQLManagementTests(unittest.TestCase):
     def setUp(self):
         with self.engine.begin() as connection:
             connection.execute(update(Document).values(active_build_id=None))
-            for model in (ImportRunItem, Chunk, DocumentBuild, DocumentVersion, ImportRun, Document, KnowledgeBase):
+            for model in (IndexSyncAttempt, IndexSyncState, ImportRunItem, Chunk, DocumentBuild, DocumentVersion, ImportRun, Document, KnowledgeBase):
                 connection.execute(delete(model))
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -372,7 +372,7 @@ class MySQLManagementTests(unittest.TestCase):
         self.assertEqual(self.service.show_import(run["id"])["results_page"]["total"], 1)
         # The new migration preflights the older guard before MySQL commits any DDL.
         self.service.db_upgrade()
-        self.assertEqual(self.service.db_check()["migration_heads"], ["0003_processing_tasks"])
+        self.assertEqual(self.service.db_check()["migration_heads"], ["0004_index_sync"])
 
     def test_legacy_success_failure_running_migration_and_idempotent_backfill(self):
         import importlib.util
@@ -398,7 +398,7 @@ class MySQLManagementTests(unittest.TestCase):
                 result = connection.execute(statement, {"kb": self.kb, "status": status, "summary": json.dumps(summary),
                     "results": json.dumps(results), "error": secret if status == "failed" else None, "started": utcnow()})
                 identifiers.append(result.lastrowid)
-        self.assertEqual(self.service.db_upgrade()["business_tables"], 9)
+        self.assertEqual(self.service.db_upgrade()["business_tables"], 11)
         spec = importlib.util.spec_from_file_location("frozen_import_items", ROOT / "migrations/versions/0002_import_run_items.py")
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -456,7 +456,7 @@ class MySQLManagementTests(unittest.TestCase):
             command.downgrade(migration_config(connection), "base")
         with self.engine.connect() as connection:
             self.assertNotIn("knowledge_bases", inspect(connection).get_table_names())
-        self.assertEqual(self.service.db_upgrade()["business_tables"], 9)
+        self.assertEqual(self.service.db_upgrade()["business_tables"], 11)
 
 
 if __name__ == "__main__":

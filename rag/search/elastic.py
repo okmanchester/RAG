@@ -12,6 +12,7 @@ from .shared import digest
 
 RETRIEVAL_CONFIG = {"version": 1, "vector": "exact_cosine_float32", "analyzer": "cjk",
                     "candidate_window": 50, "rrf_constant": 60, "default_mode": "dense"}
+TRANSIENT_STATUSES = (408, 429, 500, 502, 503, 504)
 
 
 def safe_es(method):
@@ -20,9 +21,9 @@ def safe_es(method):
         try:
             return method(*args, **kwargs)
         except (ConnectionError, ConnectionTimeout):
-            raise ManagementError("SEARCH_UNAVAILABLE") from None
-        except ApiError:
-            raise ManagementError("SEARCH_ERROR") from None
+            raise ManagementError("SEARCH_UNAVAILABLE", retryable=True) from None
+        except ApiError as exc:
+            raise ManagementError("SEARCH_ERROR", retryable=exc.status_code in TRANSIENT_STATUSES) from None
     return call
 
 
@@ -89,15 +90,18 @@ class ESStore:
     @safe_es
     def bulk(self, index, documents):
         failed = 0
+        transient_only = True
         count = 0
         actions = ({"_op_type": "index", "_index": index, "_id": str(doc["chunk_id"]), "_source": doc}
                    for doc in documents)
-        for ok, _ in streaming_bulk(self.client, actions, chunk_size=128, max_chunk_bytes=4 * 1024 * 1024,
+        for ok, item in streaming_bulk(self.client, actions, chunk_size=128, max_chunk_bytes=4 * 1024 * 1024,
                                      raise_on_error=False, max_retries=2, initial_backoff=1, max_backoff=4):
             count += int(ok)
             failed += int(not ok)
+            if not ok:
+                transient_only = transient_only and all(v.get("status") in TRANSIENT_STATUSES for v in item.values())
         if failed:
-            raise ManagementError("INDEX_BULK_FAILED")
+            raise ManagementError("INDEX_BULK_FAILED", retryable=transient_only)
         return count
 
     @safe_es
@@ -118,7 +122,7 @@ class ESStore:
         self.client.indices.put_settings(index=index, settings={"index.blocks.write": True})
 
     @safe_es
-    def publish(self, kb_id, index):
+    def validate(self, kb_id, index):
         metadata = self.metadata(index)
         if metadata.get("state") != "ready" or metadata.get("kb_id") != kb_id:
             raise ManagementError("INDEX_NOT_READY")
@@ -131,6 +135,11 @@ class ESStore:
                    query={"query": {"match_all": {}}, "_source": {"excludes": ["embedding"]}}, size=128)}
         if len(records) != metadata["chunk_count"] or digest(records) != metadata.get("records_sha256"):
             raise ManagementError("INDEX_CORRUPT")
+
+    @safe_es
+    def publish(self, kb_id, index, *, validated=False):
+        if not validated:
+            self.validate(kb_id, index)
         current = self.current(kb_id)
         if current == index:
             return
@@ -140,10 +149,11 @@ class ESStore:
         try:
             response = self.client.indices.update_aliases(actions=actions)
             if not response.get("acknowledged") or response.get("errors"):
-                raise ManagementError("INDEX_PUBLISH_FAILED")
+                if self.current(kb_id) != index:
+                    raise ManagementError("INDEX_PUBLISH_FAILED", retryable=True)
         except (ConnectionError, ConnectionTimeout):
             if self.current(kb_id) != index:
-                raise ManagementError("INDEX_PUBLISH_FAILED") from None
+                raise ManagementError("INDEX_PUBLISH_FAILED", retryable=True) from None
 
     @safe_es
     def generations(self, kb_id):

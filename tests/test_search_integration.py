@@ -193,12 +193,17 @@ class ManagedSearchIntegrationTests(unittest.TestCase):
             self.assertEqual(self.search.sync(self.kb)["state"], "ready")
 
     def test_management_change_during_build_is_safe_and_reports_lag(self):
+        first = self.search.sync(self.kb)
         encode = self.search.encoder.documents
         def changing(texts):
             self.service.set_status("document", self.document, "disabled")
             return encode(texts)
         with patch.object(self.search.encoder, "documents", side_effect=changing):
-            result = self.search.sync(self.kb)
+            with self.assertRaises(ManagementError) as caught:
+                self.search.sync(self.kb)
+        self.assertEqual(caught.exception.code, "INDEX_SYNC_SUPERSEDED")
+        result = self.search.status(self.kb)
+        self.assertEqual(result["generation"], first["generation"])
         self.assertTrue(result["sync_lag"])
         self.assertEqual(self.query()["contexts"], [])
 

@@ -170,7 +170,9 @@ class ProcessingMySQLTests(unittest.TestCase):
         self.submit()
         self.submit(maximum=500)
         with patch.object(self.processing, "process", side_effect=RuntimeError("secret-token")):
-            self.assertEqual(self.processing.run(once=True)["status"], "failed")
+            result = self.processing.run(once=True)
+            self.assertEqual(result["status"], "failed")
+            self.assertNotIn("kind", result)
         self.assertEqual(self.processing.list(self.kb, "pending")["total"], 1)
 
     def test_heartbeat_renews_during_model_execution(self):
@@ -430,10 +432,14 @@ time.sleep(120)
 
     def test_backup_restore_clears_leases_and_preserves_completed_results(self):
         from scripts.backup_knowledge_base import backup, restore
+        from rag.management.index_sync import IndexSyncService
         first_id = self.submit()
         succeeded = self.execute(self.processing.claim())
         second_id = self.submit(maximum=500)
         self.processing.claim()
+        indexing = IndexSyncService(self.engine)
+        indexing.claim(self.kb, manual=True)
+        indexing.control(self.kb, "pause")
         target = "rag_test_processing_" + uuid.uuid4().hex[:12]
         try:
             with patch.dict(os.environ, {"MYSQL_DATABASE": self.database, "RAG_STORAGE_ROOT": str(self.management.storage_root)}):
@@ -449,6 +455,13 @@ time.sleep(120)
                 self.assertIsNone(pending["lease_expires_at"])
                 self.assertEqual(pending["attempts"]["items"][0]["status"], "interrupted")
                 self.assertEqual(self.processing.show(second_id)["status"], "running")
+                sync = IndexSyncService(engine).show(self.kb)
+                self.assertEqual(sync["sync_task"]["status"], "pending")
+                self.assertEqual(sync["sync_task"]["applied_revision"], 0)
+                self.assertIsNone(sync["sync_task"]["lease_expires_at"])
+                self.assertTrue(sync["sync_task"]["paused"])
+                self.assertEqual(sync["attempts"]["items"][0]["status"], "interrupted")
+                self.assertEqual(indexing.show(self.kb)["sync_task"]["status"], "running")
             finally:
                 engine.dispose()
         finally:
@@ -468,7 +481,7 @@ time.sleep(120)
         with self.assertRaisesRegex(RuntimeError, "pre-upgrade backup"):
             with self.engine.begin() as connection:
                 command.downgrade(migration_config(connection), "0002_import_run_items")
-        self.assertEqual(self.management.db_check()["business_tables"], 9)
+        self.assertEqual(self.management.db_check()["business_tables"], 11)
 
 
 if __name__ == "__main__":

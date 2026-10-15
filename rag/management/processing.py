@@ -10,7 +10,6 @@ from pathlib import Path
 import shutil
 import sys
 import threading
-import time
 import tempfile
 import uuid
 
@@ -447,17 +446,8 @@ class ProcessingService:
             self.complete(task["id"], task["execution_token"], snapshot, published)
 
     def run(self, once=False):
-        with self.worker_lock() as check:
-            while True:
-                check()
-                task = self.claim()
-                if task is not None:
-                    result = self.execute(task, check)
-                    if once:
-                        return result
-                    print(json.dumps({"task_id": result["id"], "status": result["status"],
-                                     "error_code": result["error_code"]}, ensure_ascii=False), flush=True)
-                elif once:
-                    return {"status": "idle"}
-                else:
-                    time.sleep(5)
+        """Compatibility entrypoint: processing only, using the shared scheduler."""
+        from .worker import run_worker
+        result = run_worker(self.management, once=once, kind="processing", _processing=self)
+        result.pop("kind", None)
+        return result

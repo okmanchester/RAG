@@ -32,40 +32,50 @@ class ManagedCorpus:
         self.namespace = digest({"host": engine.url.host, "port": engine.url.port,
                                  "database": engine.url.database})[:16]
 
-    def selection(self, kb_id, *, allow_disabled=False):
+    def selection(self, kb_id, *, allow_disabled=False, connection=None):
         if type(kb_id) is not int or kb_id < 1:
             raise ManagementError("INVALID_SEARCH")
+        if connection is not None:
+            return self._selection(connection, kb_id, allow_disabled)
         with self.engine.connect().execution_options(isolation_level="REPEATABLE READ") as connection:
             with connection.begin():
-                kb = connection.execute(select(KnowledgeBase.id, KnowledgeBase.status)
-                                        .where(KnowledgeBase.id == kb_id)).first()
-                if kb is None:
-                    raise ManagementError("RECORD_NOT_FOUND")
-                if kb.status != "active" and not allow_disabled:
-                    raise ManagementError("RESOURCE_DISABLED")
-                rows = connection.execute(select(Document.id.label("document_id"), Document.active_build_id,
-                    Document.category, DocumentBuild.id.label("build_id"), DocumentBuild.status,
-                    DocumentBuild.output_fingerprint,
-                    func.json_unquote(func.json_extract(DocumentBuild.document_payload_json, "$.chunk_count")).label("expected_chunks"),
-                    DocumentVersion.document_id.label("owner_id"),
-                    select(func.count(Chunk.id)).where(Chunk.build_id == DocumentBuild.id)
-                    .correlate(DocumentBuild).scalar_subquery().label("total_chunks"),
-                    select(func.count(Chunk.id)).where(Chunk.build_id == DocumentBuild.id, Chunk.retrieval_enabled.is_(True))
-                    .correlate(DocumentBuild).scalar_subquery().label("eligible_chunks"))
-                    .outerjoin(DocumentBuild, Document.active_build_id == DocumentBuild.id)
-                    .outerjoin(DocumentVersion, DocumentBuild.document_version_id == DocumentVersion.id)
-                    .where(Document.knowledge_base_id == kb_id, Document.status == "active",
-                           Document.active_build_id.is_not(None)).order_by(Document.id)).all()
-                builds = []
-                for row in rows:
-                    if row.owner_id != row.document_id or row.status != "ready":
-                        raise ManagementError("BUILD_NOT_READY")
-                    if not row.total_chunks or (row.expected_chunks is not None and row.total_chunks != int(row.expected_chunks)):
-                        raise ManagementError("BUILD_INCOMPLETE")
-                    builds.append({"document_id": row.document_id, "build_id": row.build_id,
-                                   "output_fingerprint": row.output_fingerprint, "category": row.category,
-                                   "eligible_chunks": row.eligible_chunks})
-                return Selection(kb_id, kb.status, tuple(builds) if kb.status == "active" else ())
+                return self._selection(connection, kb_id, allow_disabled)
+
+    def _selection(self, connection, kb_id, allow_disabled):
+        kb = connection.execute(select(KnowledgeBase.id, KnowledgeBase.status)
+                                .where(KnowledgeBase.id == kb_id)).first()
+        if kb is None:
+            raise ManagementError("RECORD_NOT_FOUND")
+        if kb.status != "active" and not allow_disabled:
+            raise ManagementError("RESOURCE_DISABLED")
+        if kb.status != "active":
+            # No build is eligible in a disabled KB. Hidden build inconsistencies
+            # must not prevent publishing its empty projection; rollback targets
+            # are independently checked by ESStore.validate.
+            return Selection(kb_id, kb.status, ())
+        rows = connection.execute(select(Document.id.label("document_id"), Document.active_build_id,
+            Document.category, DocumentBuild.id.label("build_id"), DocumentBuild.status,
+            DocumentBuild.output_fingerprint,
+            func.json_unquote(func.json_extract(DocumentBuild.document_payload_json, "$.chunk_count")).label("expected_chunks"),
+            DocumentVersion.document_id.label("owner_id"),
+            select(func.count(Chunk.id)).where(Chunk.build_id == DocumentBuild.id)
+            .correlate(DocumentBuild).scalar_subquery().label("total_chunks"),
+            select(func.count(Chunk.id)).where(Chunk.build_id == DocumentBuild.id, Chunk.retrieval_enabled.is_(True))
+            .correlate(DocumentBuild).scalar_subquery().label("eligible_chunks"))
+            .outerjoin(DocumentBuild, Document.active_build_id == DocumentBuild.id)
+            .outerjoin(DocumentVersion, DocumentBuild.document_version_id == DocumentVersion.id)
+            .where(Document.knowledge_base_id == kb_id, Document.status == "active",
+                   Document.active_build_id.is_not(None)).order_by(Document.id)).all()
+        builds = []
+        for row in rows:
+            if row.owner_id != row.document_id or row.status != "ready":
+                raise ManagementError("BUILD_NOT_READY")
+            if not row.total_chunks or (row.expected_chunks is not None and row.total_chunks != int(row.expected_chunks)):
+                raise ManagementError("BUILD_INCOMPLETE")
+            builds.append({"document_id": row.document_id, "build_id": row.build_id,
+                           "output_fingerprint": row.output_fingerprint, "category": row.category,
+                           "eligible_chunks": row.eligible_chunks})
+        return Selection(kb_id, kb.status, tuple(builds))
 
     def iter_chunks(self, selection, page_size=128):
         if not selection.builds:
@@ -138,7 +148,12 @@ class ManagedCorpus:
         with self.engine.connect() as connection:
             if connection.scalar(text("SELECT GET_LOCK(:name, 0)"), {"name": lock}) != 1:
                 raise ManagementError("INDEX_BUSY")
+            owner = connection.scalar(text("SELECT CONNECTION_ID()"))
+            def check():
+                if connection.scalar(text("SELECT IS_USED_LOCK(:name)"), {"name": lock}) != owner:
+                    raise ManagementError("INDEX_SYNC_LEASE_LOST")
             try:
-                yield
+                yield check
             finally:
-                connection.execute(text("SELECT RELEASE_LOCK(:name)"), {"name": lock})
+                if not connection.invalidated:
+                    connection.execute(text("SELECT RELEASE_LOCK(:name)"), {"name": lock})

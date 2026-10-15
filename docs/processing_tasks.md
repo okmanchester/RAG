@@ -1,10 +1,12 @@
 # 原文件注册与可恢复处理任务
 
-本阶段将 PDF/DOCX 注册、MinerU 解析、表格处理和切块接入 MySQL 管理链路。处理任务只生成不可变 build；版本启用和 Elasticsearch 同步仍由管理命令显式执行。
+本阶段将 PDF/DOCX 注册、MinerU 解析、表格处理和切块接入 MySQL 管理链路。处理任务只生成不可变 build；版本仍显式启用，随后由常驻 worker 自动同步 Elasticsearch，见 [自动索引同步](auto_index_sync.md)。
 
 ## 使用
 
-在 `conda rag` 中运行，沿用管理、解析和检索依赖。升级前停止管理写入和 worker，备份数据库及 `RAG_STORAGE_ROOT`，再执行 `python -m rag.manage db upgrade`。迁移 `0003_processing_tasks` 新增两张表，业务表总数为九；不为已有文档创建任务或修改当前版本。
+在 `conda rag` 中运行，沿用管理、解析和检索依赖。升级前停止管理写入和 worker，备份数据库及 `RAG_STORAGE_ROOT`，再执行 `python -m rag.manage db upgrade`。处理任务迁移为 `0003_processing_tasks`，最新 `0004_index_sync` 增加自动索引队列，共十一张业务表；不为已有文档创建处理任务或修改当前版本。
+
+先在独立终端运行 `python -m rag.manage worker run` 并保持常驻；以下管理操作在另一个终端执行。
 
 ```powershell
 # 示例使用现有默认知识库；其它知识库使用实际 ID。
@@ -13,8 +15,7 @@ $registered = python -m rag.manage document register --kb-id 1 --raw-root data/r
 $task = python -m rag.manage document process --version-id $registered.version_id | ConvertFrom-Json
 python -m rag.manage task show --task-id $task.task_id
 
-# --once 执行全库队列中最早到期的一项，不专门选择上面提交的任务。
-python -m rag.manage worker run --once
+# worker 后台处理；通过状态查询等待 succeeded。
 python -m rag.manage task list --kb-id 1 --status failed --limit 100 --offset 0
 python -m rag.manage task show --task-id $task.task_id --limit 100 --offset 0
 
@@ -24,11 +25,12 @@ python -m rag.manage task retry --task-id $task.task_id
 # 任务 succeeded 后，使用实际返回的 build_id 显式启用。
 $result = python -m rag.manage task show --task-id $task.task_id | ConvertFrom-Json
 python -m rag.manage document activate --document-id $registered.document_id --build-id $result.build_id
-python -m rag.manage index sync --kb-id 1
+# 常驻 worker 会自动同步；等待 sync_lag=false 后验证新内容。
+python -m rag.manage index status --kb-id 1
 python -m rag.manage search --kb-id 1 --query "数据安全风险监测" --mode bm25
 
-# 前台常驻 worker；Ctrl+C 停止，未完成任务由租约恢复。
-python -m rag.manage worker run
+# 分步冒烟的替代入口，仅在没有常驻 worker 时使用；领取一个到期任务。
+# python -m rag.manage worker run --kind processing --once
 ```
 
 注册要求 PDF/DOCX 的相对逻辑路径，使用现有 Unicode NFC、正斜杠、路径大小写及目录边界规则。原文件按内容 SHA256 存储；同一路径同内容复用版本，同一路径新内容生成版本，路径变化视为新文档。注册及提交要求知识库和文档 active，不会修改当前 build、标题或分类。
