@@ -314,14 +314,34 @@ class ManagementService:
         return build, reused
 
     @staticmethod
-    def _validate_activation(session, document, build):
+    def _activation_error(session, document, build):
         if build_document(session, build) != document.id:
-            raise ManagementError('BUILD_OWNERSHIP')
+            return 'BUILD_OWNERSHIP'
         total = chunk_count(session, build.id)
         if build.status != "ready" or not total:
-            raise ManagementError('BUILD_NOT_READY')
+            return 'BUILD_NOT_READY'
         if total != build.document_payload_json.get("chunk_count", total):
-            raise ManagementError('BUILD_INCOMPLETE')
+            return 'BUILD_INCOMPLETE'
+        return None
+
+    @classmethod
+    def _validate_activation(cls, session, document, build):
+        error = cls._activation_error(session, document, build)
+        if error is not None:
+            raise ManagementError(error)
+
+    def list_builds(self, document_id, *, limit=100, offset=0):
+        """Public readiness summaries use the same policy as actual activation."""
+        validate_page(limit, offset)
+        with self.sessions() as session:
+            document = required(session, Document, document_id)
+            statement = select(DocumentBuild).join(DocumentVersion).where(DocumentVersion.document_id == document_id)
+            total = session.scalar(select(func.count()).select_from(statement.subquery()))
+            items = [{**record(build), "chunk_count": chunk_count(session, build.id),
+                      "is_active": build.id == document.active_build_id,
+                      "can_activate": self._activation_error(session, document, build) is None}
+                     for build in session.scalars(statement.order_by(DocumentBuild.id).limit(limit).offset(offset))]
+            return {"total": total, "limit": limit, "offset": offset, "items": items}
 
     def activate_document(self, document_id, build_id):
         with self.sessions.begin() as session:

@@ -140,7 +140,7 @@ class ProcessingService:
         if kb.status != "active" or document.status != "active":
             raise ManagementError("RESOURCE_DISABLED")
 
-    def register(self, kb_id, raw_root, source_path):
+    def _prepare_registration(self, raw_root, source_path):
         path = relative_path(source_path)
         source = contained(Path(raw_root), path)
         if Path(path).suffix.lower() not in (".pdf", ".docx"):
@@ -149,45 +149,67 @@ class ProcessingService:
             raise ManagementError("RAW_FILE_MISSING")
         sha = file_hash(source)
         raw = publish_raw(Path(raw_root), path, sha, self.storage_root)
-        key = hashlib.sha256(path.encode()).hexdigest()
+        return path, sha, raw
+
+    def register(self, kb_id, raw_root, source_path):
+        prepared = self._prepare_registration(raw_root, source_path)
         with self.sessions.begin() as session:
-            kb = required(session, KnowledgeBase, kb_id, lock=True)
-            if kb.status != "active":
-                raise ManagementError("RESOURCE_DISABLED")
-            doc = session.scalar(select(Document).where(Document.knowledge_base_id == kb_id,
-                                 Document.source_key == key).with_for_update())
-            if doc is None:
-                doc = Document(knowledge_base_id=kb_id, source_key=key, source_path=path, title=Path(path).stem,
-                               category=Path(path).parts[0] if len(Path(path).parts) > 1 else "uncategorized")
-                session.add(doc)
-                session.flush()
-            self.active(session, doc)
-            version = session.scalar(select(DocumentVersion).where(DocumentVersion.document_id == doc.id,
-                                      DocumentVersion.source_sha256 == sha))
-            reused = version is not None
-            if version is None:
-                version = DocumentVersion(document_id=doc.id, source_sha256=sha, original_filename=Path(path).name,
-                    format=Path(path).suffix.lower()[1:], file_size=raw.stat().st_size, storage_uri=raw.as_posix())
-                session.add(version)
-                session.flush()
-            return {"document_id": doc.id, "version_id": version.id, "source_sha256": sha,
-                    "reused": reused, "active_build_id": doc.active_build_id}
+            return self._register(session, kb_id, *prepared)
+
+    def _register(self, session, kb_id, path, sha, raw):
+        key = hashlib.sha256(path.encode()).hexdigest()
+        kb = required(session, KnowledgeBase, kb_id, lock=True)
+        if kb.status != "active":
+            raise ManagementError("RESOURCE_DISABLED")
+        doc = session.scalar(select(Document).where(Document.knowledge_base_id == kb_id,
+                             Document.source_key == key).with_for_update())
+        if doc is None:
+            doc = Document(knowledge_base_id=kb_id, source_key=key, source_path=path, title=Path(path).stem,
+                           category=Path(path).parts[0] if len(Path(path).parts) > 1 else "uncategorized")
+            session.add(doc)
+            session.flush()
+        self.active(session, doc)
+        version = session.scalar(select(DocumentVersion).where(DocumentVersion.document_id == doc.id,
+                                  DocumentVersion.source_sha256 == sha))
+        reused = version is not None
+        if version is None:
+            version = DocumentVersion(document_id=doc.id, source_sha256=sha, original_filename=Path(path).name,
+                format=Path(path).suffix.lower()[1:], file_size=raw.stat().st_size, storage_uri=raw.as_posix())
+            session.add(version)
+            session.flush()
+        return {"document_id": doc.id, "version_id": version.id, "source_sha256": sha,
+                "reused": reused, "active_build_id": doc.active_build_id}
+
+    def register_and_submit(self, kb_id, raw_root, source_path, **options):
+        """Commit source registration and durable task creation together; files stay immutable."""
+        config = processing_config(**options)
+        prepared = self._prepare_registration(raw_root, source_path)
+        with self.sessions.begin() as session:
+            registration = self._register(session, kb_id, *prepared)
+            task = self._submit(session, registration["version_id"], config)
+            reused_version = registration.pop("reused")
+            return {**registration, "reused_version": reused_version,
+                    "task_id": task["task_id"], "status": task["status"], "build_id": task["build_id"],
+                    "reused_task": task["reused"]}
 
     def submit(self, version_id, **options):
         config = processing_config(**options)
-        identity = fingerprint(config)
         with self.sessions.begin() as session:
-            version = required(session, DocumentVersion, version_id, lock=True)
-            self.active(session, required(session, Document, version.document_id))
-            task = session.scalar(select(ProcessingTask).where(ProcessingTask.document_version_id == version.id,
-                                   ProcessingTask.config_sha256 == identity))
-            reused = task is not None
-            if task is None:
-                task = ProcessingTask(document_version_id=version.id, config_json=config, config_sha256=identity,
-                                      scheduled_at=self.now(session))
-                session.add(task)
-                session.flush()
-            return {"task_id": task.id, "status": task.status, "build_id": task.build_id, "reused": reused}
+            return self._submit(session, version_id, config)
+
+    def _submit(self, session, version_id, config):
+        identity = fingerprint(config)
+        version = required(session, DocumentVersion, version_id, lock=True)
+        self.active(session, required(session, Document, version.document_id))
+        task = session.scalar(select(ProcessingTask).where(ProcessingTask.document_version_id == version.id,
+                               ProcessingTask.config_sha256 == identity))
+        reused = task is not None
+        if task is None:
+            task = ProcessingTask(document_version_id=version.id, config_json=config, config_sha256=identity,
+                                  scheduled_at=self.now(session))
+            session.add(task)
+            session.flush()
+        return {"task_id": task.id, "status": task.status, "build_id": task.build_id, "reused": reused}
 
     @staticmethod
     def public_task(task):

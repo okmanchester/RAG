@@ -117,7 +117,8 @@ class ManagedCorpus:
                 if kb != "active":
                     raise ManagementError("RESOURCE_DISABLED")
                 rows = connection.execute(select(Chunk.__table__, DocumentVersion.source_sha256,
-                    DocumentVersion.document_id)
+                    DocumentVersion.document_id, DocumentVersion.id.label("version_id"), Document.source_path,
+                    Document.title)
                     .join(DocumentBuild, Chunk.build_id == DocumentBuild.id)
                     .join(DocumentVersion, DocumentBuild.document_version_id == DocumentVersion.id)
                     .join(Document, DocumentVersion.document_id == Document.id)
@@ -137,6 +138,8 @@ class ManagedCorpus:
                     result.append({**context(row["payload_json"], row["source_sha256"],
                                             identifier=f"mysql:{row['id']}"),
                         "mysql_chunk_id": row["id"], "document_id": row["document_id"], "build_id": row["build_id"],
+                        "version_id": row["version_id"], "source_path": row["source_path"], "title": row["title"],
+                        "heading_path": row["payload_json"].get("heading_path", []),
                         "legacy_chunk_id": row["legacy_chunk_id"], "score": hit["_score"],
                         "ranks": hit.get("ranks", {})})
                 return result

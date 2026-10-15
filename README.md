@@ -6,6 +6,20 @@
 
 原文件可通过 `document register` 注册、`document process` 提交持久化任务，由 `worker run` 串行处理。支持任务查询、失败重试及中断恢复；生成 build 后仍需显式启用，随后由常驻 worker 自动同步索引。版本启用/回退、批量启用和文档/知识库启停与归档均自动排队，支持合并、重试、暂停与恢复。升级、运行和一致性规则见 [自动索引同步](docs/auto_index_sync.md)，处理命令和配置身份见 [处理任务说明](docs/processing_tasks.md)。
 
+HTTP API 已覆盖文档上传/版本/启停、处理与索引任务查询及失败重试、带来源引用和同步滞后状态的检索。上传自动排队处理，完成后仍需显式启用 build。接口字段、错误码和完整调用流程见 [API 契约](docs/http_api_contract.md)。
+
+```powershell
+conda activate rag
+python -m pip install -r requirements-api.txt
+python -m rag.manage db check
+# 终端一：仅监听 127.0.0.1:8000，无鉴权；/docs 查看接口，/openapi.json 获取定义。
+python -m rag.api
+# 终端二：保持独立 worker 常驻，处理文档并自动同步索引。
+python -m rag.manage worker run
+```
+
+Vite 等本机页面需要直接跨源调用时，启动 API 前设置 `RAG_API_BROWSER_ORIGINS=http://localhost:5173`（多个 Origin 以逗号分隔）。API 校验 loopback Host 和浏览器 Origin；无来源头的 CLI 调用保持可用。上传/提交处理要求 API 进程也能读取当前配置的 tokenizer 与 MinerU 模型目录。本轮管理源码变动会改变处理任务身份，升级前提交的未完成任务需按契约重新提交。
+
 模型已准备完成时，解析设为 `local`，缺失模型明确报错。关闭远程 VLM、LLM 标题分级和额外图像描述；启用 DeepSeek-flash 辅助跨页表格单元格判断，密钥从 `DEEPSEEK_API_KEY` 读取。文档、本地推理及 LLM 请求串行执行，不自动降低档位。模型运行需要在模型目录创建临时锁文件。
 
 `llm_aided.features.cross_page_table_cell_merge` 控制 MinerU 原生判断，设为 `false` 可关闭；此项维持原配置。项目适配层现在读取 `continues_prev`，在保留物理片段的同时建立逻辑表。原生 `cell_merge` 作为候选证据，不能直接决定文字拼接。项目后处理默认使用规则，`table_processing.llm_enabled: true` 才启用带表头、父锚点和前后记录的独立边界判断；请求串行、超时 45 秒，失败或冲突保留片段并告警。原生 `enable_thinking: null` 保持供应商默认；项目边界请求显式使用 `thinking: {type: disabled}`。
@@ -15,8 +29,8 @@
 ```powershell
 conda activate rag
 python -m pip install -r requirements.txt
-# 完整回归还需管理与检索依赖；通用评测另装 requirements-benchmark.txt。
-python -m pip install -r requirements-search.txt
+# 完整回归还需 API、管理与检索依赖；通用评测另装 requirements-benchmark.txt。
+python -m pip install -r requirements-api.txt
 
 # 本次验收：只运行代表性样本和自包含扫描页
 python -m rag.smoke
