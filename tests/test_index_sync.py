@@ -56,14 +56,21 @@ class IndexSyncUnitTests(unittest.TestCase):
                 patch("rag.management.worker.print"):
             check = Mock(side_effect=[None, None, None, RuntimeError("stop")])
             processing.return_value.worker_lock.return_value = nullcontext(check)
-            processing.return_value.claim.return_value = {"id": 1}
-            indexing.return_value.claim.return_value = {"knowledge_base_id": 1}
+            processing.return_value.claim.return_value = {"id": 1, "kb_id": 7, "attempt_count": 2}
+            indexing.return_value.claim.return_value = {"knowledge_base_id": 8, "desired_revision": 3, "attempt_count": 4}
             order = []
             processing.return_value.execute.side_effect = lambda *a: order.append("processing") or {"status": "succeeded"}
             indexing.return_value.execute.side_effect = lambda *a: order.append("index") or {"status": "succeeded"}
-            with self.assertRaisesRegex(RuntimeError, "stop"):
-                run_worker(Mock())
+            with patch("rag.management.worker.event") as events:
+                with self.assertRaisesRegex(RuntimeError, "stop"):
+                    run_worker(Mock())
+                completed = [call.kwargs for call in events.call_args_list if call.args[1] == "task_completed"]
             self.assertEqual(order, ["processing", "index", "processing"])
+            self.assertEqual(completed[0]["kb_id"], 7)
+            self.assertEqual(completed[0]["task_id"], 1)
+            self.assertEqual(completed[1]["kb_id"], 8)
+            self.assertEqual(completed[1]["revision"], 3)
+            self.assertNotIn("task_id", completed[1])
 
     def test_processing_only_worker_does_not_claim_index_queue(self):
         with patch("rag.management.worker.ProcessingService") as processing, \

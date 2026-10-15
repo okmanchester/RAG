@@ -2,7 +2,7 @@
 
 实现版本：1.0.0。首版覆盖文档管理、持久化任务状态和检索，默认只监听 `http://127.0.0.1:8000`，不提供鉴权。接口前缀为 `/api/v1`；默认关闭跨域访问，可显式允许指定的本机浏览器 Origin，见下文。
 
-交互说明位于 `/docs`，机器可读定义位于 `/openapi.json`。字段类型、必填性和枚举以运行中同版本 OpenAPI 为准；本文规定调用流程、一致性和错误语义。
+管理页面位于 `/`，静态资源位于 `/assets/`；交互说明位于 `/docs`，机器可读定义位于 `/openapi.json`。页面使用现有 API，无额外前端服务。字段类型、必填性和枚举以运行中同版本 OpenAPI 为准；本文规定调用流程、一致性和错误语义。
 
 ## 1. 安装与运行
 
@@ -25,6 +25,14 @@ python -m rag.manage worker run
 **API 进程的模型前置条件**：上传和显式提交处理会立即运行 `processing_config()`，读取 `config/mineru.yaml`、BGE tokenizer 配置/文件哈希，以及 MinerU 模型目录清单，生成持久化任务身份。因此，API 机器也必须能访问 `D:/WorkSpace/AIModels/BAAI/bge-large-zh-v1.5` 与 `D:/WorkSpace/AIModels/MinerU/models` 等当前配置路径，并与 worker 保持相同的路径、配置、依赖和实现身份。模型/配置缺失时，相应请求返回 `503`，注册与任务不提交。API 不执行 MinerU 推理，但目前不能独立部署成完全不挂载模型的上传节点；管理查询和纯数据库状态查询没有此模型前置条件。dense/hybrid 检索另外需要在 API 进程加载 BGE 权重。
 
 API 启动检查数据库迁移版本，不自动建表或升级；首次部署的迁移步骤见[知识库管理说明](knowledge_base_management.md)。当前不新增数据库迁移，仍为 `0004_index_sync`。ES 和查询模型按需初始化，故障不阻止文档列表和纯数据库任务查询。连接池及检索客户端在进程结束时释放；查询资源在进程内复用，首次初始化和查询编码串行执行。
+
+### 本机运行状态
+
+`GET /api/v1/runtime-status` 只读本机状态文件，不访问 MySQL/ES、不加载模型。返回 `signal`（`unknown/stale/fresh`）、`updated_at`、`supervisor`、`api/worker`、`dependencies` 和 `backup`。受管进程字段为 `state/restart_count/last_exit_code/next_start_at`；依赖仅返回 `state/checked_at`；备份仅返回状态、起止时间、最近成功时间及固定错误码。内部 PID、实例身份、绝对路径和配置不返回。
+
+监督信号每 5 秒更新，超过 15 秒未更新或来自未来时钟为 stale；文件缺失、损坏、身份不匹配为 unknown。未知或过期时进程状态一律 unknown，不能据此判断手动运行的 worker 已停止。身份绑定项目、数据库连接目标及存储根目录。依赖检查每 10 秒执行，单项超时 2 秒；`running` 只表示受管进程存活，不证明任务正在推进。API 自身不可用时，请独立运行 `python -m rag.ops status`。详见[本机运行说明](local_management.md)。
+
+备份元数据独立验证，损坏时只返回 `backup=null`；未知 supervisor 值收敛为 `unknown`，不使有效 api/worker 信号降级。默认 API 在启动时固定运行身份，修改数据库/存储配置后需重启。日志目录不可写不改变业务错误 JSON 或 API 启动结果。
 
 `RAG_API_MAX_UPLOAD_BYTES` 默认 `104857600`（100 MiB），要求为正整数；仅文档上传路由的 multipart 请求使用此值加 `1048576` 字节作为总请求体上限，预留 multipart 开销，文件本身仍受 100 MiB 限制。其它请求使用独立的 `RAG_API_MAX_JSON_BYTES`，默认 `65536`（64 KiB），同样要求为正整数。两类限制既检查 Content-Length，也累计实际接收字节。上传暂存及 multipart 磁盘 spool 位于 `tmp/`，请求完成或失败后清理；发布原文件进入现有不可变存储。
 

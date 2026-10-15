@@ -257,3 +257,33 @@ class SearchResult(PublicModel):
 
 class Health(PublicModel):
     status: Literal["ok"] = "ok"
+
+
+class ProcessStatus(PublicModel):
+    state: Literal["unknown", "running", "stopped", "waiting", "backoff"]
+    restart_count: int = 0
+    last_exit_code: int | None = None
+    next_start_at: datetime | None = None
+
+
+class DependencyStatus(PublicModel):
+    state: Literal["unknown", "available", "unavailable"]
+    checked_at: datetime | None = None
+
+
+class BackupStatus(PublicModel):
+    status: Literal["running", "succeeded", "failed"]
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    last_success_at: datetime | None = None
+    error_code: str | None = None
+
+
+class RuntimeStatus(PublicModel):
+    signal: Literal["unknown", "stale", "fresh"]
+    updated_at: datetime | None = None
+    supervisor: Literal["unknown", "running", "stopped"]
+    api: ProcessStatus
+    worker: ProcessStatus
+    dependencies: dict[str, DependencyStatus]
+    backup: BackupStatus | None = None

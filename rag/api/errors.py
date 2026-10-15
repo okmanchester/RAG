@@ -1,5 +1,4 @@
 """HTTP error mapping and an outer boundary that never logs exception bodies."""
-import logging
 import re
 
 from fastapi.exceptions import RequestValidationError
@@ -8,9 +7,7 @@ from starlette.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
 from rag.management.errors import ManagementError, public_error
-
-logger = logging.getLogger(__name__)
-
+from rag.ops.events import event
 
 class APIError(Exception):
     def __init__(self, status, code, message):
@@ -114,6 +111,6 @@ class SafeBoundary:
             if not started:
                 response = error_response(exc)
                 if response.status_code >= 500:
-                    logger.error("HTTP operation failed: %s", exc.code if isinstance(exc, APIError)
-                                 else public_error(exc)["error_code"])
+                    event("api", "operation_failed", error_code=exc.code if isinstance(exc, APIError)
+                          else public_error(exc)["error_code"])
                 await response(scope, receive, send)

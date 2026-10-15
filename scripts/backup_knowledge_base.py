@@ -18,7 +18,8 @@ sys.path.insert(0, str(ROOT))
 
 from rag.management.config import Settings
 from rag.management.errors import ManagementError, public_error
-from rag.management.storage import file_hash
+from rag.management.storage import file_hash, load_snapshot
+from rag.ops.state import exclusive, identity, state_root
 
 
 def database_name(name):
@@ -43,8 +44,63 @@ def container_sql(env_file, sql, database=None):
     return result.stdout.decode("utf-8").strip()
 
 
+def copy_published(storage_root, destination):
+    """Enumerate only immutable published objects, after the database snapshot completes.
+
+    Never traverse .raw-* / .snapshot-* staging directories: they can disappear
+    while a writer atomically publishes them. Objects committed before the dump
+    snapshot already exist and cannot disappear under the append-only contract.
+    """
+    destination.mkdir()
+    if storage_root.exists():
+        if any(p.name not in ("raw", "snapshots") or p.is_symlink() or not p.is_dir()
+               for p in storage_root.iterdir()):
+            raise ManagementError("BACKUP_LAYOUT")
+    published = {}
+    for kind in ("raw", "snapshots"):
+        folder = storage_root / kind
+        objects = []
+        if folder.exists():
+            for path in folder.iterdir():
+                if re.fullmatch(r"[0-9a-f]{64}", path.name):
+                    if path.is_symlink() or not (path.is_file() if kind == "raw" else path.is_dir()):
+                        raise ManagementError("BACKUP_LAYOUT")
+                    objects.append(path)
+                elif path.name.startswith(".raw-" if kind == "raw" else ".snapshot-"):
+                    continue  # Writer-owned transient entries may disappear at any time.
+                else:
+                    raise ManagementError("BACKUP_LAYOUT")
+        published[kind] = sorted(objects)
+    for kind, objects in published.items():
+        target = destination / kind
+        target.mkdir()
+        for source in objects:
+            if source.is_symlink() or source.resolve().parent != (storage_root / kind).resolve():
+                raise ManagementError("BACKUP_CHECKSUM")
+            if kind == "raw":
+                copied = target / source.name
+                shutil.copyfile(source, copied)
+                if file_hash(copied) != source.name:
+                    raise ManagementError("BACKUP_CHECKSUM")
+            else:
+                if any(p.is_symlink() for p in source.rglob("*")):
+                    raise ManagementError("BACKUP_CHECKSUM")
+                shutil.copytree(source, target / source.name)
+                if load_snapshot(target / source.name).fingerprint != source.name:
+                    raise ManagementError("BACKUP_CHECKSUM")
+
+
+def backup_lock(settings):
+    return exclusive(state_root() / ("backup-" + identity(settings) + ".lock"), "BACKUP_BUSY")
+
+
 def backup(env_file, output: Path):
     settings = Settings.from_env(env_file)
+    with backup_lock(settings):
+        return _backup(settings, env_file, output)
+
+
+def _backup(settings, env_file, output):
     database_name(settings.database)
     output = output.resolve()
     if output.exists():
@@ -52,8 +108,8 @@ def backup(env_file, output: Path):
     if output.is_relative_to(settings.storage_root.resolve()):
         raise ManagementError("BACKUP_INSIDE_STORAGE")
     output.parent.mkdir(parents=True, exist_ok=True)
-    # Caller must pause DB writes/DDL, storage cleanup and manual file mutations.
-    # Published storage is append-only. This contract is not an enforced lock;
+    # Normal application DML can continue. No DDL, cleanup, overwrites or manual
+    # mutation of published files may run during backup. This is not an enforced lock;
     # deletion/GC must join a shared backup coordination protocol before introduction.
     with tempfile.TemporaryDirectory(prefix=".backup-", dir=output.parent) as temporary:
         staged = Path(temporary)
@@ -63,14 +119,12 @@ def backup(env_file, output: Path):
                 stdout=stream, stderr=subprocess.PIPE, cwd=ROOT)
         if result.returncode:
             raise ManagementError("BACKUP_DUMP_FAILED")
-        if settings.storage_root.is_dir():
-            shutil.copytree(settings.storage_root, staged / "storage")
-        else:
-            (staged / "storage").mkdir()
+        copy_published(settings.storage_root, staged / "storage")
         hashes = {p.relative_to(staged).as_posix(): file_hash(p) for p in sorted(staged.rglob("*")) if p.is_file()}
         (staged / "backup.json").write_text(json.dumps({"database": settings.database,
             "storage_root": settings.storage_root.resolve().as_posix(), "files_sha256": hashes,
-            "consistency_contract": {"database_and_storage_mutations": "paused_by_operator",
+            "consistency_contract": {"database_dml": "online_single_transaction_snapshot",
+                                     "ddl_and_destructive_storage_mutations": "prohibited_by_operator",
                                      "published_storage": "append_only_no_overwrite_or_delete",
                                      "coordination_enforced": False,
                                      "storage_may_include_unreferenced_files": True}}, indent=2), encoding="utf-8")

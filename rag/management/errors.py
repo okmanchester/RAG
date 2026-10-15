@@ -6,6 +6,11 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 MESSAGES = {
+    "RUNTIME_BUSY": "another supervisor is running for this runtime",
+    "RUNTIME_NOT_AVAILABLE": "runtime supervision requires Windows and the configured Python environment",
+    "RUNTIME_COMMAND_FAILED": "runtime command failed; inspect runtime status and logs",
+    "BACKUP_BUSY": "another backup is running for this database and storage",
+    "BACKUP_LAYOUT": "storage contains an unknown layout; backup requires an explicit layout update",
     "INDEX_SYNC_LEASE_LOST": "index synchronization lease or lock was lost",
     "INDEX_SYNC_INTERRUPTED": "index synchronization was interrupted and requeued",
     "INDEX_SYNC_SUPERSEDED": "index synchronization target changed or was paused",

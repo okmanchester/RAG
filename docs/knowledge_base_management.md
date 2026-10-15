@@ -121,9 +121,9 @@ CLI 输出 UTF-8 JSON。成功退出码为 0；参数错误由 argparse 返回 2
 
 ## 备份与恢复
 
-备份时暂停管理写入、数据库迁移、存储清理及手工文件修改，确保数据库与本地文件处于同一状态。当前已发布文件只追加、不覆盖、不删除；先 dump 数据库、后复制文件时，文件副本允许包含数据库快照未引用的额外文件。未来引入物理删除或清理前，必须让这些操作与备份使用共同协调机制。
+日常备份无需停止 API、worker 或正常 CLI 业务写入。所有业务表使用 InnoDB，先通过 `--single-transaction` dump，再复制已经原子发布的 `raw/<sha256>` 和 `snapshots/<fingerprint>/`。文件先于数据库引用发布、已发布文件不覆盖不删除，所以快照内引用均已存在；复制时允许包含数据库未引用的额外文件。`.raw-*`、`.snapshot-*` 等暂存目录不进入备份。
 
-`backup.json.consistency_contract` 记录这些约定，并明确 `coordination_enforced=false`：脚本没有自动获得维护锁，也没有通过 storage epoch 声称可以约束外部修改。脚本使用二进制流保存 SQL，避免 Windows PowerShell 重定向改变编码；备份包含数据库、完整本地存储副本和逐文件 SHA256，不包含密码文件。
+备份期间禁止数据库 DDL、存储清理、覆盖及手工修改已发布文件。`backup.json.consistency_contract` 记录 `database_dml=online_single_transaction_snapshot`，并保留 `coordination_enforced=false`：备份互斥锁只阻止同库、同存储的并行备份，不能约束外部破坏性操作；未来引入物理删除或 GC 前必须建立共享协调协议。脚本以二进制流保存 SQL，校验内容地址及快照声明哈希，生成逐文件 SHA256；不包含密码文件或可重建 ES 索引。旧格式备份仍可恢复。
 
 ```powershell
 python scripts/backup_knowledge_base.py backup --output tmp/mysql_backup_20261013

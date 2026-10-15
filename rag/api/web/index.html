@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="本机知识库文档管理与检索" />
+    <title>知识库 · 文档管理</title>
+    <link rel="stylesheet" href="/assets/style.css" />
+    <script src="/assets/app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <span class="mark">知</span>
+        <div><strong>本地知识库</strong><small>文档管理与检索</small></div>
+      </div>
+      <label
+        >当前知识库
+        <select id="kb" aria-label="当前知识库"></select
+      ></label>
+      <button id="refresh" class="secondary">刷新状态</button
+      ><a href="/docs" target="_blank" rel="noreferrer">API 文档 ↗</a>
+    </header>
+    <main>
+      <div id="connection" role="alert" hidden></div>
+      <section class="overview" aria-label="运行概况">
+        <div>
+          <span class="eyebrow">运行状态</span>
+          <div id="runtime">正在连接…</div>
+        </div>
+        <div>
+          <span class="eyebrow">检索索引</span>
+          <div id="index">等待选择知识库</div>
+        </div>
+        <div>
+          <span class="eyebrow">最近备份</span>
+          <div id="backup">尚无记录</div>
+        </div>
+      </section>
+      <nav aria-label="工作区">
+        <button data-tab="documents" aria-selected="true">文档与版本</button
+        ><button data-tab="tasks" aria-selected="false">处理任务</button
+        ><button data-tab="search" aria-selected="false">检索文档</button>
+      </nav>
+      <section id="documents" class="workspace">
+        <div class="panel upload">
+          <div>
+            <h1>上传文档</h1>
+            <p>处理完成后，启用一个版本，等待索引同步即可检索。</p>
+          </div>
+          <form id="upload-form">
+            <label
+              >逻辑路径<input
+                id="source-path"
+                required
+                maxlength="1024"
+                placeholder="例如 policy/数据安全法.docx"
+            /></label>
+            <label
+              >选择文件<input
+                id="file"
+                type="file"
+                accept=".pdf,.docx"
+                required /></label
+            ><button id="upload-button">上传并处理</button>
+          </form>
+          <progress id="upload-progress" max="100" value="0" hidden></progress>
+          <div id="upload-result" role="status" aria-live="polite"></div>
+        </div>
+        <div class="columns">
+          <section class="panel">
+            <div class="section-head">
+              <h2>文档</h2>
+              <label
+                >状态
+                <select id="document-filter">
+                  <option value="">全部</option>
+                  <option value="active">启用</option>
+                  <option value="disabled">停用</option>
+                  <option value="archived">归档</option>
+                </select></label
+              >
+            </div>
+            <div id="document-list"></div>
+          </section>
+          <section class="panel" id="document-detail">
+            <h2>版本详情</h2>
+            <p class="empty">选择文档查看原文件版本和处理结果。</p>
+          </section>
+        </div>
+      </section>
+      <section id="tasks" class="workspace" hidden>
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <h1>处理任务</h1>
+              <p>阶段、尝试历史与失败恢复</p>
+            </div>
+            <label
+              >状态
+              <select id="task-filter">
+                <option value="">全部</option>
+                <option value="pending">排队</option>
+                <option value="running">处理中</option>
+                <option value="succeeded">完成</option>
+                <option value="failed">失败</option>
+              </select></label
+            >
+          </div>
+          <div id="task-list"></div>
+        </section>
+        <section class="panel" id="task-detail" hidden></section>
+      </section>
+      <section id="search" class="workspace" hidden>
+        <section class="panel">
+          <h1>检索文档</h1>
+          <p>查找当前启用版本中的原文证据。</p>
+          <form id="search-form">
+            <label class="grow"
+              >检索内容<textarea
+                id="query"
+                rows="3"
+                required
+                placeholder="输入问题或关键词"
+              ></textarea>
+            </label>
+            <div class="search-options">
+              <label
+                >检索模式<select id="mode">
+                  <option value="">默认模式</option>
+                  <option value="bm25">BM25</option>
+                  <option value="dense">Dense</option>
+                  <option value="hybrid">Hybrid</option>
+                </select></label
+              ><label
+                >结果数量<input
+                  id="top-k"
+                  type="number"
+                  value="10"
+                  min="1"
+                  max="50"
+                  required /></label
+              ><button id="search-button">检索</button>
+            </div>
+          </form>
+        </section>
+        <div id="search-results" aria-live="polite"></div>
+      </section>
+      <footer>仅供本机使用 · PDF 页码从 1 开始，DOCX 显示内容位置</footer>
+    </main>
+  </body>
+</html>

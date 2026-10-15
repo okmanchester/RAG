@@ -8,6 +8,15 @@
 
 HTTP API 已覆盖文档上传/版本/启停、处理与索引任务查询及失败重试、带来源引用和同步滞后状态的检索。上传自动排队处理，完成后仍需显式启用 build。接口字段、错误码和完整调用流程见 [API 契约](docs/http_api_contract.md)。
 
+本机管理页面位于 **http://127.0.0.1:8000/**，无需前端构建，支持上传、版本切换、任务恢复及来源检索。Windows 登录启动、进程监督、在线备份和状态查询见 [本机运行说明](docs/local_management.md)。已安装监督任务时，不要再手动启动第二份 API/worker。
+
+```powershell
+conda activate rag
+python -m rag.ops install  # 注册当前用户登录启动、周期恢复和每日备份
+python -m rag.ops start
+python -m rag.ops status
+```
+
 ```powershell
 conda activate rag
 python -m pip install -r requirements-api.txt

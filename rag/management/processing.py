@@ -291,7 +291,9 @@ class ProcessingService:
             session.add(ProcessingAttempt(task_id=task.id, ordinal=task.attempt_count,
                         execution_token=task.execution_token, started_at=now))
             session.flush()
-            return record(task)
+            kb_id = session.scalar(select(Document.knowledge_base_id).join(DocumentVersion,
+                DocumentVersion.document_id == Document.id).where(DocumentVersion.id == task.document_version_id))
+            return {**record(task), "kb_id": kb_id}
 
     def owned(self, session, task_id, token):
         task = required(session, ProcessingTask, task_id, lock=True)

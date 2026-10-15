@@ -1,0 +1,3 @@
+-r requirements-api.txt
+# Browser acceptance only; uses installed Chrome, no runtime UI dependency.
+playwright==1.58.0

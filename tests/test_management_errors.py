@@ -2,6 +2,7 @@
 import contextlib
 import io
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -78,20 +79,25 @@ class ErrorBoundaryTests(unittest.TestCase):
             root = Path(temporary)
             settings = Settings("localhost", 3306, "test", "test", "not-real", root / "storage")
             settings.storage_root.mkdir()
-            (settings.storage_root / "asset").write_bytes(b"preserved")
+            import hashlib
+            digest=hashlib.sha256(b"preserved").hexdigest()
+            (settings.storage_root / "raw").mkdir()
+            (settings.storage_root / "raw" / digest).write_bytes(b"preserved")
 
             def dump(_arguments, *, stdout, **_kwargs):
                 stdout.write(b"-- SQL fixture")
                 return type("Result", (), {"returncode": 0})()
 
-            with patch("scripts.backup_knowledge_base.Settings.from_env", return_value=settings), \
+            with patch.dict(os.environ, {"RAG_RUNTIME_ROOT": str(root / "runtime")}), \
+                    patch("scripts.backup_knowledge_base.Settings.from_env", return_value=settings), \
                     patch("scripts.backup_knowledge_base.subprocess.run", side_effect=dump):
                 backup(root / "unused.env", root / "backup")
             contract = json.loads((root / "backup/backup.json").read_text())["consistency_contract"]
             self.assertFalse(contract["coordination_enforced"])
             self.assertEqual(contract["published_storage"], "append_only_no_overwrite_or_delete")
-            self.assertEqual(contract["database_and_storage_mutations"], "paused_by_operator")
-            self.assertEqual((root / "backup/storage/asset").read_bytes(), b"preserved")
+            self.assertEqual(contract["database_dml"], "online_single_transaction_snapshot")
+            self.assertEqual(contract["ddl_and_destructive_storage_mutations"], "prohibited_by_operator")
+            self.assertEqual((root / "backup/storage/raw" / digest).read_bytes(), b"preserved")
 
     def test_invalid_resources_and_pages_fail_before_database_access(self):
         from rag.management.service import ManagementService

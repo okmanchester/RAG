@@ -84,6 +84,18 @@ class HTTPAPITests(unittest.TestCase):
         self.factory.assert_not_called()
         self.management.db_upgrade.assert_not_called()
 
+    def test_management_page_assets_and_unknown_runtime_need_no_model(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("本地知识库", response.text)
+        self.assertEqual(self.client.get("/assets/app.js").status_code, 200)
+        with patch("rag.ops.state.state_root", return_value=self.root):
+            status = self.client.get("/api/v1/runtime-status")
+        self.assertEqual(status.status_code, 200)
+        self.assertEqual(status.json()["worker"]["state"], "unknown")
+        self.factory.assert_not_called()
+        self.assertEqual(self.client.get("/assets/../app.py").status_code, 404)
+
     def test_upload_stages_under_tmp_uses_logical_path_and_cleans_up(self):
         def register(kb_id, raw_root, path):
             self.assertEqual(kb_id, 1)
@@ -257,7 +269,7 @@ class HTTPAPITests(unittest.TestCase):
                  (ManagementError("SEARCH_UNAVAILABLE"), 503),
                  (OperationalError("secret-value SELECT", {}, Exception("secret-value")), 503),
                  (ValueError("secret-value D:/private raw payload"), 500)]
-        with patch("rag.api.errors.logger") as log:
+        with patch("rag.api.errors.event") as log:
             for exc, status in cases:
                 self.management.show.side_effect = exc
                 response = self.client.get("/api/v1/documents/1")
@@ -269,7 +281,7 @@ class HTTPAPITests(unittest.TestCase):
 
     def test_response_validation_errors_are_contained_without_tracebacks(self):
         self.search.query.return_value = {"raw": "secret-value"}
-        with patch("rag.api.errors.logger") as log:
+        with patch("rag.api.errors.event") as log:
             response = self.client.post("/api/v1/knowledge-bases/1/search", json={"query": "正文"})
         self.assertEqual(response.status_code, 500, response.text)
         self.assertNotIn("secret-value", response.text)
@@ -286,7 +298,7 @@ class HTTPAPITests(unittest.TestCase):
                 for status in ("400", "403", "404", "409", "413", "415", "422", "500", "503"):
                     schema = operation["responses"][status]["content"]["application/json"]["schema"]
                     self.assertEqual(schema, {"$ref": "#/components/schemas/Error"})
-        self.assertEqual(count, 15)
+        self.assertEqual(count, 16)
         upload = spec["paths"]["/api/v1/knowledge-bases/{kb_id}/documents"]["post"]
         self.assertIn("multipart/form-data", upload["requestBody"]["content"])
         self.assertIn("200", upload["responses"])
@@ -314,6 +326,8 @@ class HTTPAPITests(unittest.TestCase):
         previous = tempfile.tempdir
         with patch("rag.api.app.Settings.from_env") as settings:
             config = settings.return_value
+            config.host, config.port, config.database = "127.0.0.1", 3306, "fixture"
+            config.storage_root = self.root / "storage"
             management = Mock()
             with patch("rag.api.app.ManagementService", return_value=management):
                 with TestClient(create_app(tmp_root=self.root), base_url="http://127.0.0.1:8000") as client:
@@ -379,7 +393,7 @@ class HTTPAPITests(unittest.TestCase):
             self.assertEqual(response.headers["access-control-allow-origin"], headers["origin"])
             self.assertEqual(response.headers["access-control-expose-headers"], "Location")
             self.search.query.side_effect = ValueError("secret-value")
-            with patch("rag.api.errors.logger"):
+            with patch("rag.api.errors.event"):
                 failure = client.post("/api/v1/knowledge-bases/1/search", json={"query": "正文"}, headers=headers)
             self.assertEqual(failure.status_code, 500)
             self.assertEqual(failure.headers["access-control-allow-origin"], headers["origin"])

@@ -8,6 +8,9 @@ def main():
     try:
         import uvicorn
         from .app import create_app
+        from rag.ops.events import event, start_logging
+        start_logging("api")
+        event("api", "starting")
         # Keep search text and rejected inputs out of the HTTP access log.
         uvicorn.run(create_app(), host="127.0.0.1", port=8000, workers=1, access_log=False)
         return 0

@@ -322,7 +322,8 @@ class ProcessingMySQLTests(unittest.TestCase):
 
     def test_cli_register_process_query_and_retry_exit_codes(self):
         def cli(arguments):
-            env = {**os.environ, "MYSQL_DATABASE": self.database, "RAG_STORAGE_ROOT": str(self.management.storage_root)}
+            env = {**os.environ, "MYSQL_DATABASE": self.database, "RAG_STORAGE_ROOT": str(self.management.storage_root),
+                   "RAG_RUNTIME_ROOT": str(self.root / "runtime")}
             result = subprocess.run([sys.executable, "-m", "rag.manage", *arguments], env=env, cwd=ROOT,
                                     capture_output=True, text=True, encoding="utf-8", timeout=30)
             return result.returncode, json.loads(result.stdout or result.stderr)
@@ -442,7 +443,8 @@ time.sleep(120)
         indexing.control(self.kb, "pause")
         target = "rag_test_processing_" + uuid.uuid4().hex[:12]
         try:
-            with patch.dict(os.environ, {"MYSQL_DATABASE": self.database, "RAG_STORAGE_ROOT": str(self.management.storage_root)}):
+            with patch.dict(os.environ, {"MYSQL_DATABASE": self.database, "RAG_STORAGE_ROOT": str(self.management.storage_root),
+                                        "RAG_RUNTIME_ROOT": str(self.root / "runtime")}):
                 backup(self.env_file, self.root / "backup")
                 restore(self.env_file, self.root / "backup", target, self.root / "restore")
             engine = replace(Settings.from_env(self.env_file), database=target).engine()

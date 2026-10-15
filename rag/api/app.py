@@ -8,6 +8,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, FastAPI, File, Form, Query, Request, Response, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.routing import APIRoute
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException
 
 from rag.management.config import ROOT, Settings
@@ -84,6 +86,7 @@ def create_app(*, runtime=None, max_upload_bytes=None, max_json_bytes=None, allo
             with tempfile.TemporaryDirectory(prefix="http-spool-", dir=temporary_root) as spool:
                 tempfile.tempdir = spool
                 try:
+                    app.state.runtime_identity = None
                     if runtime is None:
                         settings = Settings.from_env()
                         owned_engine = settings.engine()
@@ -91,6 +94,9 @@ def create_app(*, runtime=None, max_upload_bytes=None, max_json_bytes=None, allo
                     else:
                         active = runtime
                     active.management.db_check()
+                    if owned_engine is not None:
+                        from rag.ops.state import identity
+                        app.state.runtime_identity = identity(settings)
                     app.state.runtime = active
                     yield
                 finally:
@@ -124,6 +130,17 @@ def create_app(*, runtime=None, max_upload_bytes=None, max_json_bytes=None, allo
     def health():
         """Process liveness only; does not assert MySQL/ES/model availability."""
         return {"status": "ok"}
+
+    @app.get("/", include_in_schema=False)
+    def management_page():
+        return FileResponse(Path(__file__).with_name("web") / "index.html", headers={"Cache-Control": "no-cache"})
+
+    app.mount("/assets", StaticFiles(directory=Path(__file__).with_name("web")), name="assets")
+
+    @router.get("/runtime-status", response_model=s.RuntimeStatus, tags=["health"])
+    def local_runtime_status():
+        from rag.ops.state import runtime_status
+        return runtime_status(expected_identity=app.state.runtime_identity)
 
     @router.get("/knowledge-bases", response_model=s.Page[s.KnowledgeBase], tags=["documents"])
     def knowledge_bases(services: Services, status: s.ManagementStatus | None = None,

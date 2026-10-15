@@ -194,6 +194,9 @@ def main(argv=None):
     args = parser().parse_args(argv)
     engine = None
     try:
+        if args.group == "worker":
+            from .ops.events import start_logging
+            start_logging("worker")
         if args.group == "db" and args.action == "ddl":
             from alembic import command
             command.upgrade(migration_config(), "head", sql=True)
