@@ -114,6 +114,7 @@ def runtime_status(settings=None, *, root=None, timestamp=None, expected_identit
             return unknown_status(signal="stale", updated_at=updated.isoformat())
         supervisor = value.get("supervisor")
         result.update(signal="fresh", updated_at=updated.isoformat(),
+                      mode="demo" if value.get("mode") == "demo" else "supervised",
                       supervisor=supervisor if supervisor in ("running", "stopped") else "unknown")
         for component in ("api", "worker"):
             item = value.get(component)
@@ -139,6 +140,10 @@ def runtime_status(settings=None, *, root=None, timestamp=None, expected_identit
                 result["dependencies"][name] = {"state": "unknown", "checked_at": None}
     except (OSError, ValueError, TypeError, KeyError, AttributeError, OverflowError):
         return unknown_status()
+
+    # Demo never schedules backups; historical supervised backups are a different mode.
+    if result["mode"] == "demo":
+        return RuntimeStatus.model_validate(result).model_dump(mode="json")
 
     # Independent signal: malformed backup metadata must not discard valid liveness.
     try:

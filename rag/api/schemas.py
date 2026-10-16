@@ -281,6 +281,7 @@ class BackupStatus(PublicModel):
 
 class RuntimeStatus(PublicModel):
     signal: Literal["unknown", "stale", "fresh"]
+    mode: Literal["demo", "supervised"] | None = None
     updated_at: datetime | None = None
     supervisor: Literal["unknown", "running", "stopped"]
     api: ProcessStatus

@@ -17,7 +17,14 @@ if ($Action -eq 'Start') {
     exit 0
 }
 if ($Action -eq 'Disable') {
-    Disable-ScheduledTask -TaskName ($taskPrefix + 'Supervisor') | Out-Null
+    # A successful enumeration distinguishes an absent task from access/service
+    # failures. Only absence is a no-op; actual disable errors must propagate.
+    $supervisorTask = Get-ScheduledTask -ErrorAction Stop | Where-Object {
+        $_.TaskPath -eq '\' -and $_.TaskName -eq ($taskPrefix + 'Supervisor')
+    }
+    if ($null -ne $supervisorTask) {
+        $supervisorTask | Disable-ScheduledTask -ErrorAction Stop | Out-Null
+    }
     exit 0
 }
 $account = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name

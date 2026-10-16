@@ -270,7 +270,7 @@ function renderRuntime(value) {
     box.append(
       node(
         "span",
-        `API ${names[value.api.state]} · worker ${names[value.worker.state]}`,
+        `${value.mode === "demo" ? "演示模式 · " : ""}API ${names[value.api.state]} · worker ${names[value.worker.state]}`,
       ),
     );
     for (const [name, item] of Object.entries(value.dependencies)) {
@@ -280,7 +280,9 @@ function renderRuntime(value) {
   }
   const backup = value.backup;
   $("backup").replaceChildren(
-    backup
+    value.mode === "demo"
+      ? node("span", "演示模式不自动备份")
+      : backup
       ? node(
           "span",
           `${backup.status === "running" ? "备份中" : backup.status === "failed" ? "最近备份失败" : "备份成功"} · 上次成功 ${date(backup.last_success_at)}`,
@@ -670,6 +672,7 @@ async function refresh() {
         "runtime",
         [
           rt.signal,
+          rt.mode,
           rt.supervisor,
           rt.api.state,
           rt.worker.state,

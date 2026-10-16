@@ -1,33 +1,39 @@
-# MinerU 结构化解析与切块
+# 本地知识库 Demo
 
 已增加 MySQL 知识库管理层：Docker 部署、Alembic 迁移、管理 CLI、已有语料导入及显式版本切换。导入结果按文档持久化，支持分页查询和统一错误码。部署、命令、核心表结构和备份恢复见 [知识库管理说明](docs/knowledge_base_management.md)，可审阅 DDL 见 [MySQL 表结构](docs/schema/mysql.sql)。当前知识库可显式同步到 Elasticsearch，再通过 `python -m rag.manage search` 检索；启停和当前版本以 MySQL 为准。部署、同步、回滚及离线混合检索对照见 [管理检索说明](docs/managed_search.md)。原 JSONL/NumPy release 检索入口继续用于独立评测和迁移基线。
 
 在 `conda rag` 中使用 MinerU 4.0.10 本地解析 PDF/DOCX，再生成可直接 embedding 的结构切块。PDF 使用 Standard、自动 OCR；DOCX 使用 Flash 原生解析。Torch 小模型与 llama.cpp 模型位置由 [AGENTS.md](AGENTS.md) 指定，项目配置在 `config/mineru.yaml`。
 
-原文件可通过 `document register` 注册、`document process` 提交持久化任务，由 `worker run` 串行处理。支持任务查询、失败重试及中断恢复；生成 build 后仍需显式启用，随后由常驻 worker 自动同步索引。版本启用/回退、批量启用和文档/知识库启停与归档均自动排队，支持合并、重试、暂停与恢复。升级、运行和一致性规则见 [自动索引同步](docs/auto_index_sync.md)，处理命令和配置身份见 [处理任务说明](docs/processing_tasks.md)。
+原文件可通过 `document register` 注册、`document process` 提交持久化任务，由 `worker run` 串行处理。支持任务查询、失败重试及中断恢复；生成 build 后仍需显式启用，worker 运行期间自动同步索引。版本启用/回退、批量启用和文档/知识库启停与归档均自动排队，支持合并、重试、暂停与恢复。升级、运行和一致性规则见 [自动索引同步](docs/auto_index_sync.md)，处理命令和配置身份见 [处理任务说明](docs/processing_tasks.md)。
 
 HTTP API 已覆盖文档上传/版本/启停、处理与索引任务查询及失败重试、带来源引用和同步滞后状态的检索。上传自动排队处理，完成后仍需显式启用 build。接口字段、错误码和完整调用流程见 [API 契约](docs/http_api_contract.md)。
 
-本机管理页面位于 **http://127.0.0.1:8000/**，无需前端构建，支持上传、版本切换、任务恢复及来源检索。Windows 登录启动、进程监督、在线备份和状态查询见 [本机运行说明](docs/local_management.md)。已安装监督任务时，不要再手动启动第二份 API/worker。
+默认按轻量 demo 使用：保留完整管理页面、上传、版本切换、任务恢复及来源检索，**MySQL 和 Elasticsearch 手动启动**。`python -m rag.demo` 只启动一份 API 和 worker，不启动 Docker、不注册计划任务、不自动重启或备份；Ctrl+C 停止两个进程。页面位于 **http://127.0.0.1:8000/**，无需前端构建。依赖准备、手动停容器及可选的部署能力见 [本机运行说明](docs/local_management.md)。
 
 ```powershell
 conda activate rag
-python -m rag.ops install  # 注册当前用户登录启动、周期恢复和每日备份
-python -m rag.ops start
+python -m pip install -r requirements.txt -r requirements-api.txt  # 首次
+# 先手动启动 MySQL/ES；缺少依赖或迁移未完成时明确退出，不会自动部署。
+python -m rag.demo
+# 退出：当前终端 Ctrl+C，或另一个终端 python -m rag.demo --stop
+```
+
+```powershell
+# 只读状态；demo 的页面会标注「演示模式不自动备份」。
 python -m rag.ops status
 ```
 
 ```powershell
-conda activate rag
-python -m pip install -r requirements-api.txt
+# 可选：双终端拆分运行，仅在 demo 和监督进程均未运行时使用。
+# 依赖仍需手动启动；这种方式不会向页面提供 launcher 的进程状态。
 python -m rag.manage db check
 # 终端一：仅监听 127.0.0.1:8000，无鉴权；/docs 查看接口，/openapi.json 获取定义。
 python -m rag.api
-# 终端二：保持独立 worker 常驻，处理文档并自动同步索引。
+# 终端二：worker 处理文档并自动同步索引；退出时两个终端分别 Ctrl+C。
 python -m rag.manage worker run
 ```
 
-Vite 等本机页面需要直接跨源调用时，启动 API 前设置 `RAG_API_BROWSER_ORIGINS=http://localhost:5173`（多个 Origin 以逗号分隔）。API 校验 loopback Host 和浏览器 Origin；无来源头的 CLI 调用保持可用。上传/提交处理要求 API 进程也能读取当前配置的 tokenizer 与 MinerU 模型目录。本轮管理源码变动会改变处理任务身份，升级前提交的未完成任务需按契约重新提交。
+Vite 等本机页面需要直接跨源调用时，启动 API 前设置 `RAG_API_BROWSER_ORIGINS=http://localhost:5173`（多个 Origin 以逗号分隔）。API 校验 loopback Host 和浏览器 Origin；无来源头的 CLI 调用保持可用。上传/提交处理要求 API 进程也能读取当前配置的 tokenizer 与 MinerU 模型目录。处理实现或配置身份变化后，升级前提交的未完成任务需按契约重新提交。
 
 模型已准备完成时，解析设为 `local`，缺失模型明确报错。关闭远程 VLM、LLM 标题分级和额外图像描述；启用 DeepSeek-flash 辅助跨页表格单元格判断，密钥从 `DEEPSEEK_API_KEY` 读取。文档、本地推理及 LLM 请求串行执行，不自动降低档位。模型运行需要在模型目录创建临时锁文件。
 

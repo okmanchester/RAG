@@ -13,6 +13,11 @@
 python -m pip install -r requirements.txt -r requirements-api.txt
 python -m rag.manage db check
 
+# 默认：MySQL/ES 手动启动，demo 只拉起 API 和 worker；Ctrl+C 停止。
+python -m rag.demo
+
+# 可选：拆分运行，不能与 demo 或监督进程同时使用。
+
 # 终端一：HTTP 服务，固定 loopback、8000 端口、单进程。
 python -m rag.api
 
@@ -28,9 +33,9 @@ API 启动检查数据库迁移版本，不自动建表或升级；首次部署�
 
 ### 本机运行状态
 
-`GET /api/v1/runtime-status` 只读本机状态文件，不访问 MySQL/ES、不加载模型。返回 `signal`（`unknown/stale/fresh`）、`updated_at`、`supervisor`、`api/worker`、`dependencies` 和 `backup`。受管进程字段为 `state/restart_count/last_exit_code/next_start_at`；依赖仅返回 `state/checked_at`；备份仅返回状态、起止时间、最近成功时间及固定错误码。内部 PID、实例身份、绝对路径和配置不返回。
+`GET /api/v1/runtime-status` 只读本机状态文件，不访问 MySQL/ES、不加载模型。返回 `signal`（`unknown/stale/fresh`）、`mode`（`demo/supervised`，信号未知或过期时为 null）、`updated_at`、`supervisor`、`api/worker`、`dependencies` 和 `backup`。`supervisor` 字段兼容表示 launcher 是否存活，不表示一定启用自动恢复。受管进程字段为 `state/restart_count/last_exit_code/next_start_at`；依赖仅返回 `state/checked_at`；备份仅返回状态、起止时间、最近成功时间及固定错误码。demo 不自动备份，`backup` 固定为 null，不混入历史部署模式的备份记录。内部 PID、实例身份、绝对路径和配置不返回。
 
-监督信号每 5 秒更新，超过 15 秒未更新或来自未来时钟为 stale；文件缺失、损坏、身份不匹配为 unknown。未知或过期时进程状态一律 unknown，不能据此判断手动运行的 worker 已停止。身份绑定项目、数据库连接目标及存储根目录。依赖检查每 10 秒执行，单项超时 2 秒；`running` 只表示受管进程存活，不证明任务正在推进。API 自身不可用时，请独立运行 `python -m rag.ops status`。详见[本机运行说明](local_management.md)。
+运行信号每 5 秒更新，超过 15 秒未更新或来自未来时钟为 stale；文件缺失、损坏、身份不匹配为 unknown。未知或过期时进程状态一律 unknown，不能据此判断手动运行的 worker 已停止。身份绑定项目、数据库连接目标及存储根目录。demo 的依赖状态是启动检查快照；可选部署模式每 10 秒探测依赖。`running` 只表示受管进程存活，不证明任务正在推进。API 自身不可用时，请独立运行 `python -m rag.ops status`。详见[本机运行说明](local_management.md)。
 
 备份元数据独立验证，损坏时只返回 `backup=null`；未知 supervisor 值收敛为 `unknown`，不使有效 api/worker 信号降级。默认 API 在启动时固定运行身份，修改数据库/存储配置后需重启。日志目录不可写不改变业务错误 JSON 或 API 启动结果。
 
